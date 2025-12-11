@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE configuration
+
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    
+
+    <environments default="desarrollo">
+
+        
+        <environment id="desarrollo">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED" >
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/PacketWorld?serverTimezone=UTC"/>   
+                <property name="username" value="root"/>    
+                <property name="password" value="arely"/>
+                <property name="poolMaximumActiveConnections" value="50"/>
+            </dataSource>
+        </environment>
+        
+
+    </environments>
+
+    <mappers> 
+        
+        
+        
+
+    </mappers>
+
+</configuration>
