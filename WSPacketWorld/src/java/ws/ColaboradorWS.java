@@ -36,6 +36,8 @@ public class ColaboradorWS {
     }
     
     
+    
+    
     @Path("buscar/{filtro}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

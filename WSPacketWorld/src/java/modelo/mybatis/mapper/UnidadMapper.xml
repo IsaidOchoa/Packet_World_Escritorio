@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="unidad">
+
+    <select id="obtenerUnidades" resultType="pojo.Unidad">
+        SELECT 
+            u.idUnidad,
+            u.marca,
+            u.modelo,
+            u.anio,
+            u.vin,
+            u.placa,
+            u.idTipoUnidad,
+            IFNULL(t.nombre, 'Sin Tipo') AS tipo,
+            u.idSucursal,
+            IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal
+        FROM Unidad u
+        LEFT JOIN TipoUnidad t ON u.idTipoUnidad = t.idTipoUnidad
+        LEFT JOIN Sucursal s ON u.idSucursal = s.idSucursal
+    </select>
+
+    <insert id="registrar" parameterType="pojo.Unidad">
+        INSERT INTO Unidad (marca, modelo, anio, vin, placa, idTipoUnidad, idSucursal)
+        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{placa}, #{idTipoUnidad}, #{idSucursal})
+    </insert>
+
+    <update id="editar" parameterType="pojo.Unidad">
+        UPDATE Unidad SET 
+            marca = #{marca},
+            modelo = #{modelo},
+            anio = #{anio},
+            idTipoUnidad = #{idTipoUnidad},
+            idSucursal = #{idSucursal}
+            WHERE idUnidad = #{idUnidad}
+    </update>
+
+    <delete id="eliminar" parameterType="int">
+        DELETE FROM Unidad WHERE idUnidad = #{idUnidad}
+    </delete>
+
+</mapper>

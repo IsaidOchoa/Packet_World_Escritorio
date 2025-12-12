@@ -28,6 +28,8 @@
         LEFT JOIN Rol r ON c.idRol = r.idRol
         LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
     </select>
+    
+    
 
     <insert id="registrar" parameterType="pojo.Colaborador">
         INSERT INTO Colaborador 
