@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="envio">
+
+    <insert id="registrar" parameterType="pojo.Envio" useGeneratedKeys="true" keyProperty="idEnvio">
+        INSERT INTO Envio 
+        (numeroGuia, costo, peso, idCliente, idSucursalOrigen, idColoniaDestino, 
+         calleDestino, numeroDestino, nombreDestinatario, idEstadoActual)
+        VALUES 
+        (#{numeroGuia}, #{costo}, #{peso}, #{idCliente}, #{idSucursalOrigen}, #{idColoniaDestino},
+         #{calleDestino}, #{numeroDestino}, #{nombreDestinatario}, 1)
+    </insert>
+
+    <insert id="registrarHistorial" parameterType="map">
+        INSERT INTO HistorialEnvio (idEnvio, idEstadoEnvio, comentario, idColaborador)
+        VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador})
+    </insert>
+
+    <select id="buscarPorGuia" resultType="pojo.Envio" parameterType="string">
+        SELECT 
+            e.idEnvio, e.numeroGuia, e.costo, e.peso, e.nombreDestinatario,
+            
+            -- Ubicación Destino
+            col.nombre AS nombreColonia, mun.nombre AS municipio, est.nombre AS estado,
+            
+            -- Estatus
+            e.idEstadoActual, edo.nombre AS estatus
+
+        FROM Envio e
+        INNER JOIN colonias col ON e.idColoniaDestino = col.id
+        INNER JOIN municipios mun ON col.municipio = mun.id
+        INNER JOIN estados est ON mun.estado = est.id
+        INNER JOIN EstadoEnvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+        WHERE e.numeroGuia = #{numeroGuia}
+    </select>
+
+</mapper>

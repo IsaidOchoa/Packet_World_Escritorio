@@ -35,6 +35,7 @@ public class ColaboradorWS {
         return ColaboradorImp.obtenerColaboradores();
     }
     
+    
     @Path("buscar/{filtro}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
