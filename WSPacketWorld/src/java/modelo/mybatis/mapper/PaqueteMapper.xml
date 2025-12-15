@@ -31,5 +31,8 @@
             profundidad = #{profundidad}
         WHERE idPaquete = #{idPaquete}
     </update>
-
+    
+    <delete id="eliminar" parameterType="int">
+    DELETE FROM Paquete WHERE idPaquete = #{idPaquete}
+    </delete>
 </mapper>

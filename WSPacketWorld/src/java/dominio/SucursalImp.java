@@ -87,8 +87,29 @@ public class SucursalImp {
         return resp;
     }
 
-    public static Respuesta eliminar(int idSucursal) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   public static Respuesta eliminar(int idSucursal) {
+    Respuesta resp = new Respuesta();
+    SqlSession conexion = MyBatisUtil.getSession();
+    if (conexion != null) {
+        try {
+            // Llama al UPDATE estatus = 0 del Mapper
+            int filas = conexion.update("sucursal.eliminar", idSucursal);
+            conexion.commit();
+            if (filas > 0) {
+                resp.setError(false);
+                resp.setMensaje("Sucursal dada de baja correctamente.");
+            } else {
+                resp.setError(true);
+                resp.setMensaje("No se encontró la sucursal.");
+            }
+        } catch (Exception e) {
+            resp.setError(true);
+            resp.setMensaje("Error: " + e.getMessage());
+        } finally {
+            conexion.close();
+        }
     }
+    return resp;
+}
 }   
 

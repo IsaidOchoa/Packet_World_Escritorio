@@ -10,6 +10,7 @@ import dominio.PaqueteImp;
 import dto.Respuesta;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -71,4 +72,12 @@ public class PaqueteWS {
 
         return PaqueteImp.editar(paquete);
     }
+    
+    @DELETE
+    @Path("eliminar/{idPaquete}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Respuesta eliminar(@PathParam("idPaquete") int id) { 
+   
+     return PaqueteImp.eliminar(id);
+}
 }

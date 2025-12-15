@@ -90,5 +90,34 @@ public class PaqueteImp {
         
         return respuesta;
     }
+    public static Respuesta eliminar(int idPaquete) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexion = MyBatisUtil.getSession();
+        
+        if (conexion != null) {
+            try {
+                int filasAfectadas = conexion.delete("paquete.eliminar", idPaquete);
+                conexion.commit();
+                
+                if (filasAfectadas > 0) {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Paquete eliminado del envío.");
+                } else {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("No se encontró el paquete.");
+                }
+            } catch (Exception e) {
+                respuesta.setError(true);
+                respuesta.setMensaje("Error al eliminar: " + e.getMessage());
+            } finally {
+                conexion.close();
+            }
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión a la BD.");
+        }
+        
+        return respuesta;
+    }
 }
 

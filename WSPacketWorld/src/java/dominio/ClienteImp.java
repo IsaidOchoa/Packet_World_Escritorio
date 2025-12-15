@@ -50,4 +50,45 @@ public class ClienteImp {
         }
         return msj;
     }
+    
+    public static Respuesta editar(Cliente cliente){
+    Respuesta msj = new Respuesta();
+    SqlSession conexion = MyBatisUtil.getSession();
+    if(conexion!=null){
+        try{
+            int filas = conexion.update("cliente.editar", cliente);
+            conexion.commit();
+            msj.setError(filas <= 0);
+            msj.setMensaje(filas > 0 ? "Cliente editado" : "No encontrado");
+        }catch(Exception e){ msj.setError(true); msj.setMensaje("Error: "+e.getMessage()); }
+        finally{ conexion.close(); }
+    }
+    return msj;
+}
+
+    public static Respuesta eliminar(int idCliente){
+    Respuesta msj = new Respuesta();
+    SqlSession conexion = MyBatisUtil.getSession();
+    if(conexion!=null){
+        try{
+            int filas = conexion.delete("cliente.eliminar", idCliente);
+            conexion.commit();
+            msj.setError(filas <= 0);
+            msj.setMensaje(filas > 0 ? "Cliente eliminado" : "No encontrado");
+        }catch(Exception e){ msj.setError(true); msj.setMensaje("Error (tiene envíos?): "+e.getMessage()); }
+        finally{ conexion.close(); }
+    }
+    return msj;
+}
+
+    public static List<Cliente> buscar(String filtro){
+    List<Cliente> lista = null;
+    SqlSession conexion = MyBatisUtil.getSession();
+    if(conexion!=null){
+        try{ lista = conexion.selectList("cliente.buscarPorNombre", "%"+filtro+"%"); }
+        catch(Exception e){ e.printStackTrace(); }
+        finally{ conexion.close(); }
+    }
+    return lista;
+}
 }
