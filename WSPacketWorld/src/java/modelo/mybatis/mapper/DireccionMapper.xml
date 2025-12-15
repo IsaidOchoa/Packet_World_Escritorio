@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="direccion">
+
+    <select id="obtenerEstados" resultType="pojo.Estado">
+        SELECT 
+            id AS idEstado, 
+            nombre 
+        FROM estados
+    </select>
+
+    <select id="obtenerMunicipios" resultType="pojo.Municipio" parameterType="int">
+        SELECT 
+            id AS idMunicipio, 
+            nombre, 
+            idEstado AS idEstado 
+        FROM municipios 
+        WHERE idEstado = #{idEstado}
+    </select>
+
+    <select id="obtenerColonias" resultType="pojo.Colonia" parameterType="int">
+        SELECT 
+            id AS idColonia, 
+            nombre, 
+            codigo_postal AS codigoPostal, 
+            idMunicipio AS idMunicipio
+        FROM colonias 
+        WHERE idMunicipio = #{idMunicipio}
+    </select>
+    
+    <select id="buscarPorCP" resultType="pojo.Colonia" parameterType="string">
+        SELECT 
+            c.id AS idColonia, 
+            c.nombre, 
+            c.codigo_postal AS codigoPostal, 
+            c.idMunicipio AS idMunicipio,
+            
+            m.nombre AS nombreMunicipio,
+            m.idEstado AS idEstado,
+            e.nombre AS nombreEstado
+            
+        FROM colonias c
+        INNER JOIN municipios m ON c.idMunicipio = m.id
+        INNER JOIN estados e ON m.idEstado = e.id
+        WHERE c.codigo_postal = #{codigoPostal}
+    </select>
+
+</mapper>
