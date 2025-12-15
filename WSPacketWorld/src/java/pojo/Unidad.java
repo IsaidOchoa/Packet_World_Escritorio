@@ -18,6 +18,7 @@ public class Unidad {
     private int anio;
     private String vin;
     private String placa;
+    private String nii; // Número de Identificación Interno
     
     // Relación con Tipo de Unidad
     private int idTipoUnidad;
@@ -30,85 +31,109 @@ public class Unidad {
     public Unidad() {
     }
 
-        public int getIdUnidad() {
-            return idUnidad;
-        }
+    public Unidad(int idUnidad, String marca, String modelo, int anio, String vin, String placa, String nii, int idTipoUnidad, String tipo, int idSucursal, String nombreSucursal) {
+        this.idUnidad = idUnidad;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.anio = anio;
+        this.vin = vin;
+        this.placa = placa;
+        this.nii = nii;
+        this.idTipoUnidad = idTipoUnidad;
+        this.tipo = tipo;
+        this.idSucursal = idSucursal;
+        this.nombreSucursal = nombreSucursal;
+    }
 
-        public void setIdUnidad(int idUnidad) {
-            this.idUnidad = idUnidad;
-        }
+    public int getIdUnidad() {
+        return idUnidad;
+    }
 
-        public String getMarca() {
-            return marca;
-        }
+    public void setIdUnidad(int idUnidad) {
+        this.idUnidad = idUnidad;
+    }
 
-        public void setMarca(String marca) {
-            this.marca = marca;
-        }
+    public String getMarca() {
+        return marca;
+    }
 
-        public String getModelo() {
-            return modelo;
-        }
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
 
-        public void setModelo(String modelo) {
-            this.modelo = modelo;
-        }
+    public String getModelo() {
+        return modelo;
+    }
 
-        public int getAnio() {
-            return anio;
-        }
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
 
-        public void setAnio(int anio) {
-            this.anio = anio;
-        }
+    public int getAnio() {
+        return anio;
+    }
 
-        public String getVin() {
-            return vin;
-        }
+    public void setAnio(int anio) {
+        this.anio = anio;
+    }
 
-        public void setVin(String vin) {
-            this.vin = vin;
-        }
+    public String getVin() {
+        return vin;
+    }
 
-        public String getPlaca() {
-            return placa;
-        }
+    public void setVin(String vin) {
+        this.vin = vin;
+    }
 
-        public void setPlaca(String placa) {
-            this.placa = placa;
-        }
+    public String getPlaca() {
+        return placa;
+    }
 
-        public int getIdTipoUnidad() {
-            return idTipoUnidad;
-        }
+    public void setPlaca(String placa) {
+        this.placa = placa;
+    }
 
-        public void setIdTipoUnidad(int idTipoUnidad) {
-            this.idTipoUnidad = idTipoUnidad;
-        }
+    public String getNii() {
+        return nii;
+    }
 
-        public String getTipo() {
-            return tipo;
-        }
+    public void setNii(String nii) {
+        this.nii = nii;
+    }
 
-        public void setTipo(String tipo) {
-            this.tipo = tipo;
-        }
+    public int getIdTipoUnidad() {
+        return idTipoUnidad;
+    }
 
-        public int getIdSucursal() {
-            return idSucursal;
-        }
+    public void setIdTipoUnidad(int idTipoUnidad) {
+        this.idTipoUnidad = idTipoUnidad;
+    }
 
-        public void setIdSucursal(int idSucursal) {
-            this.idSucursal = idSucursal;
-        }
+    public String getTipo() {
+        return tipo;
+    }
 
-        public String getNombreSucursal() {
-            return nombreSucursal;
-        }
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 
-        public void setNombreSucursal(String nombreSucursal) {
-            this.nombreSucursal = nombreSucursal;
-        }
+    public int getIdSucursal() {
+        return idSucursal;
+    }
 
+    public void setIdSucursal(int idSucursal) {
+        this.idSucursal = idSucursal;
+    }
+
+    public String getNombreSucursal() {
+        return nombreSucursal;
+    }
+
+    public void setNombreSucursal(String nombreSucursal) {
+        this.nombreSucursal = nombreSucursal;
+    }
+    
+
+       
    
 }

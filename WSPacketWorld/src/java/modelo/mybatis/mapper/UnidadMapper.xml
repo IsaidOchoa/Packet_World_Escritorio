@@ -11,7 +11,7 @@
             u.anio,
             u.vin,
             u.placa,
-            u.idTipoUnidad,
+            u.nii,  u.idTipoUnidad,
             IFNULL(t.nombre, 'Sin Tipo') AS tipo,
             u.idSucursal,
             IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal
@@ -20,16 +20,18 @@
         LEFT JOIN Sucursal s ON u.idSucursal = s.idSucursal
     </select>
 
-    <insert id="registrar" parameterType="pojo.Unidad">
-        INSERT INTO Unidad (marca, modelo, anio, vin, placa, idTipoUnidad, idSucursal)
-        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{placa}, #{idTipoUnidad}, #{idSucursal})
+    <insert id="registrar" parameterType="pojo.Unidad" useGeneratedKeys="true" keyProperty="idUnidad">
+        INSERT INTO Unidad (marca, modelo, anio, vin, placa, nii, idTipoUnidad, idSucursal)
+        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{placa}, #{nii}, #{idTipoUnidad}, #{idSucursal})
     </insert>
 
-    <update id="editar" parameterType="pojo.Unidad">
+   <update id="editar" parameterType="pojo.Unidad">
         UPDATE Unidad SET 
             marca = #{marca},
             modelo = #{modelo},
             anio = #{anio},
+            placa = #{placa},
+            nii = #{nii},  
             idTipoUnidad = #{idTipoUnidad},
             idSucursal = #{idSucursal}
             WHERE idUnidad = #{idUnidad}
