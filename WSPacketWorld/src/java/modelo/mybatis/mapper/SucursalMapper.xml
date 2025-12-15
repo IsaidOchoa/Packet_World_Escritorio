@@ -9,32 +9,38 @@
             s.nombre,
             s.calle,
             s.numero,
-            s.latitud,
-            s.longitud,
             s.idColonia,
+            s.estatus,
+            
+            -- Datos unidos de las otras tablas
             c.nombre AS nombreColonia,
-            c.codigo_postal AS cp,
+            c.codigo_postal AS codigoPostal,
             m.nombre AS municipio,
             e.nombre AS estado
+            
         FROM Sucursal s
         INNER JOIN colonias c ON s.idColonia = c.id
-        INNER JOIN municipios m ON c.municipio = m.id
-        INNER JOIN estados e ON m.estado = e.id
+        INNER JOIN municipios m ON c.id_municipio = m.id
+        INNER JOIN estados e ON m.id_estado = e.id
+        WHERE s.estatus = 1
     </select>
 
-    <insert id="registrar" parameterType="pojo.Sucursal">
-        INSERT INTO Sucursal (nombre, idColonia, calle, numero, latitud, longitud)
-        VALUES (#{nombre}, #{idColonia}, #{calle}, #{numero}, #{latitud}, #{longitud})
+    <insert id="registrar" parameterType="pojo.Sucursal" useGeneratedKeys="true" keyProperty="idSucursal">
+        INSERT INTO Sucursal (nombre, calle, numero, idColonia, estatus)
+        VALUES (#{nombre}, #{calle}, #{numero}, #{idColonia}, 1)
     </insert>
 
     <update id="editar" parameterType="pojo.Sucursal">
         UPDATE Sucursal SET
             nombre = #{nombre},
-            idColonia = #{idColonia},
             calle = #{calle},
             numero = #{numero},
-            latitud = #{latitud},
-            longitud = #{longitud}
+            idColonia = #{idColonia}
         WHERE idSucursal = #{idSucursal}
     </update>
+    
+    <update id="eliminar" parameterType="int">
+        UPDATE Sucursal SET estatus = 0 WHERE idSucursal = #{idSucursal}
+    </update>
+
 </mapper>
