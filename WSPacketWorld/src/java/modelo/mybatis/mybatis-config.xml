@@ -11,12 +11,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-
-    
-
     <environments default="desarrollo">
-
-        
         <environment id="desarrollo">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED" >
@@ -26,19 +21,12 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
                 <property name="password" value="arely"/>
                 <property name="poolMaximumActiveConnections" value="50"/>
             </dataSource>
-        </environment>
-        
-
+        </environment>        
     </environments>
-
+    
     <mappers> 
        <mapper resource="modelo/mybatis/mapper/AutenticacionMapper.xml"/>
        <mapper resource="modelo/mybatis/mapper/ColaboradorMapper.xml"/>
-
-
-        
-        
-
     </mappers>
 
 </configuration>
