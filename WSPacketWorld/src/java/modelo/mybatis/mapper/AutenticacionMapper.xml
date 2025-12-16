@@ -6,24 +6,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="autenticacion">
     
     <select id="loginColaborador" parameterType="map" resultType="pojo.Colaborador">
-        SELECT 
-            c.id_colaborador AS idColaborador,
-            c.nombre,
-            c.apellido_paterno AS apellidoPaterno,
-            c.apellido_materno AS apellidoMaterno,
-            c.curp,
-            c.correo,
-            c.numero_personal AS numeroPersonal,
-            c.password,
-            c.numero_licencia AS numeroLicencia,
-            
-            c.id_rol AS idRol,
-            r.nombre AS rol,  c.id_sucursal AS idSucursal,
-            TO_BASE64(c.fotografia) AS fotoBase64
-            
-        FROM colaborador c
-        INNER JOIN rol r ON r.id_rol = c.id_rol
-        WHERE c.numero_personal = #{noPersonal} AND c.password = #{password}
+        SELECT
+    c.idColaborador AS idColaborador,    
+    c.nombre,
+    c.apellidoPaterno AS apellidoPaterno, 
+    c.apellidoMaterno AS apellidoMaterno, 
+    c.curp,
+    c.correo,
+    c.numeroPersonal AS numeroPersonal,   
+    c.password,
+    c.numeroLicencia AS numeroLicencia,   
+    c.idRol AS idRol,                     
+    r.nombre AS rol,
+    c.idSucursal AS idSucursal,           
+    TO_BASE64(c.foto) AS fotoBase64       
+    FROM colaborador c
+    INNER JOIN rol r ON r.idRol = c.idRol     
+    WHERE c.numeroPersonal = #{numeroPersonal} 
+    AND c.password = #{password}
     </select>
 
 </mapper>

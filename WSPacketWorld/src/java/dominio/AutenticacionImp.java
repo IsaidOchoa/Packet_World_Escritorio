@@ -25,7 +25,7 @@ public class AutenticacionImp {
         if(conexionBD != null){
             try{
                 HashMap<String, String> parametros = new LinkedHashMap<>();
-                parametros.put("noPersonal", noPersonal);
+                parametros.put("numeroPersonal", noPersonal);
                 parametros.put("password", password);
                 
                 Colaborador colaborador = conexionBD.selectOne("autenticacion.loginColaborador", parametros);
