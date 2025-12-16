@@ -28,10 +28,11 @@ import javafx.stage.Stage;
  */
 public class FXMLPrincipalController implements Initializable {
 
+   @FXML private Label lblNombreUsuario;
+   @FXML private Label lblRol;
+
     @FXML
-    private Label lblNombreUsuario;
-    @FXML
-    private Label lblRol;
+    private Label lbColaborador;
 
     /**
      * Initializes the controller class.
@@ -109,6 +110,18 @@ public class FXMLPrincipalController implements Initializable {
                                           "No se pudo abrir la ventana de Sucursales.", 
                                           Alert.AlertType.ERROR);
         }
+    }
+
+    @FXML
+    private void clicModuloClientes(ActionEvent event) {
+    }
+
+    @FXML
+    private void clicModuloEnvios(ActionEvent event) {
+    }
+
+    @FXML
+    private void clicModuloUnidades(ActionEvent event) {
     }
 }
 

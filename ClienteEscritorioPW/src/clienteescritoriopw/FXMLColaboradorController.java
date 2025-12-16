@@ -9,6 +9,7 @@ import clienteescritoriopw.dominio.ColaboradorImp;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.utilidad.Utilidades;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -16,12 +17,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -89,23 +94,53 @@ public class FXMLColaboradorController implements Initializable {
 
     @FXML
     private void clicBuscar(ActionEvent event) {
-        // Aquí implementaremos el filtro después, por ahora recarga todo
         cargarDatosTabla();
     }
 
+   
+
     @FXML
     private void clicNuevo(ActionEvent event) {
-        // TODO: Abrir formulario modal
-        System.out.println("Clic en Nuevo");
+        abrirFormulario(null);
     }
 
     @FXML
     private void clicEditar(ActionEvent event) {
         Colaborador seleccionado = tvColaboradores.getSelectionModel().getSelectedItem();
         if(seleccionado != null){
-            System.out.println("Editando a: " + seleccionado.getNombre());
+            abrirFormulario(seleccionado);
         }else{
             Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona un colaborador para editar.", Alert.AlertType.WARNING);
+        }
+    }
+    
+    // Método auxiliar para abrir la ventana modal
+    private void abrirFormulario(Colaborador colaborador) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioColaborador.fxml"));
+                Parent root = loader.load();
+            
+            FXMLFormularioColaboradorController controlador = loader.getController();
+            
+            // Si hay un colaborador, inicializamos el modo edición
+            if (colaborador != null) {
+                controlador.inicializarEdicion(colaborador);
+            }
+            
+            Stage escenario = new Stage();
+            escenario.setScene(new Scene(root));
+            escenario.setTitle((colaborador == null) ? "Registrar Colaborador" : "Editar Colaborador");
+            escenario.initModality(Modality.APPLICATION_MODAL);
+            
+            // Esperar a que se cierre el modal para recargar la tabla
+            escenario.showAndWait(); 
+            cargarDatosTabla(); 
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error de Carga", 
+                                          "No se pudo abrir la ventana del formulario.", 
+                                          Alert.AlertType.ERROR);
         }
     }
 

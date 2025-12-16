@@ -79,7 +79,6 @@ public class FXMLInicioSesionController implements Initializable {
             return; 
         }
 
-        // 3. Si todo está bien, llamamos al backend
         verificarCredenciales(noPersonal, password);
     }
       

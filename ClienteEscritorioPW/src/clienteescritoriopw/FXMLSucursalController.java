@@ -15,6 +15,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
@@ -58,16 +59,16 @@ public class FXMLSucursalController implements Initializable {
     }    
     
     private void configurarTabla(){
-        // Nota: Asegúrate que tu POJO Sucursal tenga los Getters para estos atributos:
-        // getNombre, getCalle, getNumero, getColonia, getCodigoPostal, getMunicipio, getEstado
         colNombre.setCellValueFactory(new PropertyValueFactory("nombre"));
         colCalle.setCellValueFactory(new PropertyValueFactory("calle"));
         colNumero.setCellValueFactory(new PropertyValueFactory("numero"));
-        colColonia.setCellValueFactory(new PropertyValueFactory("colonia"));
         colCodigoPostal.setCellValueFactory(new PropertyValueFactory("codigoPostal"));
+        
+        colColonia.setCellValueFactory(new PropertyValueFactory("nombreColonia")); 
         colMunicipio.setCellValueFactory(new PropertyValueFactory("municipio"));
         colEstado.setCellValueFactory(new PropertyValueFactory("estado"));
     }
+    
     
     public void cargarDatosTabla(){
         listaSucursales = FXCollections.observableArrayList();
@@ -89,15 +90,14 @@ public class FXMLSucursalController implements Initializable {
 
     @FXML
     private void clicNuevo(ActionEvent event) {
-        // Implementación para abrir el formulario de registro
-        System.out.println("Clic en Nuevo Sucursal");
+        abrirFormulario(null);
+    
     }
 
     @FXML
     private void clicEditar(ActionEvent event) {
         Sucursal seleccionado = tvSucursales.getSelectionModel().getSelectedItem();
         if(seleccionado != null){
-            // Implementación para abrir el formulario de edición
             System.out.println("Editando a: " + seleccionado.getNombre());
         }else{
             Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona una sucursal para editar.", Alert.AlertType.WARNING);
@@ -131,5 +131,31 @@ public class FXMLSucursalController implements Initializable {
     private void clicRegresar(ActionEvent event) {
         Stage escenario = (Stage) tfBusqueda.getScene().getWindow();
         escenario.close();
+    }
+    
+    private void abrirFormulario(Sucursal sucursal) {
+        try {
+            // Asegúrate de importar javafx.fxml.FXMLLoader, javafx.scene.Parent, etc.
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioSucursal.fxml"));
+            javafx.scene.Parent root = loader.load();
+            
+            FXMLFormularioSucursalController controlador = loader.getController();
+            
+            if(sucursal != null){
+                controlador.inicializarEdicion(sucursal);
+            }
+            
+            Stage escenario = new Stage();
+            escenario.setScene(new javafx.scene.Scene(root));
+            escenario.setTitle(sucursal == null ? "Nueva Sucursal" : "Editar Sucursal");
+            escenario.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            
+            escenario.showAndWait();
+            cargarDatosTabla(); // Recargar la tabla al cerrar
+            
+        } catch (java.io.IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo cargar el formulario.", Alert.AlertType.ERROR);
+        }
     }
 }

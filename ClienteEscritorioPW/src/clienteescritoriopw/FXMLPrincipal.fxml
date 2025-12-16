@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPrincipalController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPrincipalController">
    
    <top>
       <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #1A3B5C; -fx-padding: 15;">
@@ -62,7 +62,7 @@
                </font>
             </Label>
             
-            <GridPane alignment="CENTER" hgap="25.0" vgap="25.0">
+            <GridPane alignment="CENTER" hgap="25.0" vgap="25.0" VBox.vgrow="ALWAYS">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
