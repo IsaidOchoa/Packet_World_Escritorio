@@ -21,10 +21,10 @@ import javafx.stage.Stage;
  */
 public class ClienteEscritorioPW extends Application {
     
+    
     @Override
-   public void start(Stage stage) throws Exception {
-        // Carga el FXML del login
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLInicioSesion.fxml"));
+    public void start(Stage stage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/clienteescritoriopw/FXMLInicioSesion.fxml"));
         
         Scene scene = new Scene(root);
         
