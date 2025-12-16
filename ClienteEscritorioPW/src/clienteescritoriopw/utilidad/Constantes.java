@@ -12,7 +12,7 @@ package clienteescritoriopw.utilidad;
 
 public class Constantes {
     
-    public static final String URL_WS = "http://localhost:8080/WSPacketWorld/PacketWorld/";
+    public static final String URL_WS = "http://localhost:8084/WSPacketWorld/PacketWorld/";
     
     // Códigos de Error 
     public static final int ERROR_MALFORMED_URL = 1001; 
