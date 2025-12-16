@@ -3,7 +3,7 @@
 
 <mapper namespace="sucursal">
 
-   <select id="obtenerTodas" resultType="pojo.Sucursal">
+<select id="obtenerTodas" resultType="pojo.Sucursal">
         SELECT 
             s.idSucursal,
             s.nombre,
@@ -12,19 +12,17 @@
             s.idColonia,
             s.estatus,
             
-            IFNULL(c.nombre, 'Sin Colonia') AS nombreColonia,
+            
+            IFNULL(c.nombre, '') AS nombreColonia,
             IFNULL(c.codigo_postal, '') AS codigoPostal,
             IFNULL(m.nombre, '') AS municipio,
             IFNULL(e.nombre, '') AS estado
             
         FROM Sucursal s
         LEFT JOIN colonias c ON s.idColonia = c.id
-        LEFT JOIN municipios m ON c.id_municipio = m.id
-        LEFT JOIN estados e ON m.id_estado = e.id
-        
-        WHERE s.estatus = 1
-    </select>
-    </select>
+        LEFT JOIN municipios m ON c.idMunicipio = m.id
+        LEFT JOIN estados e ON m.idEstado = e.id
+            </select>
 
     <insert id="registrar" parameterType="pojo.Sucursal" useGeneratedKeys="true" keyProperty="idSucursal">
         INSERT INTO Sucursal (nombre, calle, numero, idColonia, estatus)
