@@ -1,72 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="colaborador">
 
+    <select id="obtenerColaboradores" resultType="pojo.Colaborador">
+        SELECT 
+            c.idColaborador,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.curp,
+            c.correo,
+            c.numeroPersonal,
+            c.password,
+            c.numeroLicencia,
+            c.idRol,
+            
+            -- Usamos IFNULL para que no falle si no encuentra el rol/sucursal
+            IFNULL(r.nombre, 'Sin Rol') AS rol,
+            
+            c.idSucursal,
+            IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal,
+            
+            TO_BASE64(c.foto) AS fotoBase64
+            
+        FROM Colaborador c
+        LEFT JOIN Rol r ON c.idRol = r.idRol
+        LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
+    </select>
+    
+    
+
     <insert id="registrar" parameterType="pojo.Colaborador">
-        INSERT INTO colaborador 
-        (nombre, apellido_paterno, apellido_materno, curp, correo, numero_personal, password, id_rol, numero_licencia, id_sucursal, fotografia)
+        INSERT INTO Colaborador 
+        (nombre, apellidoPaterno, apellidoMaterno, curp, correo, numeroPersonal, password, idRol, idSucursal, numeroLicencia, foto)
         VALUES 
-        (#{nombre}, #{apellidoPaterno}, #{apellidoMaterno}, #{curp}, #{correo}, #{numeroPersonal}, #{password}, #{idRol}, #{numeroLicencia}, #{idSucursal}, #{fotografia})
+        (#{nombre}, #{apellidoPaterno}, #{apellidoMaterno}, #{curp}, #{correo}, #{numeroPersonal}, #{password}, #{idRol}, #{idSucursal}, #{numeroLicencia}, #{foto})
     </insert>
 
     <update id="editar" parameterType="pojo.Colaborador">
-        UPDATE colaborador SET
+        UPDATE Colaborador SET
             nombre = #{nombre},
-            apellido_paterno = #{apellidoPaterno},
-            apellido_materno = #{apellidoMaterno},
+            apellidoPaterno = #{apellidoPaterno},
+            apellidoMaterno = #{apellidoMaterno},
             curp = #{curp},
             correo = #{correo},
             password = #{password},
-            numero_licencia = #{numeroLicencia},
-            id_sucursal = #{idSucursal},
-            fotografia = #{fotografia}
-        WHERE id_colaborador = #{idColaborador}
-    </insert>
-
-    <delete id="eliminar" parameterType="int">
-        DELETE FROM colaborador WHERE id_colaborador = #{idColaborador}
-    </delete>
-
-    <select id="obtenerColaboradores" resultType="pojo.Colaborador">
-        SELECT 
-            c.id_colaborador AS idColaborador,
-            c.nombre,
-            c.apellido_paterno AS apellidoPaterno,
-            c.apellido_materno AS apellidoMaterno,
-            c.curp,
-            c.correo,
-            c.numero_personal AS numeroPersonal,
-            c.password,
-            c.numero_licencia AS numeroLicencia,
-            c.id_rol AS idRol,
-            r.nombre AS rol,
-            c.id_sucursal AS idSucursal,
-            TO_BASE64(c.fotografia) AS fotoBase64
-        FROM colaborador c
-        INNER JOIN rol r ON r.id_rol = c.id_rol
-    </select>
+            idSucursal = #{idSucursal},
+            numeroLicencia = #{numeroLicencia},
+            foto = #{foto}
+        WHERE idColaborador = #{idColaborador}
+    </update>
     
-    <select id="buscarColaborador" resultType="pojo.Colaborador" parameterType="string">
-        SELECT 
-            c.id_colaborador AS idColaborador,
-            c.nombre,
-            c.apellido_paterno AS apellidoPaterno,
-            c.apellido_materno AS apellidoMaterno,
-            c.curp,
-            c.correo,
-            c.numero_personal AS numeroPersonal,
-            c.password,
-            c.numero_licencia AS numeroLicencia,
-            c.id_rol AS idRol,
-            r.nombre AS rol,
-            c.id_sucursal AS idSucursal,
-            TO_BASE64(c.fotografia) AS fotoBase64
-        FROM colaborador c
-        INNER JOIN rol r ON r.id_rol = c.id_rol
-        WHERE c.nombre LIKE #{filtro} OR c.numero_personal LIKE #{filtro} OR r.nombre LIKE #{filtro}
+    <delete id="eliminar" parameterType="int">
+        DELETE FROM Colaborador WHERE idColaborador = #{idColaborador}
+    </delete>
+    
+    <select id="buscarPorNoPersonal" resultType="pojo.Colaborador" parameterType="string">
+        SELECT * FROM Colaborador WHERE numeroPersonal = #{numeroPersonal}
     </select>
-
 </mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="envio">
+
+    <insert id="registrar" parameterType="pojo.Envio" useGeneratedKeys="true" keyProperty="idEnvio">
+        INSERT INTO Envio 
+        (numeroGuia, costo, peso, idCliente, idSucursalOrigen, idColoniaDestino, 
+         calleDestino, numeroDestino, nombreDestinatario, idEstadoActual)
+        VALUES 
+        (#{numeroGuia}, #{costo}, #{peso}, #{idCliente}, #{idSucursalOrigen}, #{idColoniaDestino},
+         #{calleDestino}, #{numeroDestino}, #{nombreDestinatario}, 1)
+    </insert>
+
+    <insert id="registrarHistorial" parameterType="map">
+        INSERT INTO HistorialEnvio (idEnvio, idEstadoEnvio, comentario, idColaborador)
+        VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador})
+    </insert>
+
+    <update id="actualizarEstatus" parameterType="pojo.Envio">
+        UPDATE Envio SET 
+            idEstadoActual = #{idEstadoActual},
+            idUnidad = #{idUnidad},     idConductor = #{idConductor} WHERE idEnvio = #{idEnvio}
+    </update>
+
+    <select id="buscarPorGuia" resultType="pojo.Envio" parameterType="string">
+        SELECT 
+            e.idEnvio, e.numeroGuia, e.costo, e.peso,
+            e.calleDestino, e.numeroDestino, e.nombreDestinatario,
+            
+            -- Cliente
+            e.idCliente, CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
+            
+            -- Origen
+            e.idSucursalOrigen, s.nombre AS nombreSucursalOrigen,
+            
+            -- Destino (Geografía cruzada con mexico.sql)
+            e.idColoniaDestino, col.nombre AS nombreColonia, col.codigo_postal AS cp,
+            mun.nombre AS municipio, est.nombre AS estado,
+            
+            -- Logística
+            e.idUnidad, CONCAT(u.marca, ' - ', u.placa) AS infoUnidad,
+            e.idConductor, CONCAT(colab.nombre, ' ', colab.apellidoPaterno) AS nombreConductor,
+            
+            -- Estatus
+            e.idEstadoActual, edo.nombre AS nombreEstadoEnvio
+
+        FROM Envio e
+        INNER JOIN Cliente cl ON e.idCliente = cl.idCliente
+        INNER JOIN Sucursal s ON e.idSucursalOrigen = s.idSucursal
+        INNER JOIN colonias col ON e.idColoniaDestino = col.id
+        INNER JOIN municipios mun ON col.municipio = mun.id
+        INNER JOIN estados est ON mun.estado = est.id
+        INNER JOIN EstadoEnvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+        
+        -- LEFT JOIN porque al principio no tienen conductor ni unidad
+        LEFT JOIN Unidad u ON e.idUnidad = u.idUnidad
+        LEFT JOIN Colaborador colab ON e.idConductor = colab.idColaborador
+        
+        WHERE e.numeroGuia = #{numeroGuia}
+    </select>
+    
+    <select id="obtenerTodos" resultType="pojo.Envio">
+         SELECT 
+            e.idEnvio, e.numeroGuia, e.nombreDestinatario,
+            col.nombre AS nombreColonia, mun.nombre AS municipio,
+            edo.nombre AS nombreEstadoEnvio
+        FROM Envio e
+        INNER JOIN colonias col ON e.idColoniaDestino = col.id
+        INNER JOIN municipios mun ON col.municipio = mun.id
+        INNER JOIN EstadoEnvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+    </select>
+
+</mapper>

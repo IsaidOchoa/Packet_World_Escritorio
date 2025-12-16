@@ -33,13 +33,23 @@ public class UnidadImp {
         return lista;
     }
 
-    public static Respuesta registrar(Unidad unidad) {
+   public static Respuesta registrar(Unidad unidad) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexionBD = MyBatisUtil.getSession();
+        
         if (conexionBD != null) {
             try {
+              
+                if (unidad.getVin() != null && unidad.getVin().length() >= 4) {
+                    String anioStr = String.valueOf(unidad.getAnio());
+                    String vinParcial = unidad.getVin().substring(0, 4).toUpperCase();
+                    unidad.setNii(anioStr + vinParcial);
+                }
+                // -----------------------------------
+                
                 int filasAfectadas = conexionBD.insert("unidad.registrar", unidad);
                 conexionBD.commit();
+                
                 if (filasAfectadas > 0) {
                     respuesta.setError(false);
                     respuesta.setMensaje("Unidad registrada correctamente.");
@@ -49,7 +59,7 @@ public class UnidadImp {
                 }
             } catch (Exception e) {
                 respuesta.setError(true);
-                respuesta.setMensaje("Error al registrar (Revise VIN/Placa duplicados): " + e.getMessage());
+                respuesta.setMensaje("Error al registrar: " + e.getMessage());
             } finally {
                 conexionBD.close();
             }
@@ -60,13 +70,23 @@ public class UnidadImp {
         return respuesta;
     }
 
-    public static Respuesta editar(Unidad unidad) {
+   public static Respuesta editar(Unidad unidad) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexionBD = MyBatisUtil.getSession();
+        
         if (conexionBD != null) {
             try {
+               
+                if (unidad.getVin() != null && unidad.getVin().length() >= 4) {
+                    String anioStr = String.valueOf(unidad.getAnio());
+                    String vinParcial = unidad.getVin().substring(0, 4).toUpperCase();
+                    unidad.setNii(anioStr + vinParcial);
+                }
+                // -------------------------
+
                 int filasAfectadas = conexionBD.update("unidad.editar", unidad);
                 conexionBD.commit();
+                
                 if (filasAfectadas > 0) {
                     respuesta.setError(false);
                     respuesta.setMensaje("Unidad actualizada correctamente.");

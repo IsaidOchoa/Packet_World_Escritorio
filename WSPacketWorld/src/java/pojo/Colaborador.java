@@ -11,7 +11,6 @@ package pojo;
  */
 public class Colaborador {
 
-    
     private int idColaborador;
     private String nombre;
     private String apellidoPaterno;
@@ -20,17 +19,22 @@ public class Colaborador {
     private String correo;
     private String numeroPersonal;
     private String password;
-    private int idRol;
-    private String rolNombre; // Para mostrar el nombre del rol en la app
     private String numeroLicencia;
+    
+    // Relaciones
+    private int idRol;
+    private String rol; // Nombre del rol
     private int idSucursal;
-    private byte[] foto;
-    private String fotoBase64;
+    private String nombreSucursal; // Nombre de la sucursal
+    
+    // Foto
+    private byte[] foto;        // Para BD
+    private String fotoBase64;  // Para JSON
 
     public Colaborador() {
     }
 
-    public Colaborador(int idColaborador, String nombre, String apellidoPaterno, String apellidoMaterno, String curp, String correo, String numeroPersonal, String password, int idRol, String rolNombre, String numeroLicencia, int idSucursal, byte[] foto, String fotoBase64) {
+    public Colaborador(int idColaborador, String nombre, String apellidoPaterno, String apellidoMaterno, String curp, String correo, String numeroPersonal, String password, String numeroLicencia, int idRol, String rol, int idSucursal, String nombreSucursal, byte[] foto, String fotoBase64) {
         this.idColaborador = idColaborador;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
@@ -39,10 +43,11 @@ public class Colaborador {
         this.correo = correo;
         this.numeroPersonal = numeroPersonal;
         this.password = password;
-        this.idRol = idRol;
-        this.rolNombre = rolNombre;
         this.numeroLicencia = numeroLicencia;
+        this.idRol = idRol;
+        this.rol = rol;
         this.idSucursal = idSucursal;
+        this.nombreSucursal = nombreSucursal;
         this.foto = foto;
         this.fotoBase64 = fotoBase64;
     }
@@ -111,22 +116,6 @@ public class Colaborador {
         this.password = password;
     }
 
-    public int getIdRol() {
-        return idRol;
-    }
-
-    public void setIdRol(int idRol) {
-        this.idRol = idRol;
-    }
-
-    public String getRolNombre() {
-        return rolNombre;
-    }
-
-    public void setRolNombre(String rolNombre) {
-        this.rolNombre = rolNombre;
-    }
-
     public String getNumeroLicencia() {
         return numeroLicencia;
     }
@@ -135,12 +124,36 @@ public class Colaborador {
         this.numeroLicencia = numeroLicencia;
     }
 
+    public int getIdRol() {
+        return idRol;
+    }
+
+    public void setIdRol(int idRol) {
+        this.idRol = idRol;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
     public int getIdSucursal() {
         return idSucursal;
     }
 
     public void setIdSucursal(int idSucursal) {
         this.idSucursal = idSucursal;
+    }
+
+    public String getNombreSucursal() {
+        return nombreSucursal;
+    }
+
+    public void setNombreSucursal(String nombreSucursal) {
+        this.nombreSucursal = nombreSucursal;
     }
 
     public byte[] getFoto() {
@@ -158,7 +171,5 @@ public class Colaborador {
     public void setFotoBase64(String fotoBase64) {
         this.fotoBase64 = fotoBase64;
     }
-    
-}
 
-   
+}

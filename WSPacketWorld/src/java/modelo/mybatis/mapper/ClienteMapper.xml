@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cliente">
+    <select id="obtenerTodos" resultType="pojo.Cliente">
+        SELECT c.*, col.codigo_postal AS codigoPostal 
+        FROM Cliente c 
+        INNER JOIN colonias col ON c.idColonia = col.id
+    </select>
+    
+    <insert id="registrar" parameterType="pojo.Cliente">
+        INSERT INTO Cliente (nombre, apellidoPaterno, apellidoMaterno, correo, telefono, idColonia, calle, numero)
+        VALUES (#{nombre}, #{apellidoPaterno}, #{apellidoMaterno}, #{correo}, #{telefono}, #{idColonia}, #{calle}, #{numero})
+    </insert>
+
+    <select id="buscarPorNombre" resultType="pojo.Cliente" parameterType="string">
+        SELECT * FROM Cliente 
+        WHERE nombre LIKE #{filtro} OR apellidoPaterno LIKE #{filtro}
+    </select>
+    
+    <update id="editar" parameterType="pojo.Cliente">
+    UPDATE Cliente SET 
+        nombre=#{nombre}, apellidoPaterno=#{apellidoPaterno}, apellidoMaterno=#{apellidoMaterno},
+        correo=#{correo}, telefono=#{telefono}, idColonia=#{idColonia}, 
+        calle=#{calle}, numero=#{numero}
+    WHERE idCliente = #{idCliente}
+</update>
+
+<delete id="eliminar" parameterType="int">
+    DELETE FROM Cliente WHERE idCliente = #{idCliente}
+</delete>
+</mapper>

@@ -33,6 +33,8 @@ public class ColaboradorImp {
         return lista;
     }
     
+    
+    
     public static List<Colaborador> buscarColaborador(String filtro) {
         List<Colaborador> lista = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
