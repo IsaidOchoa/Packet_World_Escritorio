@@ -14,83 +14,95 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- *
- * @author pepeg
- */
 public class ConexionAPI {
-     //TODO 
+    
     public static RespuestaHTTP peticionGET(String URL){
-         RespuestaHTTP respuesta = new RespuestaHTTP();
+        RespuestaHTTP respuesta = new RespuestaHTTP();
         try {
             URL urlWS = new URL(URL);
             HttpURLConnection conexionHTTP = (HttpURLConnection) urlWS.openConnection();
-           
+            conexionHTTP.setRequestMethod("GET");
+            
             int codigo = conexionHTTP.getResponseCode();
+            respuesta.setCodigo(codigo);
+            
             if (codigo == HttpURLConnection.HTTP_OK) {
                 respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getInputStream()));
+            } else {
+                respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getErrorStream()));
             }
-            respuesta.setCodigo(codigo);
+            
         } catch (MalformedURLException e) {
-           respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
-           respuesta.setContenido(e.getMessage());
-        }catch(IOException ex){
-           respuesta.setCodigo(Constantes.ERROR_PETICION);
-           respuesta.setContenido(ex.getMessage());
-    }
-      return respuesta;
+            respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
+            respuesta.setContenido(e.getMessage());
+        } catch (IOException ex) {
+            respuesta.setCodigo(Constantes.ERROR_PETICION);
+            respuesta.setContenido(ex.getMessage());
+        }
+        return respuesta;
     }
       
-    
     public static RespuestaHTTP peticionBody(String URL, String metodoHTTP, String parametros, String contentType) {
         RespuestaHTTP respuesta = new RespuestaHTTP();
         try {
             URL urlWS = new URL(URL);
             HttpURLConnection conexionHTTP = (HttpURLConnection) urlWS.openConnection();
             conexionHTTP.setRequestMethod(metodoHTTP);
-            conexionHTTP.setRequestProperty("Content-Type", contentType );
+            
+            // CORRECCIÓN IMPORTANTE: 
+            // Usamos la variable 'contentType' que recibimos, no "application/json" fijo.
+            // Esto permite que el Login mande formularios y el Registro mande JSON.
+            conexionHTTP.setRequestProperty("Content-Type", contentType);
+            
             conexionHTTP.setDoOutput(true);
             OutputStream os = conexionHTTP.getOutputStream();
-            os.write(parametros.getBytes());
+            os.write(parametros.getBytes("UTF-8"));
             os.flush();
             os.close();
+            
             int codigo = conexionHTTP.getResponseCode();
+            respuesta.setCodigo(codigo);
+            
             if (codigo == HttpURLConnection.HTTP_OK) {
                 respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getInputStream()));
+            } else {
+                respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getErrorStream()));
             }
-            respuesta.setCodigo(codigo);
+            
         } catch (MalformedURLException e) {
-           respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
-           respuesta.setContenido(e.getMessage());
-        }catch(IOException ex){
-           respuesta.setCodigo(Constantes.ERROR_PETICION);
-           respuesta.setContenido(ex.getMessage());
-    }
-      return respuesta;
+            respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
+            respuesta.setContenido(e.getMessage());
+        } catch (IOException ex) {
+            respuesta.setCodigo(Constantes.ERROR_PETICION);
+            respuesta.setContenido(ex.getMessage());
+        }
+        return respuesta;
     }
     
-    
+    // El método peticionSinBody queda igual que antes (con el getErrorStream)
     public static RespuestaHTTP peticionSinBody(String URL, String metodoHTTP){
-         RespuestaHTTP respuesta = new RespuestaHTTP();
+        RespuestaHTTP respuesta = new RespuestaHTTP();
         try {
             URL urlWS = new URL(URL);
             HttpURLConnection conexionHTTP = (HttpURLConnection) urlWS.openConnection();
             conexionHTTP.setRequestMethod(metodoHTTP);
-           
+            
             int codigo = conexionHTTP.getResponseCode();
+            respuesta.setCodigo(codigo);
+            
             if (codigo == HttpURLConnection.HTTP_OK) {
                 respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getInputStream()));
+            } else {
+                respuesta.setContenido(Utilidades.streamToString(conexionHTTP.getErrorStream()));
             }
-            respuesta.setCodigo(codigo);
+            
         } catch (MalformedURLException e) {
-           respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
-           respuesta.setContenido(e.getMessage());
-        }catch(IOException ex){
-           respuesta.setCodigo(Constantes.ERROR_PETICION);
-           respuesta.setContenido(ex.getMessage());
+            respuesta.setCodigo(Constantes.ERROR_MALFORMED_URL);
+            respuesta.setContenido(e.getMessage());
+        } catch (IOException ex) {
+            respuesta.setCodigo(Constantes.ERROR_PETICION);
+            respuesta.setContenido(ex.getMessage());
+        }
+        return respuesta;
     }
-      return respuesta;
-    }
-} 
-
-
+}

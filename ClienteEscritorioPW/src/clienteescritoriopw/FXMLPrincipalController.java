@@ -73,6 +73,7 @@ public class FXMLPrincipalController implements Initializable {
     }
    @FXML
     private void clicModuloColaboradores(ActionEvent event) {
+        
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLColaborador.fxml"));
             
@@ -82,6 +83,11 @@ public class FXMLPrincipalController implements Initializable {
             escenario.setScene(new Scene(root));
             escenario.setTitle("Gestión de Colaboradores");
             escenario.initModality(Modality.APPLICATION_MODAL); 
+            
+            // ---LIMITAMOS EL TAMAÑO MÍNIMO ---
+            escenario.setMinWidth(900);  
+            escenario.setMinHeight(600); 
+            
             escenario.showAndWait();
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -90,6 +96,7 @@ public class FXMLPrincipalController implements Initializable {
                                           Alert.AlertType.ERROR);
         }
     }
+    
     
     
     @FXML

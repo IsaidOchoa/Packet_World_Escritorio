@@ -49,6 +49,8 @@ public class FXMLSucursalController implements Initializable {
     private TableColumn colEstado;
     @FXML
     private TextField tfBusqueda;
+    @FXML
+    private TableColumn colEstatus;
     
     private ObservableList<Sucursal> listaSucursales;
 
@@ -56,6 +58,13 @@ public class FXMLSucursalController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         configurarTabla();
         cargarDatosTabla();
+        
+        // Descomenta este bloque busque mientras escribes.
+        /*
+        tfBusqueda.textProperty().addListener((observable, oldValue, newValue) -> {
+            clicBuscar(null);
+        });
+*/
     }    
     
     private void configurarTabla(){
@@ -63,10 +72,10 @@ public class FXMLSucursalController implements Initializable {
         colCalle.setCellValueFactory(new PropertyValueFactory("calle"));
         colNumero.setCellValueFactory(new PropertyValueFactory("numero"));
         colCodigoPostal.setCellValueFactory(new PropertyValueFactory("codigoPostal"));
-        
         colColonia.setCellValueFactory(new PropertyValueFactory("nombreColonia")); 
         colMunicipio.setCellValueFactory(new PropertyValueFactory("municipio"));
         colEstado.setCellValueFactory(new PropertyValueFactory("estado"));
+        colEstatus.setCellValueFactory(new PropertyValueFactory("estatusTexto"));
     }
     
     
@@ -75,18 +84,61 @@ public class FXMLSucursalController implements Initializable {
         List<Sucursal> respuestaWS = SucursalImp.obtenerSucursales();
         
         if(respuestaWS != null && !respuestaWS.isEmpty()){
+            // --- INICIO CÓDIGO DE PRUEBA ---
+            Sucursal primera = respuestaWS.get(0);
+            System.out.println("----------------------------------------");
+            System.out.println("DATOS RECIBIDOS EN CONTROLADOR:");
+            System.out.println("Nombre: " + primera.getNombre());
+            System.out.println("Colonia (Variable): " + primera.getNombreColonia()); // ¿Imprime null?
+            System.out.println("Municipio: " + primera.getMunicipio());       // ¿Imprime null?
+            System.out.println("Estado: " + primera.getEstado());             // ¿Imprime null?
+            System.out.println("----------------------------------------");
+            // --- FIN CÓDIGO DE PRUEBA ---
+
             listaSucursales.addAll(respuestaWS);
             tvSucursales.setItems(listaSucursales);
-        }else{
+        } else {
             Utilidades.mostrarAlertaSimple("Sin Resultados", "No se encontraron sucursales.", Alert.AlertType.INFORMATION);
         }
     }
+    
 
     @FXML
     private void clicBuscar(ActionEvent event) {
-        // Implementación de la búsqueda aquí
-        cargarDatosTabla();
+        String busqueda = tfBusqueda.getText().trim().toLowerCase();
+
+        // 1. Si no hay texto, restaurar la lista completa
+        if (busqueda.isEmpty()) {
+            tvSucursales.setItems(listaSucursales);
+            return;
+        }
+
+        ObservableList<Sucursal> resultados = FXCollections.observableArrayList();
+
+        for (Sucursal s : listaSucursales) {
+            String nombre = (s.getNombre() != null) ? s.getNombre().toLowerCase() : "";
+            String calle = (s.getCalle() != null) ? s.getCalle().toLowerCase() : "";
+            String colonia = (s.getNombreColonia() != null) ? s.getNombreColonia().toLowerCase() : ""; // Ojo: usa getNombreColonia()
+            String cp = (s.getCodigoPostal() != null) ? s.getCodigoPostal().toLowerCase() : "";
+            String municipio = (s.getMunicipio() != null) ? s.getMunicipio().toLowerCase() : "";
+            String estado = (s.getEstado() != null) ? s.getEstado().toLowerCase() : "";
+
+            if (nombre.contains(busqueda) || 
+                calle.contains(busqueda) || 
+                colonia.contains(busqueda) || 
+                cp.contains(busqueda) || 
+                municipio.contains(busqueda) || 
+                estado.contains(busqueda)) {
+                
+                resultados.add(s);
+            }
+        }
+
+        tvSucursales.setItems(resultados);
+        
+        
     }
+    
 
     @FXML
     private void clicNuevo(ActionEvent event) {
@@ -108,22 +160,33 @@ public class FXMLSucursalController implements Initializable {
     private void clicEliminar(ActionEvent event) {
         Sucursal seleccionado = tvSucursales.getSelectionModel().getSelectedItem();
         if(seleccionado != null){
+            
+            // Validar que no esté ya dada de baja
+            if(seleccionado.getEstatus() != null && seleccionado.getEstatus() == 0) {
+                 Utilidades.mostrarAlertaSimple("Aviso", "La sucursal ya está inactiva.", Alert.AlertType.WARNING);
+                 return;
+            }
+
             boolean confirmar = Utilidades.mostrarAlertaConfirmacion(
-                    "Eliminar Sucursal", 
-                    "¿Estás seguro de eliminar la sucursal " + seleccionado.getNombre() + "?"
+                    "Dar de Baja Sucursal", 
+                    "¿Estás seguro de inhabilitar la sucursal " + seleccionado.getNombre() + "?"
             );
             
             if(confirmar){
+                // Llamamos al servicio eliminar.
+                // IMPORTANTE: Tu Backend debe tener el UPDATE estatus=0 en el mapper de "eliminar"
+                // para que sea una baja lógica y no física.
                 clienteescritoriopw.dto.Respuesta respuesta = SucursalImp.eliminar(seleccionado.getIdSucursal());
+                
                 if(!respuesta.isError()){
-                    Utilidades.mostrarAlertaSimple("Éxito", respuesta.getMensaje(), Alert.AlertType.INFORMATION);
+                    Utilidades.mostrarAlertaSimple("Éxito", "Sucursal dada de baja correctamente.", Alert.AlertType.INFORMATION);
                     cargarDatosTabla(); 
                 }else{
                     Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
                 }
             }
         }else{
-            Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona una sucursal para eliminar.", Alert.AlertType.WARNING);
+            Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona una sucursal para dar de baja.", Alert.AlertType.WARNING);
         }
     }
 

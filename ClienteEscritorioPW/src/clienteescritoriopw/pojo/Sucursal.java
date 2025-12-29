@@ -119,5 +119,7 @@ public class Sucursal {
         this.estado = estado;
     }
   
-    
+    public String getEstatusTexto() {
+    return (estatus != null && estatus == 1) ? "Activa" : "Inactiva";
+}
  }

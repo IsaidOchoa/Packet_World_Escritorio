@@ -94,8 +94,41 @@ public class FXMLColaboradorController implements Initializable {
 
     @FXML
     private void clicBuscar(ActionEvent event) {
-        cargarDatosTabla();
+        String busqueda = tfBusqueda.getText().trim().toLowerCase();
+
+        // 1. Si no hay texto, mostramos todos
+        if (busqueda.isEmpty()) {
+            tvColaboradores.setItems(listaColaboradores); 
+            return;
+        }
+
+        ObservableList<Colaborador> resultados = FXCollections.observableArrayList();
+
+        for (Colaborador c : listaColaboradores) {
+            // Preparamos los campos (protegiendo contra nulos)
+            String nombre = (c.getNombre() != null) ? c.getNombre().toLowerCase() : "";
+            String paterno = (c.getApellidoPaterno() != null) ? c.getApellidoPaterno().toLowerCase() : "";
+            String materno = (c.getApellidoMaterno() != null) ? c.getApellidoMaterno().toLowerCase() : "";
+            String noPersonal = (c.getNumeroPersonal() != null) ? c.getNumeroPersonal().toLowerCase() : "";
+            String correo = (c.getCorreo() != null) ? c.getCorreo().toLowerCase() : "";
+            String curp = (c.getCurp() != null) ? c.getCurp().toLowerCase() : "";
+
+            // 2. Buscamos coincidencias en CUALQUIER campo
+            if (nombre.contains(busqueda) || 
+                paterno.contains(busqueda) || 
+                materno.contains(busqueda) || 
+                noPersonal.contains(busqueda) || 
+                correo.contains(busqueda) || 
+                curp.contains(busqueda)) {
+                
+                resultados.add(c);
+            }
+        }
+
+        // 3. Actualizamos la tabla
+        tvColaboradores.setItems(resultados);
     }
+    
 
    
 

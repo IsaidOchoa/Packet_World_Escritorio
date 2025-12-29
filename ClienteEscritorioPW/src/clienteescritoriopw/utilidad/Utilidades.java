@@ -15,6 +15,7 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -23,7 +24,8 @@ import javafx.scene.image.Image;
 public class Utilidades {
     
 public static String streamToString(InputStream input) throws IOException{
-    BufferedReader in = new BufferedReader(new InputStreamReader(input));
+    if (input == null) return "";
+    BufferedReader in = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
     String inputLine;
     StringBuffer respuestaEntrada = new StringBuffer();
     while( (inputLine = in.readLine()) != null){
