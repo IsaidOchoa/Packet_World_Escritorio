@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pojo;
+package clienteescritoriopw.pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Unidad {
     
     
@@ -22,7 +13,7 @@ public class Unidad {
     
     // Relación con Tipo de Unidad
     private int idTipoUnidad;
-    private String tipo; // Ejemplo:(Gasolina, Diesel, Eléctrica,Hibrida)
+    private String tipo; // (Gasolina, Diesel, Electrica, Hibrida)
     
     // Relación con Sucursal
     private int idSucursal;

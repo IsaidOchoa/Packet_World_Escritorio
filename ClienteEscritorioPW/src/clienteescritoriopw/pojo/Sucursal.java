@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pojo;
+package clienteescritoriopw.pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Sucursal {
     private Integer idSucursal;
     private String nombre;
@@ -16,8 +7,6 @@ public class Sucursal {
     private String numero;
     private Integer idColonia;
     private Integer estatus; 
-    
-    
     private String nombreColonia;
     private String codigoPostal;
     private String municipio;
@@ -119,5 +108,7 @@ public class Sucursal {
         this.estado = estado;
     }
   
-    
+    public String getEstatusTexto() {
+    return (estatus != null && estatus == 1) ? "Activa" : "Inactiva";
+}
  }

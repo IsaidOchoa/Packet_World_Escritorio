@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pojo;
+package clienteescritoriopw.pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Cliente {
    
     private int idCliente;
@@ -20,12 +11,15 @@ public class Cliente {
     private int idColonia;
     private String calle;
     private String numero;
-    private int codigoPostal; // Extra para vista
+    private int codigoPostal;
+    private String nombreColonia;
+    private String municipio;
+    private String estado;
 
     public Cliente() {
     }
 
-    public Cliente(int idCliente, String nombre, String apellidoPaterno, String apellidoMaterno, String correo, String telefono, int idColonia, String calle, String numero, int codigoPostal) {
+    public Cliente(int idCliente, String nombre, String apellidoPaterno, String apellidoMaterno, String correo, String telefono, int idColonia, String calle, String numero, int codigoPostal, String nombreColonia, String municipio, String estado) {
         this.idCliente = idCliente;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
@@ -36,6 +30,9 @@ public class Cliente {
         this.calle = calle;
         this.numero = numero;
         this.codigoPostal = codigoPostal;
+        this.nombreColonia = nombreColonia;
+        this.municipio = municipio;
+        this.estado = estado;
     }
 
     public int getIdCliente() {
@@ -117,7 +114,29 @@ public class Cliente {
     public void setCodigoPostal(int codigoPostal) {
         this.codigoPostal = codigoPostal;
     }
-    
-    
-    
+
+    public String getNombreColonia() {
+        return nombreColonia;
+    }
+
+    public void setNombreColonia(String nombreColonia) {
+        this.nombreColonia = nombreColonia;
+    }
+
+    public String getMunicipio() {
+        return municipio;
+    }
+
+    public void setMunicipio(String municipio) {
+        this.municipio = municipio;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
 }

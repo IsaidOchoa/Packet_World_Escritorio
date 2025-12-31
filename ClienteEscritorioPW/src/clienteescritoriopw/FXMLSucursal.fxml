@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLSucursalController">
+   <children>
+      <Pane prefHeight="70.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label layoutX="32.0" layoutY="18.0" text="Gestión de Sucursales" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      
+      <HBox alignment="CENTER_LEFT" layoutX="32.0" layoutY="90.0" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.topAnchor="90.0">
+         <children>
+            <TextField fx:id="tfBusqueda" prefHeight="30.0" prefWidth="300.0" promptText="Buscar por nombre, estado o municipio..." />
+            <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
+         </children>
+      </HBox>
+      
+      <TableView fx:id="tvSucursales" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="140.0">
+
+        <columns>
+          <TableColumn fx:id="colNombre" prefWidth="150.0" text="Nombre" />
+          <TableColumn fx:id="colCalle" prefWidth="120.0" text="Calle" />
+          <TableColumn fx:id="colNumero" prefWidth="70.0" text="Num" />
+          <TableColumn fx:id="colColonia" prefWidth="120.0" text="Colonia" />
+          <TableColumn fx:id="colCodigoPostal" prefWidth="70.0" text="C.P." />
+          <TableColumn fx:id="colMunicipio" prefWidth="120.0" text="Municipio" />
+          <TableColumn fx:id="colEstado" prefWidth="120.0" text="Estado" />
+          <TableColumn fx:id="colEstatus" prefWidth="80.0" text="Estatus" />
+        </columns>
+         
+      </TableView>
+      
+      <HBox alignment="CENTER" layoutX="32.0" layoutY="535.0" spacing="20.0" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="32.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#clicNuevo" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2ecc71;" text="Nuevo" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#clicEditar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12;" text="Editar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#clicEliminar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c;" text="Dar de Baja" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
+      
+      <Button layoutX="798.0" layoutY="20.0" mnemonicParsing="false" onAction="#clicRegresar" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-radius: 5;" text="Regresar" textFill="WHITE" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="20.0" />
+   </children>
+</AnchorPane>
