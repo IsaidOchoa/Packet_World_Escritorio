@@ -153,13 +153,16 @@ public class FXMLClienteController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioCliente.fxml"));
             Parent root = loader.load();
             
-            // FXMLFormularioClienteController controlador = loader.getController();
-            // if(cliente != null) controlador.inicializarEdicion(cliente);
+            FXMLFormularioClienteController controlador = loader.getController();
+            if(cliente != null) 
+            controlador.inicializarEdicion(cliente);
             
             Stage escenario = new Stage();
             escenario.setScene(new Scene(root));
             escenario.setTitle(cliente == null ? "Nuevo Cliente" : "Editar Cliente");
             escenario.initModality(Modality.APPLICATION_MODAL);
+            escenario.setMinWidth(720);  // Ancho mínimo
+            escenario.setMinHeight(550); // Alto mínimo
             escenario.showAndWait();
             
             cargarDatosTabla();
