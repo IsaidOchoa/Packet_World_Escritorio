@@ -7,6 +7,7 @@ package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.CatalogoImp;
 import clienteescritoriopw.dominio.ColaboradorImp;
+import clienteescritoriopw.dominio.SucursalImp;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.Rol;
@@ -127,7 +128,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
         if (rolesWS != null) listaRoles.addAll(rolesWS);
         cbRol.setItems(listaRoles);
         
-        List<Sucursal> sucursalesWS = CatalogoImp.obtenerSucursales();
+        List<Sucursal> sucursalesWS = SucursalImp.obtenerSucursales();
         if (sucursalesWS != null) listaSucursales.addAll(sucursalesWS);
         cbSucursal.setItems(listaSucursales);
     }

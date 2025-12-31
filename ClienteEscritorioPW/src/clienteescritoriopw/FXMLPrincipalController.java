@@ -121,7 +121,25 @@ public class FXMLPrincipalController implements Initializable {
 
     @FXML
     private void clicModuloClientes(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLCliente.fxml"));
+            Parent root = loader.load();
+            
+            Stage escenario = new Stage();
+            escenario.setScene(new Scene(root));
+            escenario.setTitle("Gestión de Clientes");
+            escenario.initModality(Modality.APPLICATION_MODAL);
+            
+            escenario.setMinWidth(900);
+            escenario.setMinHeight(600);
+            
+            escenario.showAndWait();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Clientes.", Alert.AlertType.ERROR);
+        }
     }
+    
 
     @FXML
     private void clicModuloEnvios(ActionEvent event) {

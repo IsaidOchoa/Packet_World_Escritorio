@@ -19,7 +19,7 @@ public class Colonia {
     // Extras para la búsqueda por CP (Para llenar los combos automáticamente)
     private String nombreMunicipio;
     private String nombreEstado;
-    private Integer idEstado; // Necesario para seleccionar el Estado en el Combo
+    private Integer idEstado; 
 
     public Colonia() {
     }

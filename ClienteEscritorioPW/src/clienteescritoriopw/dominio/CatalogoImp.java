@@ -6,6 +6,9 @@
 package clienteescritoriopw.dominio;
 
 import clienteescritoriopw.conexion.ConexionAPI;
+import clienteescritoriopw.pojo.Colonia;
+import clienteescritoriopw.pojo.Estado;
+import clienteescritoriopw.pojo.Municipio;
 import clienteescritoriopw.pojo.RespuestaHTTP;
 import clienteescritoriopw.pojo.Rol;
 import clienteescritoriopw.pojo.Sucursal;
@@ -38,24 +41,4 @@ public class CatalogoImp {
         }
         return lista;
     }
-    
-    public static List<Sucursal> obtenerSucursales() {
-        List<Sucursal> lista = new ArrayList<>();
-        // Ruta basada en tu SucursalWS: @Path("Obtener-todas")
-        String url = Constantes.URL_WS + "sucursal/Obtener-todas";
-        
-        RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
-        
-        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
-            Gson gson = new Gson();
-            try {
-                Type tipoLista = new TypeToken<ArrayList<Sucursal>>(){}.getType();
-                lista = gson.fromJson(respuesta.getContenido(), tipoLista);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return lista;
-    }
 }
-
