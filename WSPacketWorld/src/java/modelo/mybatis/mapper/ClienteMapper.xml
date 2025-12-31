@@ -2,9 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cliente">
     <select id="obtenerTodos" resultType="pojo.Cliente">
-        SELECT c.*, col.codigo_postal AS codigoPostal 
+        SELECT 
+            c.idCliente,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.correo,
+            c.telefono,
+            c.calle,
+            c.numero,
+            c.idColonia,
+            
+            -- Datos de Dirección (Alias para el POJO)
+            col.nombre AS nombreColonia,
+            col.codigo_postal AS codigoPostal,
+            m.nombre AS municipio,
+            e.nombre AS estado
+            
         FROM Cliente c 
         INNER JOIN colonias col ON c.idColonia = col.id
+        INNER JOIN municipios m ON col.idMunicipio = m.id
+        INNER JOIN estados e ON m.idEstado = e.id
     </select>
     
     <insert id="registrar" parameterType="pojo.Cliente">
@@ -13,7 +31,17 @@
     </insert>
 
     <select id="buscarPorNombre" resultType="pojo.Cliente" parameterType="string">
-        SELECT * FROM Cliente 
+        SELECT 
+        idCliente,
+        nombre,
+        apellidoPaterno,
+        apellidoMaterno,
+        correo,
+        telefono,
+        calle,
+        numero,
+        idColonia,
+        FROM Cliente 
         WHERE nombre LIKE #{filtro} OR apellidoPaterno LIKE #{filtro}
     </select>
     
