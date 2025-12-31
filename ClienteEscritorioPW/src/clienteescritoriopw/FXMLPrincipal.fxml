@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPrincipalController">
+   
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #1A3B5C; -fx-padding: 15;">
+         <children>
+            <Label text="Packet-World" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            
+            <Region HBox.hgrow="ALWAYS" />
+            
+            <VBox alignment="CENTER_RIGHT">
+               <children>
+                  <Label fx:id="lblNombreUsuario" text="Usuario: ..." textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblRol" text="Rol: ..." textFill="#b0c4de">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </top>
+   
+   <center>
+      <VBox alignment="TOP_CENTER" spacing="30.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="40.0" />
+         </padding>
+         <children>
+            <Label text="Bienvenido al Sistema Packet-World" textFill="#1a3b5c">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+            </Label>
+            <Label text="Seleccione un módulo para comenzar." textFill="#555555">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            
+            <GridPane alignment="CENTER" hgap="25.0" vgap="25.0" VBox.vgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="120.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="120.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloColaboradores" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Colaboradores">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/colaboradores.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloUnidades" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Unidades" GridPane.columnIndex="1">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/unidad.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloSucursales" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Sucursales" GridPane.columnIndex="2">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/sucursal.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloClientes" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Clientes" GridPane.rowIndex="1">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/cliente.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloEnvios" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Envíos" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/envio.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloClientes" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Asignaciones" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                     <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@recursos/asignar.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+
+               </children>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
+   
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" style="-fx-padding: 20;">
+         <children>
+            <Button mnemonicParsing="false" onAction="#clicCerrarSesion" style="-fx-background-color: #1A3B5C; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-size: 14px;" text="Cerrar Sesión" />
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
