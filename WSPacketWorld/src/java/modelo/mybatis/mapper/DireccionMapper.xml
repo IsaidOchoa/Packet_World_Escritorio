@@ -45,5 +45,14 @@
         INNER JOIN estados e ON m.idEstado = e.id
         WHERE c.codigo_postal = #{codigoPostal}
     </select>
+    
+    <select id="obtenerMunicipio" resultType="pojo.Municipio" parameterType="int">
+        SELECT 
+            id AS idMunicipio, 
+            nombre, 
+            idEstado AS idEstado 
+        FROM municipios 
+        WHERE id = #{idMunicipio}
+    </select>
 
 </mapper>

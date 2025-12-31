@@ -66,5 +66,19 @@ public class DireccionImp {
         }
         return lista;
     }
+    public static Municipio obtenerMunicipio(int idMunicipio) {
+        Municipio municipio = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                municipio = conexionBD.selectOne("direccion.obtenerMunicipio", idMunicipio);
+            } catch (Exception e) { 
+                e.printStackTrace(); 
+            } finally { 
+                conexionBD.close(); 
+            }
+        }
+        return municipio;
+    }
 }
 

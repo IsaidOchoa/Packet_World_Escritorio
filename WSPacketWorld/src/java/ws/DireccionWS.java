@@ -60,6 +60,16 @@ public class DireccionWS {
         }
         return null;
     }
+    
+    @Path("municipio/{idMunicipio}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Municipio obtenerMunicipio(@PathParam("idMunicipio") Integer idMunicipio) {
+        if (idMunicipio != null && idMunicipio > 0) {
+            return DireccionImp.obtenerMunicipio(idMunicipio);
+        }
+        return null;
+    }
 }
     
 
