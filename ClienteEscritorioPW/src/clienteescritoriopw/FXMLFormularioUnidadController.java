@@ -42,12 +42,11 @@ public class FXMLFormularioUnidadController implements Initializable {
     
     private void cargarTiposUnidad() {
         listaTipos = FXCollections.observableArrayList();
-        // Asegúrate que CatalogoImp tenga obtenerTiposUnidad()
+        // Ahora sí funcionará porque agregamos el método en CatalogoImp
         List<TipoUnidad> lista = CatalogoImp.obtenerTiposUnidad();
         if(lista != null) listaTipos.addAll(lista);
         cbTipoUnidad.setItems(listaTipos);
         
-        // Convertidor para mostrar solo el nombre en el combo
         cbTipoUnidad.setConverter(new StringConverter<TipoUnidad>() {
             @Override
             public String toString(TipoUnidad t) { return (t != null) ? t.getNombre() : null; }
@@ -56,11 +55,8 @@ public class FXMLFormularioUnidadController implements Initializable {
         });
     }
 
-    // --- REGLA: CÁLCULO AUTOMÁTICO DEL NII ---
     private void configurarListenersNII() {
-        // Escuchamos cambios en Año
         tfAnio.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
-        // Escuchamos cambios en VIN
         tfVin.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
     }
     
@@ -68,8 +64,8 @@ public class FXMLFormularioUnidadController implements Initializable {
         String anio = tfAnio.getText().trim();
         String vin = tfVin.getText().trim();
         
-        // Regla PDF: Año + primeros 4 del VIN
         if(!anio.isEmpty() && vin.length() >= 4){
+            // NII = Año + 4 primeros caracteres del VIN
             String niiCalculado = anio + vin.substring(0, 4).toUpperCase();
             tfNII.setText(niiCalculado);
         } else {
@@ -83,11 +79,13 @@ public class FXMLFormularioUnidadController implements Initializable {
         
         tfMarca.setText(unidad.getMarca());
         tfModelo.setText(unidad.getModelo());
-        tfAnio.setText(unidad.getAnio());
+        
+        // CORRECCIÓN: Convertir int a String para mostrarlo
+        tfAnio.setText(String.valueOf(unidad.getAnio()));
+        
         tfVin.setText(unidad.getVin());
         tfNII.setText(unidad.getNii());
         
-        // Seleccionar Tipo
         for(TipoUnidad t : cbTipoUnidad.getItems()){
             if(t.getIdTipoUnidad() == unidad.getIdTipoUnidad()){
                 cbTipoUnidad.getSelectionModel().select(t);
@@ -95,9 +93,8 @@ public class FXMLFormularioUnidadController implements Initializable {
             }
         }
         
-        // --- REGLA: VIN NO EDITABLE ---
+        // El VIN no se debe editar según el PDF
         tfVin.setDisable(true); 
-        // El NII sigue calculándose si cambian el año, pero el VIN ya no cambia.
     }
 
     @FXML
@@ -106,10 +103,26 @@ public class FXMLFormularioUnidadController implements Initializable {
             Unidad unidad = new Unidad();
             unidad.setMarca(tfMarca.getText().trim());
             unidad.setModelo(tfModelo.getText().trim());
-            unidad.setAnio(tfAnio.getText().trim());
+            
+            // CORRECCIÓN: Parsear el año de String a int
+            try {
+                unidad.setAnio(Integer.parseInt(tfAnio.getText().trim()));
+            } catch (NumberFormatException e) {
+                Utilidades.mostrarAlertaSimple("Error", "El año debe ser un número válido.", Alert.AlertType.ERROR);
+                return;
+            }
+
             unidad.setVin(tfVin.getText().trim());
-            unidad.getNii(tfNII.getText().trim());
+            
+            // CORRECCIÓN: Usar setNii en lugar de getNii
+            unidad.setNii(tfNII.getText().trim());
+            
             unidad.setIdTipoUnidad(cbTipoUnidad.getValue().getIdTipoUnidad());
+            
+            // Ojo: Asignamos Sucursal por defecto o nula si el form no la tiene
+            // Según tu POJO Unidad del servidor, requiere idSucursal. 
+            // Si el backend permite nulos, bien. Si no, asigna 0 o maneja la lógica.
+            // unidad.setIdSucursal(1); // Ejemplo temporal
             
             if(unidadEdicion == null) {
                 procesarRespuesta(UnidadImp.registrar(unidad), "registrada");
@@ -132,6 +145,14 @@ public class FXMLFormularioUnidadController implements Initializable {
             Utilidades.mostrarAlertaSimple("Campos vacíos", "Faltan:\n" + msg, Alert.AlertType.WARNING);
             return false;
         }
+        // Validación extra para que el año sea número
+        try {
+            Integer.parseInt(tfAnio.getText().trim());
+        } catch (NumberFormatException e) {
+            Utilidades.mostrarAlertaSimple("Datos inválidos", "El año debe ser numérico.", Alert.AlertType.WARNING);
+            return false;
+        }
+        
         return true;
     }
 
@@ -148,40 +169,5 @@ public class FXMLFormularioUnidadController implements Initializable {
     private void clicCancelar(ActionEvent event) {
         ((Stage) tfMarca.getScene().getWindow()).close();
     }
-    @FXML
-    private void clicEliminar(ActionEvent event) {
-        Unidad seleccionada = tvUnidades.getSelectionModel().getSelectedItem();
-        if (seleccionada != null) {
-            
-            // 1. Pedir el motivo usando un diálogo de texto (TextInputDialog)
-            javafx.scene.control.TextInputDialog dialogo = new javafx.scene.control.TextInputDialog();
-            dialogo.setTitle("Dar de Baja Unidad");
-            dialogo.setHeaderText("¿Estás seguro de eliminar la unidad: " + seleccionada.getModelo() + "?");
-            dialogo.setContentText("Motivo de la baja:");
-            
-            // Esperar a que el usuario escriba y acepte
-            java.util.Optional<String> resultado = dialogo.showAndWait();
-            
-            if (resultado.isPresent()) {
-                String motivo = resultado.get().trim();
-                if(motivo.isEmpty()){
-                     Utilidades.mostrarAlertaSimple("Error", "Debes ingresar un motivo para dar de baja.", Alert.AlertType.WARNING);
-                     return;
-                }
-                
-                // 2. Proceder a eliminar (Aquí podrías mandar el motivo al backend si tuvieras el campo, 
-                //    pero por ahora cumplimos con pedirlo en la interfaz).
-                Respuesta respuesta = UnidadImp.eliminar(seleccionada.getIdUnidad());
-                
-                if (!respuesta.isError()) {
-                    Utilidades.mostrarAlertaSimple("Éxito", "Unidad dada de baja.", Alert.AlertType.INFORMATION);
-                    cargarDatosTabla();
-                } else {
-                    Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
-                }
-            }
-        } else {
-            Utilidades.mostrarAlertaSimple("Atención", "Selecciona una unidad para eliminar.", Alert.AlertType.WARNING);
-        }
-    }
+    
 }
