@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="autenticacion">
+    
+    <select id="loginColaborador" parameterType="map" resultType="pojo.Colaborador">
+        SELECT
+    c.idColaborador AS idColaborador,    
+    c.nombre,
+    c.apellidoPaterno AS apellidoPaterno, 
+    c.apellidoMaterno AS apellidoMaterno, 
+    c.curp,
+    c.correo,
+    c.numeroPersonal AS numeroPersonal,   
+    c.password,
+    c.numeroLicencia AS numeroLicencia,   
+    c.idRol AS idRol,                     
+    r.nombre AS rol,
+    c.idSucursal AS idSucursal,           
+    TO_BASE64(c.foto) AS fotoBase64       
+    FROM colaborador c
+    INNER JOIN rol r ON r.idRol = c.idRol     
+    WHERE c.numeroPersonal = #{numeroPersonal} 
+    AND c.password = #{password}
+    </select>
+
+</mapper>

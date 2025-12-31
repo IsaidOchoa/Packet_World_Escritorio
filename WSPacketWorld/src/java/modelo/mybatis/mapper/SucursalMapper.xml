@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sucursal">
+
+    <select id="obtenerTodas" resultType="pojo.Sucursal">
+        SELECT 
+            s.idSucursal,
+            s.nombre,
+            s.calle,
+            s.numero,
+            s.idColonia,
+            s.estatus,
+            
+            -- Datos unidos de las otras tablas
+            c.nombre AS nombreColonia,
+            c.codigo_postal AS codigoPostal,
+            m.nombre AS municipio,
+            e.nombre AS estado
+            
+        FROM Sucursal s
+        INNER JOIN colonias c ON s.idColonia = c.id
+        INNER JOIN municipios m ON c.id_municipio = m.id
+        INNER JOIN estados e ON m.id_estado = e.id
+        WHERE s.estatus = 1
+    </select>
+
+    <insert id="registrar" parameterType="pojo.Sucursal" useGeneratedKeys="true" keyProperty="idSucursal">
+        INSERT INTO Sucursal (nombre, calle, numero, idColonia, estatus)
+        VALUES (#{nombre}, #{calle}, #{numero}, #{idColonia}, 1)
+    </insert>
+
+    <update id="editar" parameterType="pojo.Sucursal">
+        UPDATE Sucursal SET
+            nombre = #{nombre},
+            calle = #{calle},
+            numero = #{numero},
+            idColonia = #{idColonia}
+        WHERE idSucursal = #{idSucursal}
+    </update>
+    
+    <update id="eliminar" parameterType="int">
+        UPDATE Sucursal SET estatus = 0 WHERE idSucursal = #{idSucursal}
+    </update>
+
+</mapper>
