@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Cliente {
    
     private int idCliente;
@@ -20,7 +11,7 @@ public class Cliente {
     private int idColonia;
     private String calle;
     private String numero;
-    private int codigoPostal; // Extra para vista
+    private int codigoPostal;
     private String nombreColonia;
     private String municipio;
     private String estado;

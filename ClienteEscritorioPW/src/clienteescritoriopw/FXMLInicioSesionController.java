@@ -1,10 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw;
-
 
 import clienteescritoriopw.dominio.InicioSesionImp;
 import clienteescritoriopw.dto.RSAutenticacionColaborador;
@@ -28,7 +22,7 @@ import javafx.stage.Stage;
 public class FXMLInicioSesionController implements Initializable {
 
     @FXML
-    private TextField tfNoPersonal; // Usamos tu variable original
+    private TextField tfNoPersonal;
     @FXML
     private PasswordField pfPassword;
     @FXML
@@ -36,18 +30,14 @@ public class FXMLInicioSesionController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicialización si es necesaria
     }    
 
     @FXML
     private void clicIngresar(ActionEvent event) {
-      
-        // 1. Limpiamos espacios
+
         String noPersonal = tfNoPersonal.getText().trim();
         String password = pfPassword.getText().trim();
-        
-        // 2. Validaciones usando tu clase Utilidades
-        
+
         // A) Validar Vacíos
         if(noPersonal.isEmpty() || password.isEmpty()){
             Utilidades.mostrarAlertaSimple(
@@ -78,7 +68,6 @@ public class FXMLInicioSesionController implements Initializable {
             );
             return; 
         }
-
         verificarCredenciales(noPersonal, password);
     }
       
@@ -104,16 +93,10 @@ public class FXMLInicioSesionController implements Initializable {
     private void irPantallaPrincipal(Colaborador colaborador){
        
         try {
-            // Cargar la vista
             FXMLLoader cargador = new FXMLLoader(getClass().getResource("FXMLPrincipal.fxml"));
             Parent vista = cargador.load();
-            
-            // === [NUEVO: PASAR LA INFORMACIÓN] ===
-            // Recuperamos el controlador de la ventana que acabamos de cargar
             FXMLPrincipalController controladorPrincipal = cargador.getController();
-            // Le pasamos el objeto colaborador para que ponga el nombre y el rol
             controladorPrincipal.cargarInformacion(colaborador);
-            // =====================================
             
             Scene escenaPrincipal = new Scene(vista);
             Stage stPrincipal = (Stage) tfNoPersonal.getScene().getWindow();

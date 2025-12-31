@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Colaborador {
 
     private int idColaborador;
@@ -20,16 +11,12 @@ public class Colaborador {
     private String numeroPersonal;
     private String password;
     private String numeroLicencia;
-    
-    // Relaciones
     private int idRol;
-    private String rol; // Nombre del rol
+    private String rol;
     private int idSucursal;
-    private String nombreSucursal; // Nombre de la sucursal
-    
-    // Foto
-    private byte[] foto;        // Para BD
-    private String fotoBase64;  // Para JSON
+    private String nombreSucursal; 
+    private byte[] foto;
+    private String fotoBase64;
 
     public Colaborador() {
     }

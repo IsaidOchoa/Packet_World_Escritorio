@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.conexion;
 
 import clienteescritoriopw.pojo.RespuestaHTTP;
@@ -48,10 +43,6 @@ public class ConexionAPI {
             URL urlWS = new URL(URL);
             HttpURLConnection conexionHTTP = (HttpURLConnection) urlWS.openConnection();
             conexionHTTP.setRequestMethod(metodoHTTP);
-            
-            // CORRECCIÓN IMPORTANTE: 
-            // Usamos la variable 'contentType' que recibimos, no "application/json" fijo.
-            // Esto permite que el Login mande formularios y el Registro mande JSON.
             conexionHTTP.setRequestProperty("Content-Type", contentType);
             
             conexionHTTP.setDoOutput(true);
@@ -79,7 +70,6 @@ public class ConexionAPI {
         return respuesta;
     }
     
-    // El método peticionSinBody queda igual que antes (con el getErrorStream)
     public static RespuestaHTTP peticionSinBody(String URL, String metodoHTTP){
         RespuestaHTTP respuesta = new RespuestaHTTP();
         try {

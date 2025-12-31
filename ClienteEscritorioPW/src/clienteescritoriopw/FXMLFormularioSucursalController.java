@@ -36,7 +36,7 @@ public class FXMLFormularioSucursalController implements Initializable {
     @FXML
     private TextField tfCodigoPostal;
     @FXML
-    private ComboBox<Colonia> cbColonia; // CAMBIO: Ahora es ComboBox
+    private ComboBox<Colonia> cbColonia;
     @FXML
     private TextField tfMunicipio;
     @FXML
@@ -55,7 +55,6 @@ public class FXMLFormularioSucursalController implements Initializable {
     }    
     
     private void configurarComboBox() {
-        // Para que el ComboBox muestre el nombre de la colonia y no el objeto raro
         cbColonia.setConverter(new StringConverter<Colonia>() {
             @Override
             public String toString(Colonia object) {
@@ -67,9 +66,8 @@ public class FXMLFormularioSucursalController implements Initializable {
     }
     
     private void configurarListeners() {
-        // 1. Al perder el foco del campo CP, buscar colonias
         tfCodigoPostal.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal) { // Si perdió el foco
+            if (!newVal) {
                 buscarColonias();
             }
         });
@@ -104,11 +102,6 @@ public class FXMLFormularioSucursalController implements Initializable {
         tfCalle.setText(sucursal.getCalle());
         tfNumero.setText(sucursal.getNumero());
         
-        // IMPORTANTE: Aquí deberías tener el CP en tu objeto sucursal para poder cargar las colonias
-        // Si tu objeto sucursal NO tiene getCodigoPostal(), tendrás que obtenerlo de la relación con Colonia
-        // Por ahora asumo que sucursal tiene un CP guardado o accesible.
-        // tfCodigoPostal.setText(sucursal.getCodigoPostal()); 
-        // buscarColonias(); // Cargar la lista para poder seleccionar la correcta
     }
 
     @FXML
@@ -123,7 +116,6 @@ public class FXMLFormularioSucursalController implements Initializable {
             sucursal.setCalle(tfCalle.getText());
             sucursal.setNumero(tfNumero.getText());
             
-            // AQUÍ ES DONDE CAMBIA TODO: Guardamos el ID de la Colonia seleccionada
             if (cbColonia.getValue() != null) {
                 sucursal.setIdColonia(cbColonia.getValue().getIdColonia());
             }

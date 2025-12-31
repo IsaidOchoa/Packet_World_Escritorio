@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.dominio;
 
 import clienteescritoriopw.conexion.ConexionAPI;
@@ -17,10 +12,6 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author pepeg
- */
 public class SucursalImp {
     
     public static List<Sucursal> obtenerSucursales() {

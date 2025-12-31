@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.SucursalImp;
@@ -24,11 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author pepeg
- */
 public class FXMLSucursalController implements Initializable {
 
     @FXML
@@ -58,13 +48,6 @@ public class FXMLSucursalController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         configurarTabla();
         cargarDatosTabla();
-        
-        // Descomenta este bloque busque mientras escribes.
-        /*
-        tfBusqueda.textProperty().addListener((observable, oldValue, newValue) -> {
-            clicBuscar(null);
-        });
-*/
     }    
     
     private void configurarTabla(){
@@ -84,17 +67,6 @@ public class FXMLSucursalController implements Initializable {
         List<Sucursal> respuestaWS = SucursalImp.obtenerSucursales();
         
         if(respuestaWS != null && !respuestaWS.isEmpty()){
-            // --- INICIO CÓDIGO DE PRUEBA ---
-            Sucursal primera = respuestaWS.get(0);
-            System.out.println("----------------------------------------");
-            System.out.println("DATOS RECIBIDOS EN CONTROLADOR:");
-            System.out.println("Nombre: " + primera.getNombre());
-            System.out.println("Colonia (Variable): " + primera.getNombreColonia()); // ¿Imprime null?
-            System.out.println("Municipio: " + primera.getMunicipio());       // ¿Imprime null?
-            System.out.println("Estado: " + primera.getEstado());             // ¿Imprime null?
-            System.out.println("----------------------------------------");
-            // --- FIN CÓDIGO DE PRUEBA ---
-
             listaSucursales.addAll(respuestaWS);
             tvSucursales.setItems(listaSucursales);
         } else {

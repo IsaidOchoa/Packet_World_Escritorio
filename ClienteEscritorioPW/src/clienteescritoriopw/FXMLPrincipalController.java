@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw;
 
 import clienteescritoriopw.pojo.Colaborador;
@@ -21,11 +16,6 @@ import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author pepeg
- */
 public class FXMLPrincipalController implements Initializable {
 
    @FXML private Label lblNombreUsuario;
@@ -82,9 +72,7 @@ public class FXMLPrincipalController implements Initializable {
             Stage escenario = new Stage();
             escenario.setScene(new Scene(root));
             escenario.setTitle("Gestión de Colaboradores");
-            escenario.initModality(Modality.APPLICATION_MODAL); 
-            
-            // ---LIMITAMOS EL TAMAÑO MÍNIMO ---
+            escenario.initModality(Modality.APPLICATION_MODAL);         
             escenario.setMinWidth(900);  
             escenario.setMinHeight(600); 
             
@@ -96,13 +84,10 @@ public class FXMLPrincipalController implements Initializable {
                                           Alert.AlertType.ERROR);
         }
     }
-    
-    
-    
+
     @FXML
     private void clicModuloSucursales(ActionEvent event) {
         try {
-            // Asegúrate de que la ruta sea correcta
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLSucursal.fxml"));
             Parent root = loader.load();
             

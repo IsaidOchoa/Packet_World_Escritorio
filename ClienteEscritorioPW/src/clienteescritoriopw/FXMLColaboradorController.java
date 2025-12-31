@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.ColaboradorImp;
@@ -29,11 +24,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author pepeg
- */
 public class FXMLColaboradorController implements Initializable {
 
     @FXML
@@ -129,9 +119,6 @@ public class FXMLColaboradorController implements Initializable {
         tvColaboradores.setItems(resultados);
     }
     
-
-   
-
     @FXML
     private void clicNuevo(ActionEvent event) {
         abrirFormulario(null);

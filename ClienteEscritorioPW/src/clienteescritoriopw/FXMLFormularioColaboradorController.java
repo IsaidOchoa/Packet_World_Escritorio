@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.CatalogoImp;
@@ -33,7 +28,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.StringConverter; // IMPORTANTE PARA EL COMBOBOX
+import javafx.util.StringConverter;
 
 
 public class FXMLFormularioColaboradorController implements Initializable {
@@ -65,7 +60,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
     @FXML
     private ImageView ivFoto;
     
-    // Variables auxiliares
     private Colaborador colaboradorEdicion;
     private File archivoFoto;
     private ObservableList<Rol> listaRoles;
@@ -77,7 +71,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
         cargarCatalogos();
     }    
     
-    // 1. Configuración visual para que los ComboBox muestren el NOMBRE y no el objeto raro
     private void configurarComboBoxes() {
         cbRol.setConverter(new StringConverter<Rol>() {
             @Override
@@ -87,7 +80,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
 
             @Override
             public Rol fromString(String string) {
-                return null; // No necesario para ComboBox de selección
+                return null;
             }
         });
         
@@ -104,12 +97,11 @@ public class FXMLFormularioColaboradorController implements Initializable {
         });
     }
 
-    // 2. Método llamado desde la lista para pasar los datos
     public void inicializarEdicion(Colaborador colaborador) {
         this.colaboradorEdicion = colaborador;
         lblTitulo.setText("Editar Colaborador: " + colaborador.getNombre());
         
-        // RESTRICCIONES DE EDICIÓN (Lo que pediste)
+        // RESTRICCIONES DE EDICIÓN
         tfNoPersonal.setDisable(true); // No editar No. Personal
         cbRol.setDisable(true);        // No editar Rol
         
@@ -142,7 +134,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
         tfCorreo.setText(colaboradorEdicion.getCorreo());
         tfLicencia.setText(colaboradorEdicion.getNumeroLicencia());
         
-        // Seleccionar Rol Correcto en el ComboBox
         if(colaboradorEdicion.getIdRol() > 0){
              for(Rol r : listaRoles){
                  if(r.getIdRol() == colaboradorEdicion.getIdRol()){
@@ -152,7 +143,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
              }
         }
         
-        // Seleccionar Sucursal Correcta
         if(colaboradorEdicion.getIdSucursal() > 0){
              for(Sucursal s : listaSucursales){
                  if(s.getIdSucursal() == colaboradorEdicion.getIdSucursal()){
@@ -266,7 +256,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
             return false;
         }
         
-        // Si hay texto en la contraseña (sea nuevo o edición), deben coincidir
         if (!pfPassword.getText().isEmpty()) {
             if (!pfPassword.getText().equals(pfConfirmarPassword.getText())) {
                 Utilidades.mostrarAlertaSimple("Error de contraseña", "Las contraseñas no coinciden.", Alert.AlertType.WARNING);

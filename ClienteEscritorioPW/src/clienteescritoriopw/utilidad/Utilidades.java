@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.utilidad;
 
 import java.io.BufferedReader;
@@ -17,10 +12,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import java.nio.charset.StandardCharsets;
 
-/**
- *
- * @author pepeg
- */
 public class Utilidades {
     
 public static String streamToString(InputStream input) throws IOException{

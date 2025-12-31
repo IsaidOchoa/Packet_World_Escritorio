@@ -31,7 +31,6 @@ public class FXMLClienteController implements Initializable {
     @FXML private TableView<Cliente> tvClientes;
     @FXML private TableColumn<Cliente, String> colNombre;
     
-    // CAMBIO: Columnas separadas
     @FXML private TableColumn<Cliente, String> colPaterno;
     @FXML private TableColumn<Cliente, String> colMaterno;
     
@@ -51,16 +50,12 @@ public class FXMLClienteController implements Initializable {
     
     private void configurarTabla() {
         colNombre.setCellValueFactory(new PropertyValueFactory("nombre"));
-        
-        // Asignación directa a las nuevas columnas (deben coincidir con el POJO Cliente.java)
         colPaterno.setCellValueFactory(new PropertyValueFactory("apellidoPaterno"));
-        colMaterno.setCellValueFactory(new PropertyValueFactory("apellidoMaterno"));
-        
+        colMaterno.setCellValueFactory(new PropertyValueFactory("apellidoMaterno"));        
         colTelefono.setCellValueFactory(new PropertyValueFactory("telefono"));
         colCorreo.setCellValueFactory(new PropertyValueFactory("correo"));
         colColonia.setCellValueFactory(new PropertyValueFactory("nombreColonia"));
-        
-        // Dirección sigue siendo compuesta (Calle + Numero)
+      
         colDireccion.setCellValueFactory(cellData -> {
             Cliente c = cellData.getValue();
             String calle = (c.getCalle() != null) ? c.getCalle() : "";

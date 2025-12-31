@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package clienteescritoriopw.dominio;
 
 import clienteescritoriopw.conexion.ConexionAPI;
@@ -17,10 +12,6 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author pepeg
- */
 public class ColaboradorImp {
 
     public static List<Colaborador> obtenerColaboradores() {
@@ -47,7 +38,6 @@ public class ColaboradorImp {
         Gson gson = new Gson();
         String parametros = gson.toJson(colaborador);
         
-        // CORRECCIÓN: Usamos peticionBody con "POST" y content-type json
         RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "POST", parametros, "application/json");
         
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
@@ -65,7 +55,6 @@ public class ColaboradorImp {
         Gson gson = new Gson();
         String parametros = gson.toJson(colaborador);
         
-        // CORRECCIÓN: Usamos peticionBody con "PUT"
         RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "PUT", parametros, "application/json");
         
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
@@ -81,7 +70,6 @@ public class ColaboradorImp {
         Respuesta msj = new Respuesta();
         String url = Constantes.URL_WS + "colaborador/eliminar/" + idColaborador;
         
-        // CORRECCIÓN: Usamos peticionSinBody con "DELETE"
         RespuestaHTTP respuesta = ConexionAPI.peticionSinBody(url, "DELETE");
         
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {

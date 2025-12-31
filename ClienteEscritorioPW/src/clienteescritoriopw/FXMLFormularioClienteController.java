@@ -32,12 +32,9 @@ public class FXMLFormularioClienteController implements Initializable {
     @FXML private TextField tfMaterno;
     @FXML private TextField tfTelefono;
     @FXML private TextField tfCorreo;
-    
-    // --- NUEVOS CONTROLES ---
     @FXML private ComboBox<Estado> cbEstado;
     @FXML private ComboBox<Municipio> cbMunicipio;
-    @FXML private ComboBox<Colonia> cbColonia;
-    
+    @FXML private ComboBox<Colonia> cbColonia;    
     @FXML private TextField tfCalle;
     @FXML private TextField tfNumero;
     @FXML private TextField tfCodigoPostal;
@@ -51,7 +48,7 @@ public class FXMLFormularioClienteController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         inicializarListas();
         configurarListeners();
-        cargarEstados(); // Carga inicial
+        cargarEstados();
     }
     
     private void inicializarListas(){
@@ -64,19 +61,16 @@ public class FXMLFormularioClienteController implements Initializable {
         listaColonias = FXCollections.observableArrayList();
         cbColonia.setItems(listaColonias);
         
-        // Configuramos para que muestren el nombre y no el objeto raro
         configurarCombo(cbEstado);
         configurarCombo(cbMunicipio);
         configurarCombo(cbColonia);
     }
     
-    //  para que los combos muestren el nombre
     private <T> void configurarCombo(ComboBox<T> combo) {
         combo.setConverter(new StringConverter<T>() {
             @Override
             public String toString(T object) {
                 if (object == null) return null;
-                // Usamos reflexión simple o casteos para obtener getNombre()
                 if (object instanceof Estado) return ((Estado) object).getNombre();
                 if (object instanceof Municipio) return ((Municipio) object).getNombre();
                 if (object instanceof Colonia) return ((Colonia) object).getNombre();
@@ -97,7 +91,6 @@ public class FXMLFormularioClienteController implements Initializable {
                 listaMunicipios.clear();
                 cbMunicipio.setDisable(true);
             }
-            // Limpiar cascada hacia abajo
             listaColonias.clear();
             tfCodigoPostal.clear();
         });
@@ -161,18 +154,8 @@ public class FXMLFormularioClienteController implements Initializable {
         tfCalle.setText(cliente.getCalle());
         tfNumero.setText(cliente.getNumero());
         
-        // --- RECUPERACIÓN DE COMBOS EN CASCADA (RETO TÉCNICO) ---
-        // 1. Seleccionar Estado (Dispara listener de municipios)
-        // Nota: Debemos buscar el objeto en la lista que coincida con el ID
         if(cliente.getIdColonia() > 0){
-             // Esta parte es compleja porque requiere cargar datos secuenciales.
-             // Para simplificar, podrías cargar todo manual o usar hilos, 
-             // pero aquí haremos un truco: seleccionar estado y esperar carga.
-             // (Para una implementación perfecta se requiere lógica extra, 
-             //  pero prueba primero el registro nuevo).
-             
-             // TODO: Implementar selección inversa buscando por ID de Colonia hacia arriba
-             // si tu backend lo permite, o seleccionando estado/municipio manualmente.
+
         }
     }
 
@@ -192,11 +175,9 @@ public class FXMLFormularioClienteController implements Initializable {
         cliente.setCalle(tfCalle.getText().trim());
         cliente.setNumero(tfNumero.getText().trim());
         
-        // Guardamos el ID de la colonia seleccionada
         Colonia col = cbColonia.getValue();
         if(col != null) cliente.setIdColonia(col.getIdColonia());
         
-        // El CP ya va implícito en la colonia, pero lo guardamos si tu POJO lo pide
         try { cliente.setCodigoPostal(Integer.parseInt(tfCodigoPostal.getText())); } catch(Exception e){}
 
         if(clienteEdicion == null){
@@ -206,8 +187,6 @@ public class FXMLFormularioClienteController implements Initializable {
             procesarRespuesta(ClienteImp.editar(cliente), "actualizado");
         }
     }
-    
-    // ... (Métodos clicCancelar, procesarRespuesta y validarCamposVacios igual que antes)
     
     private void procesarRespuesta(Respuesta resp, String accion){
         if(!resp.isError()){
@@ -223,6 +202,6 @@ public class FXMLFormularioClienteController implements Initializable {
     }
 
     private boolean validarCamposVacios(){
-        return tfNombre.getText().isEmpty() || cbColonia.getValue() == null; // Añadir resto de validaciones
+        return tfNombre.getText().isEmpty() || cbColonia.getValue() == null;
     }
 }
