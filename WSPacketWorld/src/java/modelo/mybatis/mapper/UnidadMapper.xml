@@ -10,7 +10,6 @@
             u.modelo,
             u.anio,
             u.vin,
-            u.placa,
             u.nii,  u.idTipoUnidad,
             IFNULL(t.nombre, 'Sin Tipo') AS tipo,
             u.idSucursal,
@@ -21,8 +20,8 @@
     </select>
 
     <insert id="registrar" parameterType="pojo.Unidad" useGeneratedKeys="true" keyProperty="idUnidad">
-        INSERT INTO Unidad (marca, modelo, anio, vin, placa, nii, idTipoUnidad, idSucursal)
-        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{placa}, #{nii}, #{idTipoUnidad}, #{idSucursal})
+        INSERT INTO Unidad (marca, modelo, anio, vin, nii, idTipoUnidad, idSucursal)
+        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{nii}, #{idTipoUnidad}, #{idSucursal})
     </insert>
 
    <update id="editar" parameterType="pojo.Unidad">
@@ -30,7 +29,6 @@
             marca = #{marca},
             modelo = #{modelo},
             anio = #{anio},
-            placa = #{placa},
             nii = #{nii},  
             idTipoUnidad = #{idTipoUnidad},
             idSucursal = #{idSucursal}
