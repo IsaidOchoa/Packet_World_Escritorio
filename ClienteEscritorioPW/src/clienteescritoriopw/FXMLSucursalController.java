@@ -18,6 +18,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class FXMLSucursalController implements Initializable {
 
@@ -61,14 +62,19 @@ public class FXMLSucursalController implements Initializable {
         colEstatus.setCellValueFactory(new PropertyValueFactory("estatusTexto"));
     }
     
-    
+
     public void cargarDatosTabla(){
         listaSucursales = FXCollections.observableArrayList();
         List<Sucursal> respuestaWS = SucursalImp.obtenerSucursales();
-        
+
+        System.out.println("Número de sucursales recibidas: " + 
+            (respuestaWS != null ? respuestaWS.size() : "null"));
+
         if(respuestaWS != null && !respuestaWS.isEmpty()){
+            System.out.println("Primera sucursal: " + respuestaWS.get(0).getNombre());
             listaSucursales.addAll(respuestaWS);
             tvSucursales.setItems(listaSucursales);
+            System.out.println("Tabla actualizada con " + listaSucursales.size() + " elementos");
         } else {
             Utilidades.mostrarAlertaSimple("Sin Resultados", "No se encontraron sucursales.", Alert.AlertType.INFORMATION);
         }

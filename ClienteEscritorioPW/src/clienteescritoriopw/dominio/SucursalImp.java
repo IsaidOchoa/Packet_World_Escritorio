@@ -14,21 +14,21 @@ import java.util.List;
 
 public class SucursalImp {
     
+    //version de Isaid
     public static List<Sucursal> obtenerSucursales() {
-        List<Sucursal> lista = new ArrayList<>();
-        String url = Constantes.URL_WS + "sucursal/Obtener-todas";        
+        String url = Constantes.URL_WS + "sucursal/Obtener-todas";
+        System.out.println("URL COMPLETA: " + url); // ← AGREGA ESTA LÍNEA
+
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
-        
+        System.out.println("Código de respuesta: " + respuesta.getCodigo());
+        System.out.println("Contenido recibido: " + respuesta.getContenido());
+
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
-            try {
-                Type tipoLista = new TypeToken<ArrayList<Sucursal>>(){}.getType();
-                lista = gson.fromJson(respuesta.getContenido(), tipoLista);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Type tipoLista = new TypeToken<ArrayList<Sucursal>>(){}.getType();
+            return gson.fromJson(respuesta.getContenido(), tipoLista);
         }
-        return lista;
+        return new ArrayList<>(); // Devuelve lista vacía en lugar de null
     }
     
     public static Respuesta registrar(Sucursal sucursal) {

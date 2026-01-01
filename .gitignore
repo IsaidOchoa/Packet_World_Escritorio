@@ -1,8 +1,16 @@
-<<<<<<< HEAD
+# Carpetas de compilación
 /WSPacketWorld/build/
 /WSPacketWorld/dist/
+/WSPacketWorld/nbproject/private/
+
 /ClienteEscritorioPW/build/
 /ClienteEscritorioPW/dist/
-=======
 /ClienteEscritorioPW/nbproject/private/
->>>>>>> origin/WebService
+
+# Archivos sensibles (¡NUNCA subir!)
+mybatis-config.xml
+*.log
+
+# IDE
+.DS_Store
+Thumbs.db
