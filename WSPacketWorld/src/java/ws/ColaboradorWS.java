@@ -34,10 +34,7 @@ public class ColaboradorWS {
     public List<Colaborador> obtenerTodos() {
         return ColaboradorImp.obtenerColaboradores();
     }
-    
-    
-    
-    
+
     @Path("buscar/{filtro}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -11,10 +11,6 @@ import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Sucursal;
 
-/**
- *
- * @author pepeg
- */
 public class SucursalImp {
     
     public static List<Sucursal> obtenerTodas() {

@@ -11,22 +11,18 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-/**
- *
- * @author pepeg
- */
 public class MyBatisUtil {
     private static final String RESOURCE ="modelo/mybatis/mybatis-config.xml";
-    private static final String ENVIORMENT = "desarrollo";
+    private static final String ENVIROMENT = "desarrollo";
     
     public static SqlSession getSession() {
     SqlSession session = null ;
         try {
             Reader reader = Resources.getResourceAsReader(RESOURCE);
-            SqlSessionFactory sqlMapper = new SqlSessionFactoryBuilder().build(reader);
+            SqlSessionFactory sqlMapper = new SqlSessionFactoryBuilder().build(reader, ENVIROMENT);
             session = sqlMapper.openSession();
         } catch (Exception e) {
         }
         return session;
-}
+    }
 }
