@@ -5,10 +5,6 @@
  */
 package pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Paquete {
 
     private Integer idPaquete;

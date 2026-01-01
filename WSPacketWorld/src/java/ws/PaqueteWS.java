@@ -20,11 +20,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import pojo.Paquete;
 
-/**
- *
- * @author pepeg
- */
-
   // URL:/PacketWorld/
 @Path("paquete")
 public class PaqueteWS {
