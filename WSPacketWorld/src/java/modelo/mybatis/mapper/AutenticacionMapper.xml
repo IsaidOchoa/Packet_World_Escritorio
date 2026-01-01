@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="autenticacion">
     
     <select id="loginColaborador" parameterType="map" resultType="pojo.Colaborador">
-        SELECT
-    c.idColaborador AS idColaborador,    
-    c.nombre,
-    c.apellidoPaterno AS apellidoPaterno, 
-    c.apellidoMaterno AS apellidoMaterno, 
-    c.curp,
-    c.correo,
-    c.numeroPersonal AS numeroPersonal,   
-    c.password,
-    c.numeroLicencia AS numeroLicencia,   
-    c.idRol AS idRol,                     
-    r.nombre AS rol,
-    c.idSucursal AS idSucursal,           
-    TO_BASE64(c.foto) AS fotoBase64       
-    FROM colaborador c
-    INNER JOIN rol r ON r.idRol = c.idRol     
-    WHERE c.numeroPersonal = #{numeroPersonal} 
-    AND c.password = #{password}
+        SELECT 
+            c.idColaborador,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.curp,
+            c.correo,
+            c.numeroPersonal,   c.password,
+            c.numeroLicencia,
+            c.idRol,
+            c.idSucursal,
+            
+            -- ALIAS CORREGIDOS PARA TU POJO Colaborador.java
+            r.nombre AS rol,                -- Antes era nombreRol (¡Error corregido!)
+            s.nombre AS nombreSucursal      -- Coincide con tu POJO
+            
+            -- NOTA: Omitimos 'foto' por seguridad y rapidez en el login
+            
+        FROM colaborador c
+        INNER JOIN rol r ON c.idRol = r.idRol
+        LEFT JOIN sucursal s ON c.idSucursal = s.idSucursal
+        
+        WHERE c.numeroPersonal = #{numeroPersonal} 
+        AND c.password = #{password}
     </select>
-
+    
 </mapper>
