@@ -1,5 +1,6 @@
 package clienteescritoriopw.pojo;
 
+
 public class Unidad {
     
     
@@ -73,9 +74,7 @@ public class Unidad {
     public void setVin(String vin) {
         this.vin = vin;
     }
-
-   
-
+    
     public String getNii() {
         return nii;
     }
@@ -115,8 +114,5 @@ public class Unidad {
     public void setNombreSucursal(String nombreSucursal) {
         this.nombreSucursal = nombreSucursal;
     }
-    
 
-       
-   
 }

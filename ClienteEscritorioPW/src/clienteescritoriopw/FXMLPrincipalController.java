@@ -132,6 +132,23 @@ public class FXMLPrincipalController implements Initializable {
 
     @FXML
     private void clicModuloUnidades(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLUnidad.fxml"));
+            Parent root = loader.load();
+            
+            Stage escenario = new Stage();
+            escenario.setScene(new Scene(root));
+            escenario.setTitle("Gestión de Unidades");
+            escenario.initModality(Modality.APPLICATION_MODAL);
+            
+            escenario.setMinWidth(900);
+            escenario.setMinHeight(600);
+            
+            escenario.showAndWait();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
+        }
     }
 }
 

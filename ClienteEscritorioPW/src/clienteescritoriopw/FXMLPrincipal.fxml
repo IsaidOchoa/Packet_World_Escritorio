@@ -124,7 +124,7 @@
                      </graphic>
                   </Button>
                   
-                  <Button graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloClientes" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Asignaciones" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                  <Button graphicTextGap="15.0" mnemonicParsing="false" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Asignaciones" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <graphic>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                            <image>
