@@ -1,5 +1,6 @@
 package clienteescritoriopw.pojo;
 
+
 public class Unidad {
     
     
@@ -8,7 +9,6 @@ public class Unidad {
     private String modelo;
     private int anio;
     private String vin;
-    private String placa;
     private String nii; // Número de Identificación Interno
     
     // Relación con Tipo de Unidad
@@ -22,13 +22,12 @@ public class Unidad {
     public Unidad() {
     }
 
-    public Unidad(int idUnidad, String marca, String modelo, int anio, String vin, String placa, String nii, int idTipoUnidad, String tipo, int idSucursal, String nombreSucursal) {
+    public Unidad(int idUnidad, String marca, String modelo, int anio, String vin, String nii, int idTipoUnidad, String tipo, int idSucursal, String nombreSucursal) {
         this.idUnidad = idUnidad;
         this.marca = marca;
         this.modelo = modelo;
         this.anio = anio;
         this.vin = vin;
-        this.placa = placa;
         this.nii = nii;
         this.idTipoUnidad = idTipoUnidad;
         this.tipo = tipo;
@@ -75,15 +74,7 @@ public class Unidad {
     public void setVin(String vin) {
         this.vin = vin;
     }
-
-    public String getPlaca() {
-        return placa;
-    }
-
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
-
+    
     public String getNii() {
         return nii;
     }
@@ -123,8 +114,5 @@ public class Unidad {
     public void setNombreSucursal(String nombreSucursal) {
         this.nombreSucursal = nombreSucursal;
     }
-    
 
-       
-   
 }

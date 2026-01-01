@@ -82,7 +82,7 @@ public class FXMLFormularioClienteController implements Initializable {
     }
 
     private void configurarListeners() {
-        // 1. Cuando cambia ESTADO -> Cargar Municipios
+        // Cuando cambia ESTADO -> Cargar Municipios
         cbEstado.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 cargarMunicipios(nuevo.getIdEstado());
@@ -95,7 +95,7 @@ public class FXMLFormularioClienteController implements Initializable {
             tfCodigoPostal.clear();
         });
 
-        // 2. Cuando cambia MUNICIPIO -> Cargar Colonias
+        // Cuando cambia MUNICIPIO -> Cargar Colonias
         cbMunicipio.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 cargarColonias(nuevo.getIdMunicipio());
@@ -106,7 +106,7 @@ public class FXMLFormularioClienteController implements Initializable {
             }
         });
 
-        // 3. Cuando cambia COLONIA -> Poner CP Automático
+        // Cuando cambia COLONIA -> Poner CP Automático
         cbColonia.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 tfCodigoPostal.setText(String.valueOf(nuevo.getCodigoPostal()));
@@ -117,7 +117,46 @@ public class FXMLFormularioClienteController implements Initializable {
     }
     @FXML 
     private void clicBuscarCP(ActionEvent event) {
+       
+        String cp = tfCodigoPostal.getText().trim();
+        if(cp.isEmpty() || cp.length() != 5){
+            Utilidades.mostrarAlertaSimple("CP Inválido", "Ingresa un CP de 5 dígitos.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        List<Colonia> coloniasEncontradas = DireccionImp.buscarPorCP(cp);        
+        if(coloniasEncontradas != null && !coloniasEncontradas.isEmpty()){
+            // Tomamos la primera colonia para saber Estado y Municipio
+            Colonia primerResultado = coloniasEncontradas.get(0);
+            
+            // Verificamos que traiga el ID del Estado (gracias a tu Mapper)
+            if(primerResultado.getIdEstado() != null && primerResultado.getIdEstado() > 0){
+                // Buscamos en el combo el estado que coincida con el ID
+                for(Estado e : cbEstado.getItems()){
+                    if(e.getIdEstado().equals(primerResultado.getIdEstado())){
+                        cbEstado.getSelectionModel().select(e);
+                        break;
+                    }
+                }
+                // Al seleccionar Estado, se cargan los municipios. Buscamos el correcto.
+                for(Municipio m : cbMunicipio.getItems()){
+                    if(m.getIdMunicipio().equals(primerResultado.getIdMunicipio())){
+                        cbMunicipio.getSelectionModel().select(m);
+                        break;
+                    }
+                }
+                //  Llenar Combo de Colonias solo con las del CP
+                cbColonia.getItems().clear();
+                cbColonia.getItems().addAll(coloniasEncontradas);
+                // Seleccionar la primera por defecto
+                cbColonia.getSelectionModel().select(0);
+            }
+        } else {
+            Utilidades.mostrarAlertaSimple("Sin resultados", "No hay colonias para el CP: " + cp, Alert.AlertType.INFORMATION);
+            cbColonia.getItems().clear();
+        }
     }
+    
 
     private void cargarEstados() {
         List<Estado> resultados = DireccionImp.obtenerEstados();
@@ -154,7 +193,27 @@ public class FXMLFormularioClienteController implements Initializable {
         tfCalle.setText(cliente.getCalle());
         tfNumero.setText(cliente.getNumero());
         
-        if(cliente.getIdColonia() > 0){
+        
+       if(cliente.getCodigoPostal() > 0){
+             // 1. Ponemos el CP en el campo
+             tfCodigoPostal.setText(String.valueOf(cliente.getCodigoPostal()));
+             
+             // 2. Ejecutamos la búsqueda de CP automáticamente
+             // Esto disparará la carga de Estados, Municipios y Colonias
+             clicBuscarCP(null); 
+             
+             // 3. Seleccionamos la Colonia específica del cliente
+             // (clicBuscarCP selecciona la primera por defecto, aquí la corregimos)
+             if(cliente.getIdColonia() > 0){
+                 // Usamos un pequeño retraso visual o seleccionamos directo si ya cargó
+                 for(Colonia c : cbColonia.getItems()){
+                     // Comparamos por ID
+                     if(c.getIdColonia().equals(cliente.getIdColonia())){
+                         cbColonia.getSelectionModel().select(c);
+                         break;
+                     }
+                 }
+             }
 
         }
     }
