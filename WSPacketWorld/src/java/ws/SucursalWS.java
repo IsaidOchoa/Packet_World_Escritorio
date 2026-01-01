@@ -20,12 +20,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import pojo.Sucursal;
 
-/**
- *
- * @author pepeg
- */
-
-
 @Path("sucursal")
 public class SucursalWS {
 
