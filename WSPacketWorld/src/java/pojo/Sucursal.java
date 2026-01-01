@@ -119,5 +119,8 @@ public class Sucursal {
         this.estado = estado;
     }
   
-    
+    /*@Override
+    public String toString() {
+        return nombre;
+    }*/
  }

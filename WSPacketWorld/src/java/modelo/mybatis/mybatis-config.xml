@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/packet_world?serverTimezone=UTC"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/packetworld?serverTimezone=UTC"/>
                 <property name="username" value="pw_user"/>
                 <property name="password" value="1234567890"/>
                 <property name="poolMaximumActiveConnections" value="50"/>
