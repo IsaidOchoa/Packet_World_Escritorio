@@ -38,8 +38,7 @@ public class CatalogoImp {
     }
     public static List<TipoUnidad> obtenerTiposUnidad() {
         List<TipoUnidad> lista = new ArrayList<>();
-        // Esta URL debe coincidir con tu CatalogoWS del servidor (@Path("tipos-unidad"))
-        String url = Constantes.URL_WS + "catalogo/tipos-unidad";
+        String url = Constantes.URL_WS + "catalogo/tipos-unidad"; // URL correcta
         
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
         
