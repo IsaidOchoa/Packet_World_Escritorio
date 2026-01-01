@@ -10,7 +10,7 @@ package pojo;
  * @author pepeg
  */
 public class Envio {
-    private int idEnvio;
+    private Integer idEnvio;
     private String numeroGuia;
     private double costo;
     private double peso;
@@ -42,7 +42,7 @@ public class Envio {
     private String nombreConductor;
     
     // Estatus
-    private int idEstadoActual;
+    private Integer idEstadoActual;
     private String estatus; // Nombre del estado (ej. En Tránsito)
 
     public Envio() {
@@ -73,11 +73,11 @@ public class Envio {
         this.estatus = estatus;
     }
 
-    public int getIdEnvio() {
+    public Integer getIdEnvio() {
         return idEnvio;
     }
 
-    public void setIdEnvio(int idEnvio) {
+    public void setIdEnvio(Integer idEnvio) {
         this.idEnvio = idEnvio;
     }
 
@@ -233,11 +233,11 @@ public class Envio {
         this.nombreConductor = nombreConductor;
     }
 
-    public int getIdEstadoActual() {
+    public Integer getIdEstadoActual() {
         return idEstadoActual;
     }
 
-    public void setIdEstadoActual(int idEstadoActual) {
+    public void setIdEstadoActual(Integer idEstadoActual) {
         this.idEstadoActual = idEstadoActual;
     }
 
