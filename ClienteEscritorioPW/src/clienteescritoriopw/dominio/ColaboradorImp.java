@@ -14,22 +14,28 @@ import java.util.List;
 
 public class ColaboradorImp {
 
+    //version de Isaid
     public static List<Colaborador> obtenerColaboradores() {
-        List<Colaborador> lista = new ArrayList<>();
         String url = Constantes.URL_WS + "colaborador/obtener-todos";
-        
+        System.out.println("URL COLABORADORES: " + url);
+
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
-        
+        System.out.println("Código colaboradores: " + respuesta.getCodigo());
+        System.out.println("Contenido colaboradores: " + respuesta.getContenido());
+
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
             try {
                 Type tipoLista = new TypeToken<ArrayList<Colaborador>>(){}.getType();
-                lista = gson.fromJson(respuesta.getContenido(), tipoLista);
+                List<Colaborador> resultado = gson.fromJson(respuesta.getContenido(), tipoLista);
+                System.out.println("Número de colaboradores: " + (resultado != null ? resultado.size() : "null"));
+                return resultado;
             } catch (Exception e) {
+                System.out.println("ERROR al parsear colaboradores: " + e.getMessage());
                 e.printStackTrace();
             }
         }
-        return lista;
+        return new ArrayList<>();
     }
     
     public static Respuesta registrar(Colaborador colaborador) {
