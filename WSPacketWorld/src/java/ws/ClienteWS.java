@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ws;
 
+import com.google.gson.Gson;
 import dominio.ClienteImp;
 import dto.Respuesta;
 import java.util.List;
@@ -18,11 +14,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import pojo.Cliente;
-
-/**
- *
- * @author pepeg
- */
 
 @Path("cliente")
 public class ClienteWS {
@@ -38,25 +29,50 @@ public class ClienteWS {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Respuesta registrar(Cliente c) { 
-        // Validación básica
-        if(c.getNombre() == null || c.getTelefono() == null){
-             return new Respuesta(true, "Nombre y teléfono son obligatorios");
+    public Respuesta registrar(String json) { 
+        Gson gson = new Gson();
+        Respuesta resp = new Respuesta();
+        try {
+            Cliente c = gson.fromJson(json, Cliente.class);
+            
+            // Validación de datos mínimos
+            if(c.getNombre() != null && !c.getNombre().isEmpty() && 
+               c.getTelefono() != null && !c.getTelefono().isEmpty()){
+                 return ClienteImp.registrar(c);
+            } else {
+                resp.setError(true);
+                resp.setMensaje("El nombre y teléfono son obligatorios.");
+            }
+        } catch (Exception e) {
+            resp.setError(true);
+            resp.setMensaje("Error al registrar cliente: " + e.getMessage());
         }
-        return ClienteImp.registrar(c); 
+        return resp;
     }
     
     @Path("editar")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Respuesta editar(Cliente c) { 
-        if(c.getIdCliente() <= 0){
-             return new Respuesta(true, "Se requiere ID válido para editar");
+    public Respuesta editar(String json) { 
+        Gson gson = new Gson();
+        Respuesta resp = new Respuesta();
+        try {
+            Cliente c = gson.fromJson(json, Cliente.class);
+            if(c.getIdCliente() > 0){
+                 return ClienteImp.editar(c);
+            } else {
+                resp.setError(true);
+                resp.setMensaje("ID inválido para editar.");
+            }
+        } catch (Exception e) {
+            resp.setError(true);
+            resp.setMensaje("Error al editar cliente: " + e.getMessage());
         }
-        return ClienteImp.editar(c); 
+        return resp;
     }
     
+    // Eliminar y Buscar pueden quedarse igual o envolverse en try-catch si quieres máxima seguridad
     @Path("eliminar/{idCliente}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
@@ -71,5 +87,3 @@ public class ClienteWS {
         return ClienteImp.buscar(filtro); 
     }
 }
-
-
