@@ -5,10 +5,10 @@
  */
 package ws;
 
+import com.google.gson.Gson; // Importante: Asegúrate de tener la librería Gson
 import dominio.UnidadImp;
 import dto.Respuesta;
 import java.util.List;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,7 +24,6 @@ import pojo.Unidad;
  *
  * @author pepeg
  */
-
 @Path("unidad")
 public class UnidadWS {
 
@@ -35,36 +34,86 @@ public class UnidadWS {
         return UnidadImp.obtenerUnidades();
     }
 
+    // ESTILO PROFESORWS: Recibimos String json y usamos Gson
     @Path("registrar")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Respuesta registrar(Unidad unidad) {
-        if (unidad != null && unidad.getVin() != null && !unidad.getVin().isEmpty()) {
-            return UnidadImp.registrar(unidad);
+    public Respuesta registrar(String json) {
+        Gson gson = new Gson();
+        Respuesta resp = new Respuesta();
+
+        try {
+            // 1. Convertir JSON a Objeto manualmente
+            Unidad unidad = gson.fromJson(json, Unidad.class);
+
+            // 2. Validar datos antes de enviarlo a la BD
+            if (unidad != null && 
+                unidad.getVin() != null && !unidad.getVin().isEmpty() &&
+                unidad.getMarca() != null && !unidad.getMarca().isEmpty() &&
+                unidad.getModelo() != null && !unidad.getModelo().isEmpty() &&
+                unidad.getIdSucursal() > 0) {
+                
+                // 3. Llamar al método de registro
+                return UnidadImp.registrar(unidad);
+                
+            } else {
+                resp.setError(true);
+                resp.setMensaje("Faltan datos obligatorios (Marca, Modelo, VIN o Sucursal)");
+            }
+
+        } catch (Exception e) {
+            // 4. Capturar cualquier error de parseo o conexión
+            resp.setError(true);
+            resp.setMensaje("Error al registrar la unidad: " + e.getMessage());
+            e.printStackTrace();
         }
-        throw new BadRequestException("Datos de unidad incompletos.");
+
+        return resp;
     }
 
     @Path("editar")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Respuesta editar(Unidad unidad) {
-        if (unidad != null && unidad.getIdUnidad() > 0) {
-            return UnidadImp.editar(unidad);
+    public Respuesta editar(String json) {
+        Gson gson = new Gson();
+        Respuesta resp = new Respuesta();
+        
+        try {
+            Unidad unidad = gson.fromJson(json, Unidad.class);
+            
+            if (unidad != null && unidad.getIdUnidad() > 0) {
+                return UnidadImp.editar(unidad);
+            } else {
+                resp.setError(true);
+                resp.setMensaje("Se requiere un ID válido para editar la unidad.");
+            }
+            
+        } catch (Exception e) {
+            resp.setError(true);
+            resp.setMensaje("Error al editar la unidad: " + e.getMessage());
         }
-        throw new BadRequestException("ID de unidad requerido para editar.");
+        
+        return resp;
     }
 
     @Path("eliminar/{idUnidad}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Respuesta eliminar(@PathParam("idUnidad") Integer idUnidad) {
-        if (idUnidad != null && idUnidad > 0) {
-            return UnidadImp.eliminar(idUnidad);
+        Respuesta resp = new Respuesta();
+        try {
+            if (idUnidad != null && idUnidad > 0) {
+                return UnidadImp.eliminar(idUnidad);
+            }
+            resp.setError(true);
+            resp.setMensaje("El ID de la unidad no es válido.");
+            
+        } catch (Exception e) {
+            resp.setError(true);
+            resp.setMensaje("Error al eliminar la unidad: " + e.getMessage());
         }
-        throw new BadRequestException("ID inválido.");
+        return resp;
     }
-   
 }
