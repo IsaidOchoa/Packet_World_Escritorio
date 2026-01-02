@@ -72,7 +72,6 @@ public class ClienteWS {
         return resp;
     }
     
-    // Eliminar y Buscar pueden quedarse igual o envolverse en try-catch si quieres máxima seguridad
     @Path("eliminar/{idCliente}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)

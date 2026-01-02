@@ -81,7 +81,6 @@ public class SucursalWS {
     @Path("eliminar/{idSucursal}")
     @Produces(MediaType.APPLICATION_JSON)
     public Respuesta eliminar(@PathParam("idSucursal") int idSucursal) {
-        // Aquí podrías agregar un try-catch si deseas, aunque es menos crítico en DELETE
         if (idSucursal <= 0) {
              return new Respuesta(true, "ID inválido.");
         }

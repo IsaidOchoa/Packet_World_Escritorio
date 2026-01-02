@@ -94,7 +94,6 @@ public class ColaboradorWS {
         return resp;
     }
     
-    // Método buscar se queda igual porque es GET simple
     @Path("buscar/{filtro}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

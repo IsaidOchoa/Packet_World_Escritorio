@@ -27,13 +27,11 @@ public class PaqueteWS {
         try {
             Paquete paquete = gson.fromJson(json, Paquete.class);
             
-            // 1. Validaciones básicas antes de ir a la BD
             if (paquete.getIdEnvio() == null || paquete.getIdEnvio() <= 0 || 
                 paquete.getDescripcion() == null || paquete.getDescripcion().isEmpty()) {
                 return new Respuesta(true, "Faltan datos obligatorios (idEnvio, descripcion)");
             }
             
-            // 2. Llamar a la implementación
             return PaqueteImp.registrar(paquete); 
             
         } catch (Exception e) {
@@ -45,11 +43,11 @@ public class PaqueteWS {
     @Path("envio/{idEnvio}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Paquete> obtenerPorEnvio(@PathParam("idEnvio") int idEnvio) {
-        // En GETs simples solemos confiar en la implementación, pero validamos el ID
+        // validamos el ID
         if(idEnvio > 0){
              return PaqueteImp.obtenerPorEnvio(idEnvio);
         }
-        return null; // O una lista vacía
+        return null; 
     }
     
     @PUT

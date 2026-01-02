@@ -47,7 +47,6 @@ public class EnvioWS {
     @Path("buscar/{numeroGuia}")
     @Produces(MediaType.APPLICATION_JSON)
     public Envio buscarPorGuia(@PathParam("numeroGuia") String numeroGuia) {
-        // Aquí no usamos Gson porque es un GET simple
         Envio envio = EnvioImp.buscarPorGuia(numeroGuia);
         if (envio == null) {
             throw new NotFoundException("Envío con número de guía '" + numeroGuia + "' no encontrado.");
