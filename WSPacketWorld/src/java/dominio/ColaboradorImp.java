@@ -86,36 +86,112 @@ public class ColaboradorImp {
         return respuesta;
     }
 
-    public static Respuesta editar(Colaborador colaborador) {
+    // =============== PERFIL ===============
+    public static Respuesta editarPerfil(Colaborador colaborador) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexionBD = MyBatisUtil.getSession();
 
         if (conexionBD != null) {
             try {
-                // Convertir Base64 a Bytes si cambió la foto
-                if(colaborador.getFotoBase64() != null && !colaborador.getFotoBase64().isEmpty()){
-                     byte[] fotoBytes = Base64.getDecoder().decode(colaborador.getFotoBase64());
-                     colaborador.setFoto(fotoBytes);
-                }
-
-                int filasAfectadas = conexionBD.update("colaborador.editar", colaborador);
+                int filasAfectadas = conexionBD.update("colaborador.editarPerfil", colaborador);
                 conexionBD.commit();
 
                 if (filasAfectadas > 0) {
                     respuesta.setError(false);
-                    respuesta.setMensaje("Colaborador actualizado correctamente.");
+                    respuesta.setMensaje("Perfil actualizado correctamente.");
                 } else {
-                    respuesta.setError(true);
-                    respuesta.setMensaje("No se encontró el colaborador para actualizar.");
+                    respuesta.setMensaje("No se encontró el colaborador.");
                 }
             } catch (Exception e) {
-                respuesta.setError(true);
-                respuesta.setMensaje("Error al actualizar: " + e.getMessage());
+                respuesta.setMensaje("Error al actualizar el perfil: " + e.getMessage());
             } finally {
                 conexionBD.close();
             }
         } else {
-            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión a la base de datos.");
+        }
+        return respuesta;
+    }
+
+    // =============== FOTO ===============
+    public static Respuesta actualizarFoto(Colaborador colaborador) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexionBD = MyBatisUtil.getSession();
+
+        if (conexionBD != null) {
+            try {
+                // Convertir Base64 a bytes
+                if (colaborador.getFotoBase64() != null && !colaborador.getFotoBase64().isEmpty()) {
+                    byte[] fotoBytes = Base64.getDecoder().decode(colaborador.getFotoBase64());
+                    colaborador.setFoto(fotoBytes);
+                }
+
+                int filasAfectadas = conexionBD.update("colaborador.actualizarFoto", colaborador);
+                conexionBD.commit();
+
+                if (filasAfectadas > 0) {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Foto actualizada correctamente.");
+                } else {
+                    respuesta.setMensaje("No se encontró el colaborador.");
+                }
+            } catch (Exception e) {
+                respuesta.setMensaje("Error al actualizar la foto: " + e.getMessage());
+            } finally {
+                conexionBD.close();
+            }
+        } else {
+            respuesta.setMensaje("Error de conexión a la base de datos.");
+        }
+        return respuesta;
+    }
+
+    // =============== CONTRASEÑA ===============
+    public static Respuesta cambiarPassword(Integer idColaborador, String passwordActual, String passwordNueva) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexionBD = MyBatisUtil.getSession();
+
+        if (conexionBD != null) {
+            try {
+                // 1. Obtener el colaborador para verificar password actual
+                Colaborador actual = conexionBD.selectOne("colaborador.obtenerPorId", idColaborador);
+                if (actual == null) {
+                    respuesta.setMensaje("Colaborador no encontrado.");
+                    return respuesta;
+                }
+
+                // 2. Verificar que la password actual sea correcta
+                if (!actual.getPassword().equals(passwordActual)) {
+                    respuesta.setMensaje("La contraseña actual es incorrecta.");
+                    return respuesta;
+                }
+
+                // 3. Validar complejidad de la nueva contraseña (ej: mínimo 8 caracteres)
+                if (passwordNueva == null || passwordNueva.length() < 8) {
+                    respuesta.setMensaje("La nueva contraseña debe tener al menos 8 caracteres.");
+                    return respuesta;
+                }
+
+                // 4. Actualizar
+                Colaborador nuevo = new Colaborador();
+                nuevo.setIdColaborador(idColaborador);
+                nuevo.setPassword(passwordNueva);
+
+                int filasAfectadas = conexionBD.update("colaborador.cambiarPassword", nuevo);
+                conexionBD.commit();
+
+                if (filasAfectadas > 0) {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Contraseña actualizada correctamente.");
+                } else {
+                    respuesta.setMensaje("No se pudo actualizar la contraseña.");
+                }
+            } catch (Exception e) {
+                respuesta.setMensaje("Error al cambiar la contraseña: " + e.getMessage());
+            } finally {
+                conexionBD.close();
+            }
+        } else {
             respuesta.setMensaje("Error de conexión a la base de datos.");
         }
         return respuesta;

@@ -15,21 +15,14 @@
             c.password,
             c.numeroLicencia,
             c.idRol,
-            
-            -- Usamos IFNULL para que no falle si no encuentra el rol/sucursal
             IFNULL(r.nombre, 'Sin Rol') AS rol,
-            
             c.idSucursal,
             IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal,
-            
             TO_BASE64(c.foto) AS fotoBase64
-            
         FROM Colaborador c
         LEFT JOIN Rol r ON c.idRol = r.idRol
         LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
     </select>
-    
-    
 
     <insert id="registrar" parameterType="pojo.Colaborador">
         INSERT INTO Colaborador 
@@ -38,25 +31,42 @@
         (#{nombre}, #{apellidoPaterno}, #{apellidoMaterno}, #{curp}, #{correo}, #{numeroPersonal}, #{password}, #{idRol}, #{idSucursal}, #{numeroLicencia}, #{foto})
     </insert>
 
-    <update id="editar" parameterType="pojo.Colaborador">
+    <update id="editarPerfil" parameterType="pojo.Colaborador">
         UPDATE Colaborador SET
             nombre = #{nombre},
             apellidoPaterno = #{apellidoPaterno},
             apellidoMaterno = #{apellidoMaterno},
             curp = #{curp},
             correo = #{correo},
-            password = #{password},
-            idSucursal = #{idSucursal},
-            numeroLicencia = #{numeroLicencia},
+            numeroLicencia = #{numeroLicencia}
+        WHERE idColaborador = #{idColaborador}
+    </update>
+
+    <update id="actualizarFoto" parameterType="pojo.Colaborador">
+        UPDATE Colaborador SET
             foto = #{foto}
         WHERE idColaborador = #{idColaborador}
     </update>
-    
+
+    <update id="cambiarPassword" parameterType="pojo.Colaborador">
+        UPDATE Colaborador SET
+            password = #{password}
+        WHERE idColaborador = #{idColaborador}
+    </update>
+
     <delete id="eliminar" parameterType="int">
         DELETE FROM Colaborador WHERE idColaborador = #{idColaborador}
     </delete>
-    
+
     <select id="buscarPorNoPersonal" resultType="pojo.Colaborador" parameterType="string">
         SELECT * FROM Colaborador WHERE numeroPersonal = #{numeroPersonal}
     </select>
+
+    <select id="obtenerPorId" resultType="pojo.Colaborador" parameterType="int">
+        SELECT 
+            idColaborador, password, numeroPersonal
+        FROM Colaborador 
+        WHERE idColaborador = #{idColaborador}
+    </select>
+
 </mapper>

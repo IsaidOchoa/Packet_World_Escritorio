@@ -5,10 +5,6 @@
  */
 package pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Envio {
     private Integer idEnvio;
     private String numeroGuia;
@@ -249,5 +245,4 @@ public class Envio {
         this.estatus = estatus;
     }
 
-    
 }
