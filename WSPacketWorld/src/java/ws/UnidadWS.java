@@ -34,7 +34,6 @@ public class UnidadWS {
         return UnidadImp.obtenerUnidades();
     }
 
-    // ESTILO PROFESORWS: Recibimos String json y usamos Gson
     @Path("registrar")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -44,17 +43,14 @@ public class UnidadWS {
         Respuesta resp = new Respuesta();
 
         try {
-            // 1. Convertir JSON a Objeto manualmente
             Unidad unidad = gson.fromJson(json, Unidad.class);
 
-            // 2. Validar datos antes de enviarlo a la BD
             if (unidad != null && 
                 unidad.getVin() != null && !unidad.getVin().isEmpty() &&
                 unidad.getMarca() != null && !unidad.getMarca().isEmpty() &&
                 unidad.getModelo() != null && !unidad.getModelo().isEmpty() &&
                 unidad.getIdSucursal() > 0) {
                 
-                // 3. Llamar al método de registro
                 return UnidadImp.registrar(unidad);
                 
             } else {
@@ -63,7 +59,6 @@ public class UnidadWS {
             }
 
         } catch (Exception e) {
-            // 4. Capturar cualquier error de parseo o conexión
             resp.setError(true);
             resp.setMensaje("Error al registrar la unidad: " + e.getMessage());
             e.printStackTrace();
