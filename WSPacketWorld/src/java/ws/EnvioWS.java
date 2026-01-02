@@ -24,23 +24,30 @@ public class EnvioWS {
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta registrar(String json) {
         Gson gson = new Gson();
-        Envio envio = gson.fromJson(json, Envio.class);
+        try {
+            Envio envio = gson.fromJson(json, Envio.class);
 
-        // Validar campos obligatorios
-        if (envio.getNumeroGuia() == null || envio.getNumeroGuia().trim().isEmpty() ||
-            envio.getIdCliente() <= 0 || envio.getIdSucursalOrigen() <= 0 ||
-            envio.getIdColoniaDestino() <= 0 || envio.getCalleDestino() == null ||
-            envio.getNumeroDestino() == null || envio.getNombreDestinatario() == null) {
-            return new Respuesta(true, "Faltan datos obligatorios para registrar el envío.");
+            // Validar campos obligatorios
+            if (envio.getNumeroGuia() == null || envio.getNumeroGuia().trim().isEmpty() ||
+                envio.getIdCliente() <= 0 || envio.getIdSucursalOrigen() <= 0 ||
+                envio.getIdColoniaDestino() <= 0 || envio.getCalleDestino() == null ||
+                envio.getNumeroDestino() == null || envio.getNombreDestinatario() == null) {
+                
+                return new Respuesta(true, "Faltan datos obligatorios para registrar el envío.");
+            }
+
+            return EnvioImp.registrar(envio);
+            
+        } catch (Exception e) {
+            return new Respuesta(true, "Error al procesar el registro del envío: " + e.getMessage());
         }
-
-        return EnvioImp.registrar(envio);
     }
 
     @GET
     @Path("buscar/{numeroGuia}")
     @Produces(MediaType.APPLICATION_JSON)
     public Envio buscarPorGuia(@PathParam("numeroGuia") String numeroGuia) {
+        // Aquí no usamos Gson porque es un GET simple
         Envio envio = EnvioImp.buscarPorGuia(numeroGuia);
         if (envio == null) {
             throw new NotFoundException("Envío con número de guía '" + numeroGuia + "' no encontrado.");
@@ -61,13 +68,18 @@ public class EnvioWS {
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta actualizarEstatus(String json) {
         Gson gson = new Gson();
-        Envio envio = gson.fromJson(json, Envio.class);
+        try {
+            Envio envio = gson.fromJson(json, Envio.class);
 
-        if (envio.getIdEnvio() == null || envio.getIdEnvio() <= 0 ||
-            envio.getIdEstadoActual() == null || envio.getIdEstadoActual() <= 0) {
-            return new Respuesta(true, "Se requiere el ID del envío y un estatus válido.");
+            if (envio.getIdEnvio() == null || envio.getIdEnvio() <= 0 ||
+                envio.getIdEstadoActual() == null || envio.getIdEstadoActual() <= 0) {
+                return new Respuesta(true, "Se requiere el ID del envío y un estatus válido.");
+            }
+
+            return EnvioImp.actualizarEstatus(envio);
+            
+        } catch (Exception e) {
+            return new Respuesta(true, "Error al actualizar estatus: " + e.getMessage());
         }
-
-        return EnvioImp.actualizarEstatus(envio);
     }
 }
