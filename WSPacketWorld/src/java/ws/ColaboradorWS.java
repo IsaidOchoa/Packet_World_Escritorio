@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dominio.ColaboradorImp;
 import dto.Respuesta;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -35,7 +36,6 @@ public class ColaboradorWS {
         try {
             Colaborador c = gson.fromJson(json, Colaborador.class);
             
-            // Validaciones obligatorias
             if (c.getNombre() != null && !c.getNombre().isEmpty() &&
                 c.getNumeroPersonal() != null && !c.getNumeroPersonal().isEmpty() &&
                 c.getPassword() != null && !c.getPassword().isEmpty() &&
@@ -53,27 +53,61 @@ public class ColaboradorWS {
         return resp;
     }
 
-    @Path("editar")
+    // =============== PERFIL ===============
     @PUT
+    @Path("editar-perfil")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Respuesta editar(String json) {
+    public Respuesta editarPerfil(String json) {
         Gson gson = new Gson();
-        Respuesta resp = new Respuesta();
-        try {
-            Colaborador c = gson.fromJson(json, Colaborador.class);
-            
-            if (c.getIdColaborador() > 0) {
-                return ColaboradorImp.editar(c);
-            } else {
-                resp.setError(true);
-                resp.setMensaje("Se requiere un ID válido para editar.");
-            }
-        } catch (Exception e) {
-            resp.setError(true);
-            resp.setMensaje("Error al procesar la edición: " + e.getMessage());
+        Colaborador colab = gson.fromJson(json, Colaborador.class);
+
+        if (colab.getIdColaborador() <= 0) {
+            return new Respuesta(true, "ID de colaborador requerido.");
         }
-        return resp;
+
+        return ColaboradorImp.editarPerfil(colab);
+    }
+
+    // =============== FOTO ===============
+    @PUT
+    @Path("editar-foto")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta actualizarFoto(String json) {
+        Gson gson = new Gson();
+        Colaborador colab = gson.fromJson(json, Colaborador.class);
+
+        if (colab.getIdColaborador() <= 0 ||
+        colab.getFotoBase64() == null || colab.getFotoBase64().isEmpty()) {
+        return new Respuesta(true, "ID y fotoBase64 son requeridos.");
+    }
+
+        return ColaboradorImp.actualizarFoto(colab);
+    }
+
+    // =============== CONTRASEÑA ===============
+    @PUT
+    @Path("editar-password")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta cambiarPassword(String json) {
+        Gson gson = new Gson();
+        Map<String, Object> datos = gson.fromJson(json, Map.class);
+
+        try {
+            Integer id = ((Double) datos.get("idColaborador")).intValue();
+            String passActual = (String) datos.get("passwordActual");
+            String passNueva = (String) datos.get("passwordNueva");
+
+            if (id == null || passActual == null || passNueva == null) {
+                return new Respuesta(true, "Faltan datos: idColaborador, passwordActual, passwordNueva.");
+            }
+
+            return ColaboradorImp.cambiarPassword(id, passActual, passNueva);
+        } catch (Exception e) {
+            return new Respuesta(true, "Error en los datos enviados.");
+        }
     }
 
     @Path("eliminar/{idColaborador}")

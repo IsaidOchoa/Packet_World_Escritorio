@@ -78,6 +78,21 @@ public class EnvioImp {
         }
         return lista;
     }
+    
+    public static List<Envio> obtenerPorConductor(String numeroPersonal) {
+        List<Envio> lista = null;
+        SqlSession conexion = MyBatisUtil.getSession();
+        if (conexion != null) {
+            try {
+                lista = conexion.selectList("envio.obtenerPorConductor", numeroPersonal);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexion.close();
+            }
+        }
+        return lista;
+    }
 
     public static Respuesta actualizarEstatus(Envio envio) {
         Respuesta respuesta = new Respuesta();
