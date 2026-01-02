@@ -1,8 +1,10 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.CatalogoImp;
+import clienteescritoriopw.dominio.SucursalImp; // IMPORTANTE
 import clienteescritoriopw.dominio.UnidadImp;
 import clienteescritoriopw.dto.Respuesta;
+import clienteescritoriopw.pojo.Sucursal; // IMPORTANTE
 import clienteescritoriopw.pojo.TipoUnidad;
 import clienteescritoriopw.pojo.Unidad;
 import clienteescritoriopw.utilidad.Utilidades;
@@ -28,25 +30,30 @@ public class FXMLFormularioUnidadController implements Initializable {
     @FXML private TextField tfModelo;
     @FXML private TextField tfAnio;
     @FXML private TextField tfVin;
-    @FXML private TextField tfNII; // Automático
+    @FXML private TextField tfNII;
     @FXML private ComboBox<TipoUnidad> cbTipoUnidad;
+    
+    // --- NUEVO CAMPO ---
+    @FXML private ComboBox<Sucursal> cbSucursal; 
     
     private Unidad unidadEdicion;
     private ObservableList<TipoUnidad> listaTipos;
+    private ObservableList<Sucursal> listaSucursales; // Lista para el combo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cargarTiposUnidad();
+        cargarSucursales(); // --- LLAMADA NUEVA ---
         configurarListenersNII();
     }
     
     private void cargarTiposUnidad() {
         listaTipos = FXCollections.observableArrayList();
-        // Ahora sí funcionará porque agregamos el método en CatalogoImp
         List<TipoUnidad> lista = CatalogoImp.obtenerTiposUnidad();
         if(lista != null) listaTipos.addAll(lista);
         cbTipoUnidad.setItems(listaTipos);
         
+        // Convertidor para que se vea el nombre bonito
         cbTipoUnidad.setConverter(new StringConverter<TipoUnidad>() {
             @Override
             public String toString(TipoUnidad t) { return (t != null) ? t.getNombre() : null; }
@@ -55,7 +62,23 @@ public class FXMLFormularioUnidadController implements Initializable {
         });
     }
 
+    // --- MÉTODO NUEVO PARA CARGAR SUCURSALES ---
+    private void cargarSucursales() {
+        listaSucursales = FXCollections.observableArrayList();
+        List<Sucursal> lista = SucursalImp.obtenerSucursales(); // Reutilizamos tu método existente
+        if(lista != null) listaSucursales.addAll(lista);
+        cbSucursal.setItems(listaSucursales);
+        
+        cbSucursal.setConverter(new StringConverter<Sucursal>() {
+            @Override
+            public String toString(Sucursal s) { return (s != null) ? s.getNombre() : null; }
+            @Override
+            public Sucursal fromString(String string) { return null; }
+        });
+    }
+
     private void configurarListenersNII() {
+        // ... (Tu código de listeners igual que antes) ...
         tfAnio.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
         tfVin.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
     }
@@ -63,11 +86,8 @@ public class FXMLFormularioUnidadController implements Initializable {
     private void calcularNII() {
         String anio = tfAnio.getText().trim();
         String vin = tfVin.getText().trim();
-        
         if(!anio.isEmpty() && vin.length() >= 4){
-            // NII = Año + 4 primeros caracteres del VIN
-            String niiCalculado = anio + vin.substring(0, 4).toUpperCase();
-            tfNII.setText(niiCalculado);
+            tfNII.setText(anio + vin.substring(0, 4).toUpperCase());
         } else {
             tfNII.setText("");
         }
@@ -79,13 +99,12 @@ public class FXMLFormularioUnidadController implements Initializable {
         
         tfMarca.setText(unidad.getMarca());
         tfModelo.setText(unidad.getModelo());
-        
-        // CORRECCIÓN: Convertir int a String para mostrarlo
         tfAnio.setText(String.valueOf(unidad.getAnio()));
-        
         tfVin.setText(unidad.getVin());
         tfNII.setText(unidad.getNii());
+        tfVin.setDisable(true); 
         
+        // Seleccionar Tipo
         for(TipoUnidad t : cbTipoUnidad.getItems()){
             if(t.getIdTipoUnidad() == unidad.getIdTipoUnidad()){
                 cbTipoUnidad.getSelectionModel().select(t);
@@ -93,8 +112,13 @@ public class FXMLFormularioUnidadController implements Initializable {
             }
         }
         
-        // El VIN no se debe editar según el PDF
-        tfVin.setDisable(true); 
+        // --- SELECCIONAR SUCURSAL SI ES EDICIÓN ---
+        for(Sucursal s : cbSucursal.getItems()){
+            if(s.getIdSucursal() == unidad.getIdSucursal()){
+                cbSucursal.getSelectionModel().select(s);
+                break;
+            }
+        }
     }
 
     @FXML
@@ -103,26 +127,16 @@ public class FXMLFormularioUnidadController implements Initializable {
             Unidad unidad = new Unidad();
             unidad.setMarca(tfMarca.getText().trim());
             unidad.setModelo(tfModelo.getText().trim());
-            
-            // CORRECCIÓN: Parsear el año de String a int
             try {
                 unidad.setAnio(Integer.parseInt(tfAnio.getText().trim()));
-            } catch (NumberFormatException e) {
-                Utilidades.mostrarAlertaSimple("Error", "El año debe ser un número válido.", Alert.AlertType.ERROR);
-                return;
-            }
-
+            } catch (NumberFormatException e) { return; }
+            
             unidad.setVin(tfVin.getText().trim());
-            
-            // CORRECCIÓN: Usar setNii en lugar de getNii
             unidad.setNii(tfNII.getText().trim());
-            
             unidad.setIdTipoUnidad(cbTipoUnidad.getValue().getIdTipoUnidad());
             
-            // Ojo: Asignamos Sucursal por defecto o nula si el form no la tiene
-            // Según tu POJO Unidad del servidor, requiere idSucursal. 
-            // Si el backend permite nulos, bien. Si no, asigna 0 o maneja la lógica.
-            // unidad.setIdSucursal(1); // Ejemplo temporal
+            // --- AQUÍ GUARDAMOS LA SUCURSAL SELECCIONADA ---
+            unidad.setIdSucursal(cbSucursal.getValue().getIdSucursal());
             
             if(unidadEdicion == null) {
                 procesarRespuesta(UnidadImp.registrar(unidad), "registrada");
@@ -140,22 +154,17 @@ public class FXMLFormularioUnidadController implements Initializable {
         if(tfAnio.getText().isEmpty()) msg += "- Año\n";
         if(tfVin.getText().isEmpty()) msg += "- VIN\n";
         if(cbTipoUnidad.getValue() == null) msg += "- Tipo de Unidad\n";
+        // Validar sucursal
+        if(cbSucursal.getValue() == null) msg += "- Sucursal\n";
         
         if(!msg.isEmpty()){
             Utilidades.mostrarAlertaSimple("Campos vacíos", "Faltan:\n" + msg, Alert.AlertType.WARNING);
             return false;
         }
-        // Validación extra para que el año sea número
-        try {
-            Integer.parseInt(tfAnio.getText().trim());
-        } catch (NumberFormatException e) {
-            Utilidades.mostrarAlertaSimple("Datos inválidos", "El año debe ser numérico.", Alert.AlertType.WARNING);
-            return false;
-        }
-        
         return true;
     }
-
+    
+    // ... (Métodos procesarRespuesta y clicCancelar igual que antes) ...
     private void procesarRespuesta(Respuesta resp, String accion) {
         if(!resp.isError()) {
             Utilidades.mostrarAlertaSimple("Éxito", "Unidad " + accion + " correctamente.", Alert.AlertType.INFORMATION);
@@ -165,9 +174,7 @@ public class FXMLFormularioUnidadController implements Initializable {
         }
     }
     
-    @FXML
-    private void clicCancelar(ActionEvent event) {
+    @FXML private void clicCancelar(ActionEvent event) {
         ((Stage) tfMarca.getScene().getWindow()).close();
     }
-    
 }

@@ -37,6 +37,12 @@
                   <ComboBox fx:id="cbTipoUnidad" prefHeight="30.0" prefWidth="250.0" promptText="Tipo de Unidad" />
                </children>
             </HBox>
+            <Label text="Sucursal para asignar" textFill="#1a3b5c">
+           <font>
+           <Font name="System Bold" size="14.0" />
+           </font>
+</Label>
+<ComboBox fx:id="cbSucursal" prefHeight="30.0" prefWidth="300.0" promptText="Selecciona una sucursal..." />
             
             <HBox spacing="15.0">
                <children>
