@@ -1,6 +1,7 @@
 package ws;
 
 import com.google.gson.Gson;
+import dominio.EnvioImp; // <--- IMPORTANTE: Para recalcular el costo
 import dominio.PaqueteImp;
 import dto.Respuesta;
 import java.util.List;
@@ -27,12 +28,18 @@ public class PaqueteWS {
         try {
             Paquete paquete = gson.fromJson(json, Paquete.class);
             
+            // Validaciones
             if (paquete.getIdEnvio() == null || paquete.getIdEnvio() <= 0 || 
                 paquete.getDescripcion() == null || paquete.getDescripcion().isEmpty()) {
                 return new Respuesta(true, "Faltan datos obligatorios (idEnvio, descripcion)");
             }
+            Respuesta resp = PaqueteImp.registrar(paquete);
             
-            return PaqueteImp.registrar(paquete); 
+            if (!resp.isError()) {
+                EnvioImp.recalcularCosto(paquete.getIdEnvio());
+            }
+            
+            return resp;
             
         } catch (Exception e) {
             return new Respuesta(true, "Error al registrar paquete: " + e.getMessage());
@@ -43,7 +50,6 @@ public class PaqueteWS {
     @Path("envio/{idEnvio}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Paquete> obtenerPorEnvio(@PathParam("idEnvio") int idEnvio) {
-        // validamos el ID
         if(idEnvio > 0){
              return PaqueteImp.obtenerPorEnvio(idEnvio);
         }
@@ -59,11 +65,9 @@ public class PaqueteWS {
         try {
             Paquete paquete = gson.fromJson(json, Paquete.class);
             
-            // Validar que venga el ID del paquete a editar
             if (paquete.getIdPaquete() == null || paquete.getIdPaquete() <= 0) {
                 return new Respuesta(true, "Se requiere el ID del paquete para editarlo.");
             }
-
             return PaqueteImp.editar(paquete);
             
         } catch (Exception e) {
@@ -77,7 +81,9 @@ public class PaqueteWS {
     public Respuesta eliminar(@PathParam("idPaquete") int id) { 
         try {
             if(id > 0){
-                return PaqueteImp.eliminar(id);
+                Respuesta resp = PaqueteImp.eliminar(id);
+                
+                return resp;
             }
             return new Respuesta(true, "ID de paquete no válido.");
         } catch (Exception e) {

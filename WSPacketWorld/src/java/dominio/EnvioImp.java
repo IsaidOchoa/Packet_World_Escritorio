@@ -7,6 +7,9 @@ import java.util.Map;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Envio;
+import pojo.Paquete;
+import pojo.Sucursal;
+import utilidades.CalculadoraEnvios;
 
 public class EnvioImp {
 
@@ -17,17 +20,16 @@ public class EnvioImp {
         SqlSession conexion = MyBatisUtil.getSession();
         if (conexion != null) {
             try {
-                // 1. Registrar el envío (estatus inicial = 1)
+                // Registrar el envío (estatus inicial = 1)
                 int filasAfectadas = conexion.insert("envio.registrar", envio);
                 conexion.commit();
 
                 if (filasAfectadas > 0) {
-                    // 2. Registrar en historial (estatus inicial = 1, colaborador que registra = ?)
                     Map<String, Object> historial = new HashMap<>();
                     historial.put("idEnvio", envio.getIdEnvio());
-                    historial.put("idEstadoEnvio", 1); // "Registrado" o similar
+                    historial.put("idEstadoEnvio", 1); 
                     historial.put("comentario", "Envío creado");
-                    historial.put("idColaborador", 1); // TEMPORAL: Reemplazar con usuario logeado
+                    historial.put("idColaborador", 1); 
 
                     conexion.insert("envio.registrarHistorial", historial);
                     conexion.commit();
@@ -49,20 +51,65 @@ public class EnvioImp {
         return respuesta;
     }
 
-    public static Envio buscarPorGuia(String numeroGuia) {
+   public static Envio buscarPorGuia(String numeroGuia) {
         Envio envio = null;
-        SqlSession conexion = MyBatisUtil.getSession();
-        if (conexion != null) {
+        SqlSession conn = MyBatisUtil.getSession();
+        
+        if (conn != null) {
             try {
-                envio = conexion.selectOne("envio.buscarPorGuia", numeroGuia);
-            } catch (Exception e) {
-                e.printStackTrace();
+                envio = conn.selectOne("envio.buscarPorGuia", numeroGuia);
+                
+                if (envio != null) {
+                    List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", envio.getIdEnvio());
+                    envio.setPaquetes(paquetes);
+                }
             } finally {
-                conexion.close();
+                conn.close();
             }
         }
         return envio;
     }
+    
+    
+    // se llamará cada vez que se agregue o quite un paquete
+    public static void recalcularCosto(int idEnvio) {
+        SqlSession conn = MyBatisUtil.getSession();
+        if (conn != null) {
+            try {
+              
+                List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
+                int cantidadPaquetes = (paquetes != null) ? paquetes.size() : 0;
+                
+               
+                Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio); 
+                
+                if(envio != null){
+                     // Obtener CP Origen (Sucursal)
+                     Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
+                     String cpOrigen = suc.getCodigoPostal();
+                     String cpDestino = envio.getCodigoPostalDestino(); 
+                     
+                     if(cpOrigen != null && cpDestino != null){
+                         Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+                         float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidadPaquetes);
+                         
+                         
+                         Map<String, Object> params = new HashMap<>();
+                         params.put("idEnvio", idEnvio);
+                         params.put("costo", nuevoCosto);
+                         
+                         conn.update("envio.actualizarCosto", params);
+                         conn.commit();
+                     }
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+        }
+    }
+    
 
     public static List<Envio> obtenerTodos() {
         List<Envio> lista = null;
@@ -101,16 +148,14 @@ public class EnvioImp {
         SqlSession conexion = MyBatisUtil.getSession();
         if (conexion != null) {
             try {
-                // Actualizar envío
-                int filasAfectadas = conexion.update("envio.actualizarEstatus", envio);
+               int filasAfectadas = conexion.update("envio.actualizarEstatus", envio);
                 
-                // Registrar en historial
                 if (filasAfectadas > 0) {
                     Map<String, Object> historial = new HashMap<>();
                     historial.put("idEnvio", envio.getIdEnvio());
                     historial.put("idEstadoEnvio", envio.getIdEstadoActual());
                     historial.put("comentario", "Actualización de estatus");
-                    historial.put("idColaborador", 1); // TEMPORAL
+                    historial.put("idColaborador", 1); 
 
                     conexion.insert("envio.registrarHistorial", historial);
                 }

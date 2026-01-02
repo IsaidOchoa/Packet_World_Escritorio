@@ -4,7 +4,7 @@
 <mapper namespace="envio">
 
     <insert id="registrar" parameterType="pojo.Envio" useGeneratedKeys="true" keyProperty="idEnvio">
-        INSERT INTO Envio 
+        INSERT INTO envio 
         (numeroGuia, costo, peso, idCliente, idSucursalOrigen, idColoniaDestino, 
          calleDestino, numeroDestino, nombreDestinatario, idEstadoActual)
         VALUES 
@@ -13,14 +13,20 @@
     </insert>
 
     <insert id="registrarHistorial" parameterType="map">
-        INSERT INTO HistorialEnvio (idEnvio, idEstadoEnvio, comentario, idColaborador)
-        VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador})
+        INSERT INTO historial_envio (idEnvio, idEstadoEnvio, comentario, idColaborador, fechaCambio)
+        VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador}, NOW())
     </insert>
 
     <update id="actualizarEstatus" parameterType="pojo.Envio">
-        UPDATE Envio SET 
+        UPDATE envio SET 
             idEstadoActual = #{idEstadoActual},
-            idUnidad = #{idUnidad},     idConductor = #{idConductor} WHERE idEnvio = #{idEnvio}
+            idUnidad = #{idUnidad},
+            idConductor = #{idConductor}
+            WHERE idEnvio = #{idEnvio}
+    </update>
+
+    <update id="actualizarCosto" parameterType="map">
+        UPDATE envio SET costo = #{costo} WHERE idEnvio = #{idEnvio}
     </update>
 
     <select id="buscarPorGuia" resultType="pojo.Envio" parameterType="string">
@@ -34,41 +40,53 @@
             -- Origen
             e.idSucursalOrigen, s.nombre AS nombreSucursalOrigen,
             
-            -- Destino (Geografía cruzada con mexico.sql)
-            e.idColoniaDestino, col.nombre AS nombreColonia, col.codigo_postal AS cp,
-            mun.nombre AS municipio, est.nombre AS estado,
+            -- Destino (Usando nombres estándar 'colonia', 'municipio'. CAMBIALO si tu BD es diferente)
+            e.idColoniaDestino, 
+            col.nombre AS nombreColonia, 
+            col.codigoPostal AS codigoPostalDestino, -- Alias clave para la Calculadora
+            mun.nombre AS municipio, 
+            est.nombre AS estado,
             
             -- Logística
-            e.idUnidad, CONCAT(u.marca, ' - ', u.placa) AS infoUnidad,
+            e.idUnidad, CONCAT(u.marca, ' - ', u.modelo) AS infoUnidad,
             e.idConductor, CONCAT(colab.nombre, ' ', colab.apellidoPaterno) AS nombreConductor,
             
             -- Estatus
-            e.idEstadoActual, edo.nombre AS nombreEstadoEnvio
+            e.idEstadoActual, edo.nombre AS estatus
 
-        FROM Envio e
-        INNER JOIN Cliente cl ON e.idCliente = cl.idCliente
-        INNER JOIN Sucursal s ON e.idSucursalOrigen = s.idSucursal
-        INNER JOIN colonias col ON e.idColoniaDestino = col.id
-        INNER JOIN municipios mun ON col.municipio = mun.id
-        INNER JOIN estados est ON mun.estado = est.id
-        INNER JOIN EstadoEnvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+        FROM envio e
+        INNER JOIN cliente cl ON e.idCliente = cl.idCliente
+        INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
+        INNER JOIN colonia col ON e.idColoniaDestino = col.idColonia
+        INNER JOIN municipio mun ON col.idMunicipio = mun.idMunicipio
+        INNER JOIN estado est ON mun.idEstado = est.idEstado
+        INNER JOIN estado_envio edo ON e.idEstadoActual = edo.idEstadoEnvio
         
-        -- LEFT JOIN porque al principio no tienen conductor ni unidad
-        LEFT JOIN Unidad u ON e.idUnidad = u.idUnidad
-        LEFT JOIN Colaborador colab ON e.idConductor = colab.idColaborador
+        LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
+        LEFT JOIN colaborador colab ON e.idConductor = colab.idColaborador
         
         WHERE e.numeroGuia = #{numeroGuia}
     </select>
     
     <select id="obtenerTodos" resultType="pojo.Envio">
          SELECT 
-            e.idEnvio, e.numeroGuia, e.nombreDestinatario,
-            col.nombre AS nombreColonia, mun.nombre AS municipio,
-            edo.nombre AS nombreEstadoEnvio
-        FROM Envio e
-        INNER JOIN colonias col ON e.idColoniaDestino = col.id
-        INNER JOIN municipios mun ON col.municipio = mun.id
-        INNER JOIN EstadoEnvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+            e.idEnvio, e.numeroGuia, e.nombreDestinatario, e.costo, e.idEstadoActual,
+            col.nombre AS nombreColonia, 
+            mun.nombre AS municipio,
+            edo.nombre AS estatus
+        FROM envio e
+        INNER JOIN colonia col ON e.idColoniaDestino = col.idColonia
+        INNER JOIN municipio mun ON col.idMunicipio = mun.idMunicipio
+        INNER JOIN estado_envio edo ON e.idEstadoActual = edo.idEstadoEnvio
+    </select>
+    
+    <select id="obtenerPorId" resultType="pojo.Envio" parameterType="int">
+        SELECT 
+            e.idEnvio, e.idSucursalOrigen, 
+            col.codigoPostal AS codigoPostalDestino 
+        FROM envio e
+        INNER JOIN colonia col ON e.idColoniaDestino = col.idColonia
+        WHERE e.idEnvio = #{idEnvio}
     </select>
 
 </mapper>

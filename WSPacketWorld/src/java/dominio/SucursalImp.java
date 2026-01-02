@@ -28,6 +28,18 @@ public class SucursalImp {
         }
         return lista;
     }
+    
+     public static Sucursal obtenerSucursal(int idSucursal) {
+    SqlSession conexion = MyBatisUtil.getSession();
+    if(conexion != null){
+        try {
+            return conexion.selectOne("sucursal.obtenerPorId", idSucursal);
+        } finally {
+            conexion.close();
+        }
+    }
+    return null;
+}
 
     public static Respuesta registrar(Sucursal sucursal) {
         Respuesta resp = new Respuesta();
