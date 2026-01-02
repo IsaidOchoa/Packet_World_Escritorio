@@ -1,7 +1,7 @@
 package utilidades;
 
 import com.google.gson.Gson;
-import java.io.BufferedReader;
+import java.io.BufferedReader;  
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -11,6 +11,13 @@ public class CalculadoraEnvios {
 
     public static Double obtenerDistancia(String cpOrigen, String cpDestino) {
         Double distancia = null;
+       
+       if (cpOrigen.length() < 5) {
+       cpOrigen = String.format("%05d", Integer.parseInt(cpOrigen));
+       }
+       if (cpDestino.length() < 5) {
+       cpDestino = String.format("%05d", Integer.parseInt(cpDestino));
+       }
         try {
             String urlApi = "http://sublimas.com.mx:8080/calculadora/api/envios/distancia/" + cpOrigen + "," + cpDestino;
             URL url = new URL(urlApi);
