@@ -85,7 +85,7 @@
             e.idEnvio, e.idSucursalOrigen, 
             col.codigoPostal AS codigoPostalDestino 
         FROM envio e
-        INNER JOIN colonia col ON e.idColoniaDestino = col.idColonia
+        INNER JOIN colonias col ON e.idColoniaDestino = col.idColonia
         WHERE e.idEnvio = #{idEnvio}
     </select>
 
