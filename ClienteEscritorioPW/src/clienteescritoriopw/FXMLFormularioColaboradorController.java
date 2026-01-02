@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -30,35 +31,25 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-
 public class FXMLFormularioColaboradorController implements Initializable {
 
-    @FXML
-    private Label lblTitulo;
-    @FXML
-    private TextField tfNoPersonal;
-    @FXML
-    private TextField tfNombre;
-    @FXML
-    private TextField tfPaterno;
-    @FXML
-    private TextField tfMaterno;
-    @FXML
-    private TextField tfCurp;
-    @FXML
-    private TextField tfCorreo;
-    @FXML
-    private ComboBox<Rol> cbRol;
-    @FXML
-    private ComboBox<Sucursal> cbSucursal;
-    @FXML
-    private TextField tfLicencia;
-    @FXML
-    private PasswordField pfPassword;
-    @FXML
-    private PasswordField pfConfirmarPassword;
-    @FXML
-    private ImageView ivFoto;
+    @FXML private Label lblTitulo;
+    @FXML private TextField tfNoPersonal;
+    @FXML private TextField tfNombre;
+    @FXML private TextField tfPaterno;
+    @FXML private TextField tfMaterno;
+    @FXML private TextField tfCurp;
+    @FXML private TextField tfCorreo;
+    @FXML private ComboBox<Rol> cbRol;
+    @FXML private ComboBox<Sucursal> cbSucursal;
+    @FXML private TextField tfLicencia;
+    @FXML private Label lblPasswordActual;
+    @FXML private PasswordField pfPasswordActual;
+    @FXML private Label lblPasswordNueva;
+    @FXML private PasswordField pfPasswordNueva;
+    @FXML private PasswordField pfPasswordConfirmar;
+    @FXML private ImageView ivFoto;
+    @FXML private Label lblLicencia;
     
     private Colaborador colaboradorEdicion;
     private File archivoFoto;
@@ -70,60 +61,50 @@ public class FXMLFormularioColaboradorController implements Initializable {
         configurarComboBoxes();
         cargarCatalogos();
     }    
-    
+
     private void configurarComboBoxes() {
         cbRol.setConverter(new StringConverter<Rol>() {
-            @Override
-            public String toString(Rol object) {
-                return (object != null) ? object.getNombre() : "";
-            }
-
-            @Override
-            public Rol fromString(String string) {
-                return null;
-            }
+            @Override public String toString(Rol object) { return (object != null) ? object.getNombre() : ""; }
+            @Override public Rol fromString(String string) { return null; }
         });
-        
         cbSucursal.setConverter(new StringConverter<Sucursal>() {
-            @Override
-            public String toString(Sucursal object) {
-                return (object != null) ? object.getNombre() : "";
-            }
-
-            @Override
-            public Sucursal fromString(String string) {
-                return null;
-            }
+            @Override public String toString(Sucursal object) { return (object != null) ? object.getNombre() : ""; }
+            @Override public Sucursal fromString(String string) { return null; }
         });
     }
 
     public void inicializarEdicion(Colaborador colaborador) {
         this.colaboradorEdicion = colaborador;
         lblTitulo.setText("Editar Colaborador: " + colaborador.getNombre());
+        tfNoPersonal.setDisable(true);
+        cbRol.setDisable(true);
         
-        // RESTRICCIONES DE EDICIÓN
-        tfNoPersonal.setDisable(true); // No editar No. Personal
-        cbRol.setDisable(true);        // No editar Rol
+        // Mostrar campos de contraseña actual en modo edición
+        lblPasswordActual.setVisible(true);
+        lblPasswordActual.setManaged(true);
+        pfPasswordActual.setVisible(true);
+        pfPasswordActual.setManaged(true);
+        lblPasswordNueva.setText("Nueva contraseña:");
         
         cargarDatosEdicion();
-        
-        // Ocultar placeholders de contraseña
-        pfPassword.setPromptText("Dejar vacío para mantener actual");
-        pfConfirmarPassword.setPromptText("Dejar vacío para mantener actual");
     }
     
     private void cargarCatalogos() {
         listaRoles = FXCollections.observableArrayList();
         listaSucursales = FXCollections.observableArrayList();
-        
+
         List<Rol> rolesWS = CatalogoImp.obtenerRoles();
         if (rolesWS != null) listaRoles.addAll(rolesWS);
         cbRol.setItems(listaRoles);
-        
+
         List<Sucursal> sucursalesWS = SucursalImp.obtenerSucursales();
         if (sucursalesWS != null) listaSucursales.addAll(sucursalesWS);
         cbSucursal.setItems(listaSucursales);
+
+        // Agregar listener para detectar cambios en el rol
+        cbRol.setOnAction(e -> actualizarVisibilidadLicencia());
     }
+    
     
     private void cargarDatosEdicion() {
         tfNoPersonal.setText(colaboradorEdicion.getNumeroPersonal());
@@ -133,30 +114,31 @@ public class FXMLFormularioColaboradorController implements Initializable {
         tfCurp.setText(colaboradorEdicion.getCurp());
         tfCorreo.setText(colaboradorEdicion.getCorreo());
         tfLicencia.setText(colaboradorEdicion.getNumeroLicencia());
-        
+
         if(colaboradorEdicion.getIdRol() > 0){
-             for(Rol r : listaRoles){
-                 if(r.getIdRol() == colaboradorEdicion.getIdRol()){
-                     cbRol.getSelectionModel().select(r);
-                     break;
-                 }
-             }
+            for(Rol r : listaRoles){
+                if(r.getIdRol() == colaboradorEdicion.getIdRol()){
+                    cbRol.getSelectionModel().select(r);
+                    break;
+                }
+            }
         }
-        
         if(colaboradorEdicion.getIdSucursal() > 0){
-             for(Sucursal s : listaSucursales){
-                 if(s.getIdSucursal() == colaboradorEdicion.getIdSucursal()){
-                     cbSucursal.getSelectionModel().select(s);
-                     break;
-                 }
-             }
+            for(Sucursal s : listaSucursales){
+                if(s.getIdSucursal() == colaboradorEdicion.getIdSucursal()){
+                    cbSucursal.getSelectionModel().select(s);
+                    break;
+                }
+            }
         }
 
-        // Cargar Foto
         if (colaboradorEdicion.getFotoBase64() != null && !colaboradorEdicion.getFotoBase64().isEmpty()) {
             Image imagen = Utilidades.decodificarImagen(colaboradorEdicion.getFotoBase64());
             if(imagen != null) ivFoto.setImage(imagen);
         }
+
+        // Actualizar visibilidad de licencia después de cargar los datos
+        actualizarVisibilidadLicencia();
     }
 
     @FXML
@@ -173,55 +155,114 @@ public class FXMLFormularioColaboradorController implements Initializable {
     @FXML
     private void clicAceptar(ActionEvent event) {
         if (validarCampos()) {
-            
-            Colaborador colaborador = new Colaborador();
-            
-            if (colaboradorEdicion != null) {
-                colaborador.setIdColaborador(colaboradorEdicion.getIdColaborador());
-            }
-
-            colaborador.setNumeroPersonal(tfNoPersonal.getText());
-            colaborador.setNombre(tfNombre.getText());
-            colaborador.setApellidoPaterno(tfPaterno.getText());
-            colaborador.setApellidoMaterno(tfMaterno.getText());
-            colaborador.setCurp(tfCurp.getText());
-            colaborador.setCorreo(tfCorreo.getText());
-            colaborador.setNumeroLicencia(tfLicencia.getText());
-            
-            colaborador.setIdRol(cbRol.getValue().getIdRol());
-            colaborador.setIdSucursal(cbSucursal.getValue().getIdSucursal());
-
-       
-            if (colaboradorEdicion == null || !pfPassword.getText().isEmpty()) {
-                colaborador.setPassword(pfPassword.getText());
+            if (colaboradorEdicion == null) {
+                Colaborador colaborador = crearColaboradorDesdeFormulario();
+                Respuesta respuesta = ColaboradorImp.registrar(colaborador);
+                mostrarResultadoYCerrar(respuesta);
             } else {
-                colaborador.setPassword(colaboradorEdicion.getPassword());
-            }
-
-            try {
-                if (archivoFoto != null) {
-                    colaborador.setFoto(Files.readAllBytes(archivoFoto.toPath()));
-                } else if (colaboradorEdicion != null) {
-         
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            Respuesta respuesta = (colaboradorEdicion == null) ? 
-                ColaboradorImp.registrar(colaborador) : ColaboradorImp.editar(colaborador);
-
-            if (!respuesta.isError()) {
-                Utilidades.mostrarAlertaSimple("Éxito", respuesta.getMensaje(), Alert.AlertType.INFORMATION);
-                cerrarVentana();
-            } else {
-                Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
+                editarPerfilYFotoYPass();
             }
         }
     }
+    
+    private void actualizarVisibilidadLicencia() {
+        boolean esConductor = false;
 
-    
-    
+        if (cbRol.getValue() != null) {
+            esConductor = cbRol.getValue().getIdRol() == 3; // ID de conductor = 3
+        }
+
+        // Mostrar/ocultar en el VBox de la derecha
+        lblLicencia.setVisible(esConductor);
+        lblLicencia.setManaged(esConductor);
+        tfLicencia.setVisible(esConductor);
+        tfLicencia.setManaged(esConductor);
+    }
+
+    private void editarPerfilYFotoYPass() {
+        // 1. ACTUALIZAR PERFIL
+        Colaborador perfil = new Colaborador();
+        perfil.setIdColaborador(colaboradorEdicion.getIdColaborador());
+        perfil.setNombre(tfNombre.getText());
+        perfil.setApellidoPaterno(tfPaterno.getText());
+        perfil.setApellidoMaterno(tfMaterno.getText());
+        perfil.setCurp(tfCurp.getText());
+        perfil.setCorreo(tfCorreo.getText());
+        perfil.setNumeroLicencia(tfLicencia.getText());
+
+        Respuesta respPerfil = ColaboradorImp.editarPerfil(perfil);
+        if (respPerfil.isError()) {
+            Utilidades.mostrarAlertaSimple("Error", "Perfil: " + respPerfil.getMensaje(), Alert.AlertType.ERROR);
+            return;
+        }
+
+        // 2. ACTUALIZAR FOTO
+        if (archivoFoto != null) {
+            try {
+                byte[] bytes = Files.readAllBytes(archivoFoto.toPath());
+                String base64 = Base64.getEncoder().encodeToString(bytes);
+                Colaborador foto = new Colaborador();
+                foto.setIdColaborador(colaboradorEdicion.getIdColaborador());
+                foto.setFotoBase64(base64);
+                Respuesta respFoto = ColaboradorImp.editarFoto(foto);
+                if (respFoto.isError()) {
+                    Utilidades.mostrarAlertaSimple("Error", "Foto: " + respFoto.getMensaje(), Alert.AlertType.ERROR);
+                    return;
+                }
+            } catch (IOException e) {
+                Utilidades.mostrarAlertaSimple("Error", "No se pudo leer la imagen.", Alert.AlertType.ERROR);
+                return;
+            }
+        }
+
+        // 3. ACTUALIZAR CONTRASEÑA (si aplica)
+        if (!pfPasswordNueva.getText().isEmpty()) {
+            Respuesta respPass = ColaboradorImp.editarPassword(
+                colaboradorEdicion.getIdColaborador(), 
+                pfPasswordActual.getText(), // ← Contraseña real del usuario
+                pfPasswordNueva.getText()
+            );
+            if (respPass.isError()) {
+                Utilidades.mostrarAlertaSimple("Error", "Contraseña: " + respPass.getMensaje(), Alert.AlertType.ERROR);
+                return;
+            }
+        }
+
+        Utilidades.mostrarAlertaSimple("Éxito", "Cambios guardados correctamente.", Alert.AlertType.INFORMATION);
+        cerrarVentana();
+    }
+
+    private Colaborador crearColaboradorDesdeFormulario() {
+        Colaborador c = new Colaborador();
+        c.setNumeroPersonal(tfNoPersonal.getText());
+        c.setNombre(tfNombre.getText());
+        c.setApellidoPaterno(tfPaterno.getText());
+        c.setApellidoMaterno(tfMaterno.getText());
+        c.setCurp(tfCurp.getText());
+        c.setCorreo(tfCorreo.getText());
+        c.setNumeroLicencia(tfLicencia.getText());
+        c.setIdRol(cbRol.getValue().getIdRol());
+        c.setIdSucursal(cbSucursal.getValue().getIdSucursal());
+        c.setPassword(pfPasswordNueva.getText()); // ← Usa pfPasswordNueva
+        if (archivoFoto != null) {
+            try {
+                c.setFoto(Files.readAllBytes(archivoFoto.toPath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return c;
+    }
+
+    private void mostrarResultadoYCerrar(Respuesta respuesta) {
+        if (!respuesta.isError()) {
+            Utilidades.mostrarAlertaSimple("Éxito", respuesta.getMensaje(), Alert.AlertType.INFORMATION);
+            cerrarVentana();
+        } else {
+            Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
+        }
+    }
+
     @FXML
     private void clicCancelar(ActionEvent event) {
         cerrarVentana();
@@ -231,38 +272,45 @@ public class FXMLFormularioColaboradorController implements Initializable {
         ((Stage) tfNoPersonal.getScene().getWindow()).close();
     }
     
-    
-
     private boolean validarCampos() {
         if (tfNoPersonal.getText().trim().isEmpty() || tfNombre.getText().trim().isEmpty() || 
             tfPaterno.getText().trim().isEmpty() || tfCurp.getText().trim().isEmpty()) {
-            
             Utilidades.mostrarAlertaSimple("Campos requeridos", "Por favor, llene los campos obligatorios (Nombre, Paterno, No. Personal, CURP).", Alert.AlertType.WARNING);
             return false;
         }
-        
         if (cbRol.getValue() == null) {
             Utilidades.mostrarAlertaSimple("Selección requerida", "Debe asignar un Rol al colaborador.", Alert.AlertType.WARNING);
             return false;
         }
-        
         if (cbSucursal.getValue() == null) {
             Utilidades.mostrarAlertaSimple("Selección requerida", "Debe asignar una Sucursal.", Alert.AlertType.WARNING);
             return false;
         }
 
-        if (colaboradorEdicion == null && pfPassword.getText().isEmpty()) {
-            Utilidades.mostrarAlertaSimple("Seguridad", "Debe establecer una contraseña para el nuevo colaborador.", Alert.AlertType.WARNING);
-            return false;
-        }
-        
-        if (!pfPassword.getText().isEmpty()) {
-            if (!pfPassword.getText().equals(pfConfirmarPassword.getText())) {
-                Utilidades.mostrarAlertaSimple("Error de contraseña", "Las contraseñas no coinciden.", Alert.AlertType.WARNING);
+        // VALIDACIÓN DE CONTRASEÑA
+        if (colaboradorEdicion == null) {
+            // MODO CREACIÓN
+            if (pfPasswordNueva.getText().isEmpty()) {
+                Utilidades.mostrarAlertaSimple("Seguridad", "Debe establecer una contraseña.", Alert.AlertType.WARNING);
                 return false;
             }
+            if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
+                Utilidades.mostrarAlertaSimple("Error", "Las contraseñas no coinciden.", Alert.AlertType.WARNING);
+                return false;
+            }
+        } else {
+            // MODO EDICIÓN
+            if (!pfPasswordNueva.getText().isEmpty()) {
+                if (pfPasswordActual.getText().isEmpty()) {
+                    Utilidades.mostrarAlertaSimple("Error", "Debe ingresar su contraseña actual.", Alert.AlertType.WARNING);
+                    return false;
+                }
+                if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
+                    Utilidades.mostrarAlertaSimple("Error", "Las nuevas contraseñas no coinciden.", Alert.AlertType.WARNING);
+                    return false;
+                }
+            }
         }
-
         return true;
     }
 }
