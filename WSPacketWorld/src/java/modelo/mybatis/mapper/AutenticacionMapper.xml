@@ -16,11 +16,10 @@
             c.idRol,
             c.idSucursal,
             
-            -- ALIAS CORREGIDOS PARA TU POJO Colaborador.java
-            r.nombre AS rol,                -- Antes era nombreRol (¡Error corregido!)
-            s.nombre AS nombreSucursal      -- Coincide con tu POJO
+            r.nombre AS rol,                
+            s.nombre AS nombreSucursal      
             
-            -- NOTA: Omitimos 'foto' por seguridad y rapidez en el login
+            
             
         FROM colaborador c
         INNER JOIN rol r ON c.idRol = r.idRol
