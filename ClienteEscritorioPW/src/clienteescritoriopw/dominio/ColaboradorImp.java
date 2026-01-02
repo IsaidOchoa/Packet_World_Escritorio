@@ -10,11 +10,12 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ColaboradorImp {
 
-    //version de Isaid
     public static List<Colaborador> obtenerColaboradores() {
         String url = Constantes.URL_WS + "colaborador/obtener-todos";
         System.out.println("URL COLABORADORES: " + url);
@@ -37,7 +38,7 @@ public class ColaboradorImp {
         }
         return new ArrayList<>();
     }
-    
+
     public static Respuesta registrar(Colaborador colaborador) {
         Respuesta msj = new Respuesta();
         String url = Constantes.URL_WS + "colaborador/registrar";
@@ -54,10 +55,11 @@ public class ColaboradorImp {
         }
         return msj;
     }
-    
-    public static Respuesta editar(Colaborador colaborador) {
+
+    // PERFIL (sin foto, sin password)
+    public static Respuesta editarPerfil(Colaborador colaborador) {
         Respuesta msj = new Respuesta();
-        String url = Constantes.URL_WS + "colaborador/editar";
+        String url = Constantes.URL_WS + "colaborador/editar-perfil";
         Gson gson = new Gson();
         String parametros = gson.toJson(colaborador);
         
@@ -67,11 +69,52 @@ public class ColaboradorImp {
             msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
         } else {
             msj.setError(true);
-            msj.setMensaje("Error al editar: " + respuesta.getCodigo());
+            msj.setMensaje("Error al actualizar perfil: " + respuesta.getCodigo());
         }
         return msj;
     }
-    
+
+    // FOTO
+    public static Respuesta editarFoto(Colaborador colaborador) {
+        Respuesta msj = new Respuesta();
+        String url = Constantes.URL_WS + "colaborador/editar-foto";
+        Gson gson = new Gson();
+        String parametros = gson.toJson(colaborador);
+        
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "PUT", parametros, "application/json");
+        
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
+        } else {
+            msj.setError(true);
+            msj.setMensaje("Error al actualizar foto: " + respuesta.getCodigo());
+        }
+        return msj;
+    }
+
+    // CONTRASEÑA
+    public static Respuesta editarPassword(Integer idColaborador, String passwordActual, String passwordNueva) {
+        Respuesta msj = new Respuesta();
+        String url = Constantes.URL_WS + "colaborador/editar-password";
+        Gson gson = new Gson();
+        
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("idColaborador", idColaborador);
+        datos.put("passwordActual", passwordActual);
+        datos.put("passwordNueva", passwordNueva);
+        
+        String parametros = gson.toJson(datos);
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "PUT", parametros, "application/json");
+        
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
+        } else {
+            msj.setError(true);
+            msj.setMensaje("Error al cambiar contraseña: " + respuesta.getCodigo());
+        }
+        return msj;
+    }
+
     public static Respuesta eliminar(int idColaborador) {
         Respuesta msj = new Respuesta();
         String url = Constantes.URL_WS + "colaborador/eliminar/" + idColaborador;
