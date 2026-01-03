@@ -50,6 +50,23 @@ public class ColaboradorImp {
         }
         return lista;
     }
+    
+    // Busca un colaborador EXACTO por numeroPersonal
+    public static Colaborador buscarPorNoPersonal(String numeroPersonal) {
+        Colaborador colaborador = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                // Usa el ID del mapper: "colaborador.buscarPorNoPersonal"
+                colaborador = conexionBD.selectOne("colaborador.buscarPorNoPersonal", numeroPersonal);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexionBD.close();
+            }
+        }
+        return colaborador;
+    }
 
     public static Respuesta registrar(Colaborador colaborador) {
         Respuesta respuesta = new Respuesta();
