@@ -134,4 +134,14 @@ public class ColaboradorWS {
     public List<Colaborador> buscar(@PathParam("filtro") String filtro) {
         return ColaboradorImp.buscarColaborador(filtro);
     }
+    
+    @Path("perfil/{idColaborador}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Colaborador obtenerPerfilCompleto(@PathParam("idColaborador") Integer idColaborador) {
+        if (idColaborador == null || idColaborador <= 0) {
+            return null; // O podrías lanzar una excepción, pero JAX-RS convertirá null a 204/404
+        }
+        return ColaboradorImp.obtenerPorIdCompleto(idColaborador);
+    }
 }

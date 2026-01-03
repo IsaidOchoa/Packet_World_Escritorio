@@ -225,5 +225,37 @@ public class ColaboradorImp {
         }
         return respuesta;
     }
+    
+    // Obtiene el perfil completo del colaborador (incluyendo fotoBase64)
+    public static Colaborador obtenerPorIdCompleto(int idColaborador) {
+        Colaborador colaborador = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                colaborador = conexionBD.selectOne("colaborador.obtenerPorIdCompleto", idColaborador);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexionBD.close();
+            }
+        }
+        return colaborador;
+    }
+
+    // Obtiene solo la foto en Base64 (útil si solo necesitas la imagen)
+    public static String obtenerFotoPorId(int idColaborador) {
+        String fotoBase64 = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                fotoBase64 = conexionBD.selectOne("colaborador.obtenerFotoPorId", idColaborador);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexionBD.close();
+            }
+        }
+        return fotoBase64;
+    }
 }
 

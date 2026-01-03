@@ -68,5 +68,35 @@
         FROM Colaborador 
         WHERE idColaborador = #{idColaborador}
     </select>
+    
+    <!-- Obtener solo la foto de un colaborador -->
+    <select id="obtenerFotoPorId" resultType="string" parameterType="int">
+        SELECT TO_BASE64(c.foto) 
+        FROM Colaborador c 
+        WHERE c.idColaborador = #{idColaborador}
+    </select>
+
+    <!-- Obtener perfil completo (incluyendo foto) -->
+    <select id="obtenerPorIdCompleto" resultType="pojo.Colaborador" parameterType="int">
+        SELECT 
+            c.idColaborador,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.curp,
+            c.correo,
+            c.numeroPersonal,
+            c.password,
+            c.numeroLicencia,
+            c.idRol,
+            IFNULL(r.nombre, 'Sin Rol') AS rol,
+            c.idSucursal,
+            IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal,
+            TO_BASE64(c.foto) AS fotoBase64
+        FROM Colaborador c
+        LEFT JOIN Rol r ON c.idRol = r.idRol
+        LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
+        WHERE c.idColaborador = #{idColaborador}
+    </select>
 
 </mapper>
