@@ -179,4 +179,19 @@ public class EnvioImp {
         }
         return respuesta;
     }
+    
+    public static List<Envio> obtenerPorConductor(int idConductor) {
+        List<Envio> lista = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                lista = conexionBD.selectList("envio.obtenerPorConductor", idConductor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexionBD.close();
+            }
+        }
+        return lista;
+    }
 }

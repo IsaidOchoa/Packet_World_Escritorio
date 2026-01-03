@@ -1,9 +1,11 @@
 package ws;
 
 import com.google.gson.Gson;
+import dominio.ColaboradorImp;
 import dominio.EnvioImp;
 import dominio.SucursalImp; 
 import dto.Respuesta;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import pojo.Colaborador;
 import pojo.Envio;
 import pojo.Sucursal;
 import utilidades.CalculadoraEnvios;
@@ -102,5 +105,36 @@ public class EnvioWS {
         } catch (Exception e) {
             return new Respuesta(true, "Error al actualizar: " + e.getMessage());
         }
+    }
+    
+    @GET
+    @Path("conductor/{numeroPersonal}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Envio> obtenerPorConductor(@PathParam("numeroPersonal") String numeroPersonal) {
+        System.out.println("[DEBUG] Buscando envíos para conductor con numeroPersonal: " + numeroPersonal);
+
+        // 1. Buscar colaborador por numeroPersonal
+        Colaborador colaborador = ColaboradorImp.buscarPorNoPersonal(numeroPersonal);
+        if (colaborador == null) {
+            System.out.println("[ERROR] No se encontró colaborador con numeroPersonal: " + numeroPersonal);
+            return new ArrayList<>();
+        }
+
+        int idConductor = colaborador.getIdColaborador();
+        System.out.println("Colaborador encontrado: id=" + idConductor + ", nombre=" + colaborador.getNombre());
+
+        // 2. Obtener envíos por idConductor
+        List<Envio> envios = EnvioImp.obtenerPorConductor(idConductor);
+        System.out.println("?Se encontraron " + (envios != null ? envios.size() : 0) + " envíos.");
+
+        if (envios != null && !envios.isEmpty()) {
+            for (Envio e : envios) {
+                System.out.println("Envío ID: " + e.getIdEnvio() + ", Guía: " + e.getNumeroGuia() + ", Estatus: " + e.getEstatus());
+            }
+        } else {
+            System.out.println("No hay envíos asignados a este conductor.");
+        }
+
+        return envios;
     }
 }
