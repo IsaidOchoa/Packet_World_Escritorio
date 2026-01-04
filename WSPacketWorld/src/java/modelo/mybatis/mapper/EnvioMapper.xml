@@ -13,7 +13,7 @@
     </insert>
 
     <insert id="registrarHistorial" parameterType="map">
-        INSERT INTO historial_envio (idEnvio, idEstadoEnvio, comentario, idColaborador, fechaCambio)
+        INSERT INTO historialenvio (idEnvio, idEstadoEnvio, comentario, idColaborador, fechaCambio)
         VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador}, NOW())
     </insert>
 
@@ -79,14 +79,35 @@
     </select>
     
     <select id="obtenerTodos" resultType="pojo.Envio">
-        SELECT 
-            e.idEnvio, e.numeroGuia, e.nombreDestinatario, e.costo, e.idEstadoActual,
+       SELECT 
+            e.idEnvio, 
+            e.numeroGuia, 
+            e.nombreDestinatario, 
+            e.costo, 
+            e.idEstadoActual,
+            
+            CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
+            
+            s.nombre AS nombreSucursalOrigen,
+
+            -- Datos de Destino (Dirección)
+            e.calleDestino,
+            e.numeroDestino,
             col.nombre AS nombreColonia, 
+            col.codigo_postal AS codigoPostalDestino,
             mun.nombre AS municipio,
+            est.nombre AS estado,
+
             edo.nombre AS estatus
+
         FROM envio e
+       
+        INNER JOIN cliente cl ON e.idCliente = cl.idCliente
+        INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
+        
         INNER JOIN colonias col ON e.idColoniaDestino = col.id
         INNER JOIN municipios mun ON col.idMunicipio = mun.id
+        INNER JOIN estados est ON mun.idEstado = est.id
         INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
     </select>
     
