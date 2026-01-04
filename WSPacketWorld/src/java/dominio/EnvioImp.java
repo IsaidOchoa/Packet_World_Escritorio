@@ -50,6 +50,32 @@ public class EnvioImp {
         }
         return respuesta;
     }
+    public static Respuesta editar(Envio envio) {
+    Respuesta respuesta = new Respuesta();
+    SqlSession conexion = MyBatisUtil.getSession();
+    if (conexion != null) {
+        try {
+            int resultado = conexion.update("envio.editar", envio);
+            conexion.commit();
+            if (resultado > 0) {
+                respuesta.setError(false);
+                respuesta.setMensaje("Envío actualizado correctamente.");
+            } else {
+                respuesta.setError(true);
+                respuesta.setMensaje("El envío no fue encontrado o no se pudo actualizar.");
+            }
+        } catch (Exception e) {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error al actualizar: " + e.getMessage());
+        } finally {
+            conexion.close();
+        }
+    } else {
+        respuesta.setError(true);
+        respuesta.setMensaje("Por el momento no hay conexión a la base de datos.");
+    }
+    return respuesta;
+}
 
    public static Envio buscarPorGuia(String numeroGuia) {
         Envio envio = null;

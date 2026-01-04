@@ -131,6 +131,18 @@
         WHERE e.idConductor = #{idConductor}
     </select>
     
+    <update id="editar" parameterType="pojo.Envio">
+    UPDATE envio SET 
+        idCliente = #{idCliente},
+        idSucursalOrigen = #{idSucursalOrigen},
+        idColoniaDestino = #{idColoniaDestino},
+        calleDestino = #{calleDestino},
+        numeroDestino = #{numeroDestino},
+        codigoPostalDestino = #{codigoPostalDestino},
+        nombreDestinatario = #{nombreDestinatario}
+    WHERE idEnvio = #{idEnvio}
+    </update>
+    
    <delete id="eliminar" parameterType="int">
     DELETE FROM envio WHERE idEnvio = #{idEnvio}
    </delete>

@@ -64,6 +64,23 @@ public class EnvioWS {
             return new Respuesta(true, "Error al registrar el envío: " + e.getMessage());
         }
     }
+    @PUT
+    @Path("editar")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta editar(String json) {
+    Gson gson = new Gson();
+    try {
+        Envio envio = gson.fromJson(json, Envio.class);
+        if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
+            return EnvioImp.editar(envio);
+        }
+        return new Respuesta(true, "Se requiere el ID del envío para editar.");
+    } catch (Exception e) {
+        return new Respuesta(true, "Error en el servidor: " + e.getMessage());
+    }
+}
+    
 
     
     @GET
