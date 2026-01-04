@@ -130,5 +130,8 @@
         LEFT JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
         WHERE e.idConductor = #{idConductor}
     </select>
-
+    
+   <delete id="eliminar" parameterType="int">
+    DELETE FROM envio WHERE idEnvio = #{idEnvio}
+   </delete>
 </mapper>
