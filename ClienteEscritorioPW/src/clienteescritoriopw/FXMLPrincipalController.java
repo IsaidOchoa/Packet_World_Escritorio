@@ -20,136 +20,139 @@ public class FXMLPrincipalController implements Initializable {
 
    @FXML private Label lblNombreUsuario;
    @FXML private Label lblRol;
+   @FXML private Label lbColaborador;
 
-    @FXML
-    private Label lbColaborador;
+   
+   private Colaborador colaboradorSesion; 
 
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+   @Override
+   public void initialize(URL url, ResourceBundle rb) {
+       // TODO
+   }    
 
-    public void cargarInformacion(Colaborador colaborador){
-    lblNombreUsuario.setText(colaborador.getNombre() + " " + colaborador.getApellidoPaterno());
-    lblRol.setText("Rol: " + colaborador.getRol());
-}
+   public void cargarInformacion(Colaborador colaborador){
+       
+       this.colaboradorSesion = colaborador;
+
+       lblNombreUsuario.setText(colaborador.getNombre() + " " + colaborador.getApellidoPaterno());
+       lblRol.setText("Rol: " + colaborador.getRol());
+   }
     
+   
 
-    @FXML
-    private void clicCerrarSesion(ActionEvent event) {
-        boolean confirmar = Utilidades.mostrarAlertaConfirmacion("Cerrar Sesión", "¿Estás seguro de que deseas salir del sistema?");
-              
-        if(confirmar){
-            try {
-                Stage escenarioPrincipal = (Stage) lblNombreUsuario.getScene().getWindow();
-                
-               
-                Parent vista = FXMLLoader.load(getClass().getResource("/clienteescritoriopw/FXMLInicioSesion.fxml")); 
-                
-                Scene escenaLogin = new Scene(vista);
-                
-                escenarioPrincipal.setScene(escenaLogin);
-                escenarioPrincipal.setTitle("Iniciar Sesión");
-                escenarioPrincipal.centerOnScreen();
-                escenarioPrincipal.show();
-            } catch (IOException ex) {
-                
-                ex.printStackTrace();
-            }
-        }
-    }
    @FXML
-    private void clicModuloColaboradores(ActionEvent event) {
-        
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLColaborador.fxml"));
-            
-            Parent root = loader.load();
-            
-            Stage escenario = new Stage();
-            escenario.setScene(new Scene(root));
-            escenario.setTitle("Gestión de Colaboradores");
-            escenario.initModality(Modality.APPLICATION_MODAL);         
-            escenario.setMinWidth(900);  
-            escenario.setMinHeight(600); 
-            
-            escenario.showAndWait();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            Utilidades.mostrarAlertaSimple("Error de Carga", 
-                                          "No se pudo abrir la ventana de Colaboradores. Verifique la ruta del FXML.", 
-                                          Alert.AlertType.ERROR);
-        }
-    }
+   private void clicCerrarSesion(ActionEvent event) {
+      
+       boolean confirmar = Utilidades.mostrarAlertaConfirmacion("Cerrar Sesión", "¿Estás seguro de que deseas salir del sistema?");
+       if(confirmar){
+           try {
+               Stage escenarioPrincipal = (Stage) lblNombreUsuario.getScene().getWindow();
+               Parent vista = FXMLLoader.load(getClass().getResource("/clienteescritoriopw/FXMLInicioSesion.fxml")); 
+               Scene escenaLogin = new Scene(vista);
+               escenarioPrincipal.setScene(escenaLogin);
+               escenarioPrincipal.setTitle("Iniciar Sesión");
+               escenarioPrincipal.centerOnScreen();
+               escenarioPrincipal.show();
+           } catch (IOException ex) {
+               ex.printStackTrace();
+           }
+       }
+   }
 
-    @FXML
-    private void clicModuloSucursales(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLSucursal.fxml"));
-            Parent root = loader.load();
-            
-            Stage escenario = new Stage();
-            escenario.setScene(new Scene(root));
-            escenario.setTitle("Gestión de Sucursales");
-            escenario.initModality(Modality.APPLICATION_MODAL);
-            escenario.showAndWait();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            Utilidades.mostrarAlertaSimple("Error de Carga", 
-                                          "No se pudo abrir la ventana de Sucursales.", 
-                                          Alert.AlertType.ERROR);
-        }
-    }
+   @FXML
+   private void clicModuloColaboradores(ActionEvent event) {
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLColaborador.fxml"));
+           Parent root = loader.load();
+           Stage escenario = new Stage();
+           escenario.setScene(new Scene(root));
+           escenario.setTitle("Gestión de Colaboradores");
+           escenario.initModality(Modality.APPLICATION_MODAL);         
+           escenario.setMinWidth(900);  
+           escenario.setMinHeight(600); 
+           escenario.showAndWait();
+       } catch (IOException ex) {
+           ex.printStackTrace();
+           Utilidades.mostrarAlertaSimple("Error de Carga", "No se pudo abrir la ventana de Colaboradores.", Alert.AlertType.ERROR);
+       }
+   }
 
-    @FXML
-    private void clicModuloClientes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLCliente.fxml"));
-            Parent root = loader.load();
-            
-            Stage escenario = new Stage();
-            escenario.setScene(new Scene(root));
-            escenario.setTitle("Gestión de Clientes");
-            escenario.initModality(Modality.APPLICATION_MODAL);
-            
-            escenario.setMinWidth(900);
-            escenario.setMinHeight(600);
-            
-            escenario.showAndWait();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Clientes.", Alert.AlertType.ERROR);
-        }
-    }
+   
+   @FXML
+   private void clicModuloSucursales(ActionEvent event) {
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLSucursal.fxml"));
+           Parent root = loader.load();
+           Stage escenario = new Stage();
+           escenario.setScene(new Scene(root));
+           escenario.setTitle("Gestión de Sucursales");
+           escenario.initModality(Modality.APPLICATION_MODAL);
+           escenario.showAndWait();
+       } catch (IOException ex) {
+           ex.printStackTrace();
+           Utilidades.mostrarAlertaSimple("Error de Carga", "No se pudo abrir la ventana de Sucursales.", Alert.AlertType.ERROR);
+       }
+   }
+
+   @FXML
+   private void clicModuloClientes(ActionEvent event) {
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLCliente.fxml"));
+           Parent root = loader.load();
+           Stage escenario = new Stage();
+           escenario.setScene(new Scene(root));
+           escenario.setTitle("Gestión de Clientes");
+           escenario.initModality(Modality.APPLICATION_MODAL);
+           escenario.setMinWidth(900);
+           escenario.setMinHeight(600);
+           escenario.showAndWait();
+       } catch (IOException ex) {
+           ex.printStackTrace();
+           Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Clientes.", Alert.AlertType.ERROR);
+       }
+   }
     
+   
+   @FXML
+   private void clicModuloEnvios(ActionEvent event) {
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLEnvio.fxml"));
+           Parent root = loader.load();
 
-    @FXML
-    private void clicModuloEnvios(ActionEvent event) {
-    }
+           
+           FXMLEnvioController controller = loader.getController();
+           controller.inicializarColaborador(this.colaboradorSesion);
+           
+           Stage escenario = new Stage();
+           escenario.setScene(new Scene(root));
+           escenario.setTitle("Gestión de Envíos");
+           escenario.initModality(Modality.APPLICATION_MODAL);
+           
+           escenario.setMinWidth(900);
+           escenario.setMinHeight(600);
+           
+           escenario.showAndWait();
+       } catch (IOException ex) {
+           ex.printStackTrace();
+           Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Envíos.", Alert.AlertType.ERROR);
+       }
+   }
 
-    @FXML
-    private void clicModuloUnidades(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLUnidad.fxml"));
-            Parent root = loader.load();
-            
-            Stage escenario = new Stage();
-            escenario.setScene(new Scene(root));
-            escenario.setTitle("Gestión de Unidades");
-            escenario.initModality(Modality.APPLICATION_MODAL);
-            
-            escenario.setMinWidth(900);
-            escenario.setMinHeight(600);
-            
-            escenario.showAndWait();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
-        }
-    }
+   @FXML
+   private void clicModuloUnidades(ActionEvent event) {
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLUnidad.fxml"));
+           Parent root = loader.load();
+           Stage escenario = new Stage();
+           escenario.setScene(new Scene(root));
+           escenario.setTitle("Gestión de Unidades");
+           escenario.initModality(Modality.APPLICATION_MODAL);
+           escenario.setMinWidth(900);
+           escenario.setMinHeight(600);
+           escenario.showAndWait();
+       } catch (IOException ex) {
+           ex.printStackTrace();
+           Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
+       }
+   }
 }
-
-

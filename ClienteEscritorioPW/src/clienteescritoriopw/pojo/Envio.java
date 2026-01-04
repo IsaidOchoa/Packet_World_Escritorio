@@ -1,10 +1,16 @@
 package clienteescritoriopw.pojo;
 
+import clienteescritoriopw.pojo.Paquete;
+import java.util.List; 
+
 public class Envio {
-    private int idEnvio;
+    private Integer idEnvio;
     private String numeroGuia;
     private double costo;
     private double peso;
+    
+    
+    private List<Paquete> paquetes; 
     
     // Cliente
     private int idCliente;
@@ -14,36 +20,39 @@ public class Envio {
     private int idSucursalOrigen;
     private String nombreSucursalOrigen; 
     
-    // Destino (Datos crudos + ID Colonia de mexico.sql)
+    // Destino (Datos de la tabla Envio)
     private int idColoniaDestino;
     private String calleDestino;
     private String numeroDestino;
     private String nombreDestinatario;
     
-    // Destino (Datos visuales obtenidos del JOIN)
+    // Destino ( Colonia/Municipio)
     private String nombreColonia;
     private String municipio;
     private String estado;
-    private int cp;
     
-    // Logística
+    
+    private String codigoPostalDestino; 
+    
+    // Unidad
     private int idUnidad;
     private String infoUnidad; 
     private int idConductor;
     private String nombreConductor;
     
     // Estatus
-    private int idEstadoActual;
-    private String estatus;
+    private Integer idEstadoActual;
+    private String estatus; 
 
     public Envio() {
     }
 
-    public Envio(int idEnvio, String numeroGuia, double costo, double peso, int idCliente, String nombreCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, int cp, int idUnidad, String infoUnidad, int idConductor, String nombreConductor, int idEstadoActual, String estatus) {
+    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, List<Paquete> paquetes, int idCliente, String nombreCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, int idUnidad, String infoUnidad, int idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
         this.idEnvio = idEnvio;
         this.numeroGuia = numeroGuia;
         this.costo = costo;
         this.peso = peso;
+        this.paquetes = paquetes;
         this.idCliente = idCliente;
         this.nombreCliente = nombreCliente;
         this.idSucursalOrigen = idSucursalOrigen;
@@ -55,7 +64,7 @@ public class Envio {
         this.nombreColonia = nombreColonia;
         this.municipio = municipio;
         this.estado = estado;
-        this.cp = cp;
+        this.codigoPostalDestino = codigoPostalDestino;
         this.idUnidad = idUnidad;
         this.infoUnidad = infoUnidad;
         this.idConductor = idConductor;
@@ -64,11 +73,11 @@ public class Envio {
         this.estatus = estatus;
     }
 
-    public int getIdEnvio() {
+    public Integer getIdEnvio() {
         return idEnvio;
     }
 
-    public void setIdEnvio(int idEnvio) {
+    public void setIdEnvio(Integer idEnvio) {
         this.idEnvio = idEnvio;
     }
 
@@ -94,6 +103,14 @@ public class Envio {
 
     public void setPeso(double peso) {
         this.peso = peso;
+    }
+
+    public List<Paquete> getPaquetes() {
+        return paquetes;
+    }
+
+    public void setPaquetes(List<Paquete> paquetes) {
+        this.paquetes = paquetes;
     }
 
     public int getIdCliente() {
@@ -184,12 +201,12 @@ public class Envio {
         this.estado = estado;
     }
 
-    public int getCp() {
-        return cp;
+    public String getCodigoPostalDestino() {
+        return codigoPostalDestino;
     }
 
-    public void setCp(int cp) {
-        this.cp = cp;
+    public void setCodigoPostalDestino(String codigoPostalDestino) {
+        this.codigoPostalDestino = codigoPostalDestino;
     }
 
     public int getIdUnidad() {
@@ -224,11 +241,11 @@ public class Envio {
         this.nombreConductor = nombreConductor;
     }
 
-    public int getIdEstadoActual() {
+    public Integer getIdEstadoActual() {
         return idEstadoActual;
     }
 
-    public void setIdEstadoActual(int idEstadoActual) {
+    public void setIdEstadoActual(Integer idEstadoActual) {
         this.idEstadoActual = idEstadoActual;
     }
 
@@ -240,5 +257,4 @@ public class Envio {
         this.estatus = estatus;
     }
 
-    
 }

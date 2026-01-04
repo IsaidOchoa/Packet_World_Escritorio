@@ -138,5 +138,8 @@ public class Cliente {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-
+@Override
+    public String toString() {
+        return this.nombre + " " + this.apellidoPaterno + " (ID: " + this.idCliente + ")";
+    }
 }

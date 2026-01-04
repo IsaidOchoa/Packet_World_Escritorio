@@ -79,5 +79,8 @@ public class Colonia {
         this.idEstado = idEstado;
     }
 
-    
+    @Override
+    public String toString() {
+        return this.nombre + " - CP: " + this.codigoPostal;
+    }
 }

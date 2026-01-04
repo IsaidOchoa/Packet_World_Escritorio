@@ -80,7 +80,11 @@ public class Paquete {
     }
 
   
-    
+  
+    public String getDimensiones() {
+   
+    return this.alto + " x " + this.ancho + " x " + this.profundidad;
+}
 
 }
 

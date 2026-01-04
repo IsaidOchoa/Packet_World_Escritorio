@@ -195,19 +195,16 @@ public class FXMLFormularioClienteController implements Initializable {
         
         
        if(cliente.getCodigoPostal() > 0){
-             // 1. Ponemos el CP en el campo
+             
              tfCodigoPostal.setText(String.valueOf(cliente.getCodigoPostal()));
              
-             // 2. Ejecutamos la búsqueda de CP automáticamente
-             // Esto disparará la carga de Estados, Municipios y Colonias
+             
              clicBuscarCP(null); 
              
-             // 3. Seleccionamos la Colonia específica del cliente
-             // (clicBuscarCP selecciona la primera por defecto, aquí la corregimos)
              if(cliente.getIdColonia() > 0){
-                 // Usamos un pequeño retraso visual o seleccionamos directo si ya cargó
+               
                  for(Colonia c : cbColonia.getItems()){
-                     // Comparamos por ID
+                     
                      if(c.getIdColonia().equals(cliente.getIdColonia())){
                          cbColonia.getSelectionModel().select(c);
                          break;
