@@ -13,16 +13,15 @@
             c.numero,
             c.idColonia,
             
-            -- Datos de Dirección (Alias para el POJO)
+            -- Datos de Dirección (Usamos IFNULL para que no truene si no hay datos)
             col.nombre AS nombreColonia,
             col.codigo_postal AS codigoPostal,
             m.nombre AS municipio,
             e.nombre AS estado
             
-        FROM Cliente c 
-        INNER JOIN colonias col ON c.idColonia = col.id
-        INNER JOIN municipios m ON col.idMunicipio = m.id
-        INNER JOIN estados e ON m.idEstado = e.id
+        FROM cliente c  LEFT JOIN colonias col ON c.idColonia = col.id
+        LEFT JOIN municipios m ON col.idMunicipio = m.id
+        LEFT JOIN estados e ON m.idEstado = e.id
     </select>
     
     <insert id="registrar" parameterType="pojo.Cliente">
