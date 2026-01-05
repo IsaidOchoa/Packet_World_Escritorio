@@ -21,47 +21,48 @@ import utilidades.CalculadoraEnvios;
 public class PaqueteImp {
 
    public static Respuesta registrar(Paquete paquete) {
-        Respuesta respuesta = new Respuesta();
-        SqlSession conexionBD = MyBatisUtil.getSession();
-
-        if (conexionBD != null) {
+       Respuesta respuesta = new Respuesta();
+        respuesta.setError(true);
+        
+        SqlSession conexion = MyBatisUtil.getSession();
+        
+        if (conexion != null) {
             try {
-                int filas = conexionBD.insert("paquete.registrar", paquete);
-                conexionBD.commit();
-
-                if (filas > 0) {
+                int filasAfectadas = conexion.insert("paquete.registrar", paquete);
+                conexion.commit(); 
+                
+                if (filasAfectadas > 0) {
                     respuesta.setError(false);
                     respuesta.setMensaje("Paquete registrado correctamente.");
                     
-                    // IMPORTANTE: Cerramos la sesión actual antes de llamar al recálculo
-                    // para evitar conflictos de transacciones.
-                    conexionBD.close(); 
+                    // IMPORTANTE: Cerramos conexión actual para evitar bloqueos
+                    conexion.close(); 
                     
-                    // LLAMADA AL RECÁLCULO AUTOMÁTICO
+                    // ¡EL CAMBIO CLAVE! Avisar al envío que tiene un paquete nuevo
                     if (paquete.getIdEnvio() != null) {
-                         EnvioImp.recalcularCosto(paquete.getIdEnvio());
+                        System.out.println(">> Paquete nuevo. Recalculando envío: " + paquete.getIdEnvio());
+                        EnvioImp.recalcularCosto(paquete.getIdEnvio());
                     }
                     
-                    return respuesta; // Retornamos aquí porque ya cerramos la conexión
-
+                    // Retornamos aquí porque ya cerramos la conexión arriba
+                    return respuesta; 
                 } else {
-                    respuesta.setError(true);
                     respuesta.setMensaje("No se pudo registrar el paquete.");
                 }
             } catch (Exception e) {
-                respuesta.setError(true);
-                respuesta.setMensaje("Error: " + e.getMessage());
+                respuesta.setMensaje("Error BD: " + e.getMessage());
             } finally {
-                // Validación de seguridad por si no entró al if(filas > 0)
-                if (conexionBD != null && !conexionBD.getConnection().equals(null)) { 
-                    try { conexionBD.close(); } catch(Exception ex){} 
+                // Validación extra por si no se cerró en el if
+                if (conexion != null && !conexion.getConnection().equals(null)) {
+                    try { conexion.close(); } catch(Exception ex){}
                 }
             }
         } else {
-            respuesta.setError(true);
-            respuesta.setMensaje("Sin conexión a BD");
+            respuesta.setMensaje("Error de conexión BD.");
         }
+        
         return respuesta;
+    
     
     }
 

@@ -36,36 +36,38 @@ public class EnvioWS {
         Gson gson = new Gson();
         try {
             Envio envio = gson.fromJson(json, Envio.class);
+            
+            // Validaciones básicas
             if (envio.getIdCliente() <= 0 || envio.getIdSucursalOrigen() <= 0 ||
-                envio.getCalleDestino() == null || envio.getCodigoPostalDestino() == null) {
-                return new Respuesta(true, "Faltan datos obligatorios (Cliente, Sucursal o Destino).");
+                envio.getCodigoPostalDestino() == null) {
+                return new Respuesta(true, "Faltan datos obligatorios.");
             }
+
+            // Cálculo inicial de costo
             try {
                 Sucursal sucursalOrigen = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
                 String cpOrigen = (sucursalOrigen != null) ? sucursalOrigen.getCodigoPostal() : null;
                 String cpDestino = envio.getCodigoPostalDestino();
 
-                if (cpOrigen != null && cpDestino != null) {
-                    Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                    if (distancia == null) {
-                        System.out.println("⚠ La API de distancia falló. Usando distancia por defecto.");
-                        distancia = 50.0; 
-                    }
-                    int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
-                    float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-                    envio.setCosto(costoTotal);
-                    System.out.println(" Costo calculado: $" + costoTotal);
-                } else {
-                    System.out.println(" No se encontraron los CP (Origen: " + cpOrigen + ", Destino: " + cpDestino + ")");
-                    envio.setCosto(150.0); 
+                Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+                
+                // Si la API falla o no hay CPs, usamos fallback de 50km
+                if (distancia == null) { 
+                    distancia = 50.0; 
                 }
+
+                int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
+                float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
+                envio.setCosto(costoTotal);
+
             } catch (Exception ex) {
-                System.out.println(" Error en cálculo: " + ex.getMessage());
-                envio.setCosto(150.0); 
+                System.out.println("Error cálculo inicial: " + ex.getMessage());
+                envio.setCosto(0.0f); // Mejor 0 que un costo falso de 150
             }
+
             return EnvioImp.registrar(envio);
         } catch (Exception e) {
-            return new Respuesta(true, "Error al registrar el envío: " + e.getMessage());
+            return new Respuesta(true, "Error al registrar: " + e.getMessage());
         }
     }
     @PUT
@@ -78,19 +80,18 @@ public class EnvioWS {
             Envio envio = gson.fromJson(json, Envio.class);
             if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
                 
-                // Primero guardamos los cambios de dirección (CP nuevo)
-                Respuesta resp = EnvioImp.editar(envio);
-                
-                // Si se guardó bien, forzamos el recálculo inmediatamente
-                if (!resp.isError()) {
+                Respuesta respuesta = EnvioImp.editar(envio);
+
+                if (!respuesta.isError()) {
+                    System.out.println(">> Dirección cambiada. Recalculando costo para envío: " + envio.getIdEnvio());
                     EnvioImp.recalcularCosto(envio.getIdEnvio());
                 }
                 
-                return resp;
+                return respuesta;
             }
-            return new Respuesta(true, "ID requerido.");
+            return new Respuesta(true, "Se requiere el ID del envío para editar.");
         } catch (Exception e) {
-            return new Respuesta(true, "Error: " + e.getMessage());
+            return new Respuesta(true, "Error en el servidor: " + e.getMessage());
         }
     }
     
