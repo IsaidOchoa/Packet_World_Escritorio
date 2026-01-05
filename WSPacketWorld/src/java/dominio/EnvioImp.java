@@ -140,45 +140,139 @@ public class EnvioImp {
         }
         return lista;
     }
-
-    public static Respuesta actualizarEstatus(Envio envio) {
+    
+    public static Respuesta actualizarEstatus(
+        Envio envio,
+        String comentario,
+        int idColaborador
+    ) {
         Respuesta respuesta = new Respuesta();
-        respuesta.setError(true);
-
         SqlSession conexion = MyBatisUtil.getSession();
+
+        if (conexion == null) {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión con la base de datos.");
+            return respuesta;
+        }
+
+        try {
+            // 1. Actualizar estatus principal del envío
+            Map<String, Object> params = new HashMap<>();
+            params.put("idEnvio", envio.getIdEnvio());
+            params.put("idEstadoActual", envio.getIdEstadoActual());
+
+            if (envio.getIdUnidad() != null) {
+                params.put("idUnidad", envio.getIdUnidad());
+            }
+
+            if (envio.getIdConductor() != null) {
+                params.put("idConductor", envio.getIdConductor());
+            }
+
+            int filas = conexion.update("envio.actualizarEstatus", params);
+
+            if (filas == 0) {
+                conexion.rollback();
+                respuesta.setError(true);
+                respuesta.setMensaje("No se encontró el envío.");
+                return respuesta;
+            }
+
+            // 2. Registrar historial
+            Map<String, Object> historial = new HashMap<>();
+            historial.put("idEnvio", envio.getIdEnvio());
+            historial.put("idEstadoEnvio", envio.getIdEstadoActual());
+            historial.put("comentario", comentario); // ahora sí
+            historial.put("idColaborador", idColaborador);
+
+            conexion.insert("historialEnvio.registrar", historial);
+
+            // 3. Commit
+            conexion.commit();
+            respuesta.setError(false);
+            respuesta.setMensaje("Estatus actualizado correctamente.");
+
+        } catch (Exception e) {
+            conexion.rollback();
+            respuesta.setError(true);
+            respuesta.setMensaje("Error al actualizar estatus: " + e.getMessage());
+        } finally {
+            conexion.close();
+        }
+
+        return respuesta;
+    }
+
+    public static Respuesta actualizarEstatusMovil(
+        int idEnvio,
+        int idEstadoActual,
+        String comentario,
+        int idColaborador
+    ) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexion = MyBatisUtil.getSession();
+
         if (conexion != null) {
             try {
-               int filasAfectadas = conexion.update("envio.actualizarEstatus", envio);
-                
-                if (filasAfectadas > 0) {
-                    Map<String, Object> historial = new HashMap<>();
-                    historial.put("idEnvio", envio.getIdEnvio());
-                    historial.put("idEstadoEnvio", envio.getIdEstadoActual());
-                    historial.put("comentario", "Actualización de estatus");
-                    historial.put("idColaborador", 1); 
+                System.out.println("[DEBUG] Iniciando actualización envío " + idEnvio);
 
-                    conexion.insert("envio.registrarHistorial", historial);
-                }
+                Map<String, Object> paramsUpdate = new HashMap<>();
+                paramsUpdate.put("idEnvio", idEnvio);
+                paramsUpdate.put("idEstadoActual", idEstadoActual);
 
-                conexion.commit();
+                int filas = conexion.update("envio.actualizarSoloEstatus", paramsUpdate);
+                System.out.println("[DEBUG] Filas actualizadas: " + filas);
 
-                if (filasAfectadas > 0) {
+                if (filas > 0) {
+                    registrarHistorial(
+                        conexion,
+                        idEnvio,
+                        idEstadoActual,
+                        comentario,
+                        idColaborador
+                    );
+
+                    conexion.commit();
                     respuesta.setError(false);
                     respuesta.setMensaje("Estatus actualizado correctamente.");
+                    System.out.println("[DEBUG] Commit exitoso");
                 } else {
+                    respuesta.setError(true);
                     respuesta.setMensaje("No se encontró el envío.");
                 }
             } catch (Exception e) {
+                conexion.rollback();
                 e.printStackTrace();
+                respuesta.setError(true);
                 respuesta.setMensaje("Error al actualizar estatus: " + e.getMessage());
             } finally {
                 conexion.close();
+                System.out.println("[DEBUG] Conexión cerrada");
             }
         } else {
+            respuesta.setError(true);
             respuesta.setMensaje("Error de conexión con la base de datos.");
         }
+
         return respuesta;
     }
+    
+    private static void registrarHistorial(
+        SqlSession conexion,
+        int idEnvio,
+        int idEstadoEnvio,
+        String comentario,
+        int idColaborador
+    ) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("idEnvio", idEnvio);
+        params.put("idEstadoEnvio", idEstadoEnvio);
+        params.put("comentario", comentario);
+        params.put("idColaborador", idColaborador);
+
+        conexion.insert("historialEnvio.registrar", params);
+    }
+
     
     public static List<Envio> obtenerPorConductor(int idConductor) {
         List<Envio> lista = null;

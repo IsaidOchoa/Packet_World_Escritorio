@@ -34,9 +34,9 @@ public class Envio {
     private String codigoPostalDestino; 
     
     // Unidad
-    private int idUnidad;
+    private Integer idUnidad;
     private String infoUnidad; 
-    private int idConductor;
+    private Integer idConductor;
     private String nombreConductor;
     
     // Estatus
@@ -208,11 +208,11 @@ public class Envio {
         this.codigoPostalDestino = codigoPostalDestino;
     }
 
-    public int getIdUnidad() {
+    public Integer getIdUnidad() {
         return idUnidad;
     }
 
-    public void setIdUnidad(int idUnidad) {
+    public void setIdUnidad(Integer idUnidad) {
         this.idUnidad = idUnidad;
     }
 
@@ -224,11 +224,11 @@ public class Envio {
         this.infoUnidad = infoUnidad;
     }
 
-    public int getIdConductor() {
+    public Integer getIdConductor() {
         return idConductor;
     }
 
-    public void setIdConductor(int idConductor) {
+    public void setIdConductor(Integer idConductor) {
         this.idConductor = idConductor;
     }
 
