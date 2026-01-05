@@ -8,6 +8,7 @@ package ws;
 import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -87,5 +88,27 @@ public class PruebasWS {
         }
         
         return sb.toString();
+    }
+    
+    @GET
+    @Path("probar-calculadora/{origen}/{destino}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String probarCalculadora(@PathParam("origen") String origen,@PathParam("destino") String destino) {
+        
+        System.out.println("--- PRUEBA MANUAL DE CALCULADORA ---");
+        System.out.println("Origen recibido: " + origen);
+        System.out.println("Destino recibido: " + destino);
+        
+        try {
+            Double distancia = utilidades.CalculadoraEnvios.obtenerDistancia(origen, destino);
+            
+            if (distancia != null) {
+                return "{\"mensaje\":\"ÉXITO\", \"distancia\":" + distancia + "}";
+            } else {
+                return "{\"mensaje\":\"FALLÓ: La calculadora devolvió NULL.\"}";
+            }
+        } catch (Exception e) {
+            return "{\"mensaje\":\"ERROR DE EXCEPCIÓN: " + e.getMessage() + "\"}";
+        }
     }
 }

@@ -11,29 +11,47 @@ public class CalculadoraEnvios {
 
     public static Double obtenerDistancia(String cpOrigen, String cpDestino) {
         Double distancia = null;
-        
-       
+
+        // 1. VALIDACIÓN DE SEGURIDAD: Evitar NullPointerException
+        if (cpOrigen == null || cpDestino == null) {
+            System.out.println(">> [Calculadora] Error: CP Origen o Destino es NULO. No se puede calcular.");
+            return null;
+        }
+
+        // 2. LIMPIEZA DE DATOS: Quitar espacios en blanco al inicio o final
+        cpOrigen = cpOrigen.trim();
+        cpDestino = cpDestino.trim();
+
+        // Si están vacíos después del trim, tampoco continuamos
+        if (cpOrigen.isEmpty() || cpDestino.isEmpty()) {
+            System.out.println(">> [Calculadora] Error: CP Origen o Destino están vacíos.");
+            return null;
+        }
 
         try {
-            if (cpOrigen == null || cpDestino == null) {
-           System.out.println(">> Error: CP Origen o Destino es NULO");
-           return null; 
-       }
+            // 3. FORMATEO DE CÓDIGOS POSTALES (Rellenar con ceros a la izquierda si faltan)
+            // La API externa requiere 5 dígitos. Ej: "9100" -> "09100"
+            try {
+                if (cpOrigen.matches("\\d+") && cpOrigen.length() < 5) {
+                    cpOrigen = String.format("%05d", Integer.parseInt(cpOrigen));
+                }
+                if (cpDestino.matches("\\d+") && cpDestino.length() < 5) {
+                    cpDestino = String.format("%05d", Integer.parseInt(cpDestino));
+                }
+            } catch (NumberFormatException nfe) {
+                System.out.println(">> [Calculadora] Advertencia: El CP tiene letras, se enviará tal cual: " + nfe.getMessage());
+            }
 
-       if (cpOrigen.length() < 5) {
-           cpOrigen = String.format("%05d", Integer.parseInt(cpOrigen));
-       }
-       if (cpDestino.length() < 5) {
-           cpDestino = String.format("%05d", Integer.parseInt(cpDestino));
-       }
-
-            // 3. Consumo de API
+            // 4. CONSTRUCCIÓN DE LA URL Y CONSULTA
             String urlApi = "http://sublimas.com.mx:8080/calculadora/api/envios/distancia/" + cpOrigen + "," + cpDestino;
+            System.out.println(">> [Calculadora] Consultando API: " + urlApi);
+
             URL url = new URL(urlApi);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
+            // 5. LECTURA DE RESPUESTA
             if (conn.getResponseCode() == 200) {
                 BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
                 StringBuilder jsonStr = new StringBuilder();
@@ -43,24 +61,36 @@ public class CalculadoraEnvios {
                 }
                 conn.disconnect();
 
+                // Imprimir respuesta cruda para depuración
+                System.out.println(">> [Calculadora] Respuesta API: " + jsonStr.toString());
+
+                // 6. PARSEO DEL JSON
                 Gson gson = new Gson();
                 RespuestaDistancia respuesta = gson.fromJson(jsonStr.toString(), RespuestaDistancia.class);
 
-                if (!respuesta.isError()) {
+                if (respuesta != null && !respuesta.isError()) {
                     distancia = respuesta.getDistanciaKM();
+                } else {
+                    String mensajeError = (respuesta != null) ? respuesta.getMensaje() : "Respuesta nula";
+                    System.out.println(">> [Calculadora] La API retornó error lógico: " + mensajeError);
                 }
+            } else {
+                System.out.println(">> [Calculadora] Error HTTP de conexión: " + conn.getResponseCode());
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            // No retornamos 150 aquí, dejamos que sea null para manejarlo arriba
+            System.out.println(">> [Calculadora] Excepción general: " + e.getMessage());
         }
+        
         return distancia;
     }
 
     public static float calcularCosto(Double distancia, int numPaquetes) {
-        if (distancia == null || distancia < 0) return 0;
+        // Si la distancia es nula o negativa (error en API), el costo base es 0
+        if (distancia == null || distancia < 0) return 0.0f;
 
-        // COSTO POR KILÓMETRO
+        // 1. COSTO POR KILÓMETRO (Según reglas de negocio)
         float costoPorKm;
         if (distancia <= 200) {
             costoPorKm = 4.00f;
@@ -76,9 +106,10 @@ public class CalculadoraEnvios {
 
         float subtotalDistancia = (float) (distancia * costoPorKm);
 
-        // COSTO EXTRA POR PAQUETES 
+        // 2. COSTO EXTRA POR CANTIDAD DE PAQUETES
         float costoExtra = 0.00f;
-        if (numPaquetes <= 1) {
+        // Nota: "numPaquetes <= 1" cubre 0 o 1 paquete (costo 0)
+        if (numPaquetes < 2) { 
             costoExtra = 0.00f;
         } else if (numPaquetes == 2) {
             costoExtra = 50.00f;
