@@ -19,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import pojo.Colaborador;
 import pojo.Envio;
+import pojo.HistorialEnvio;
 import pojo.Sucursal;
 import utilidades.CalculadoraEnvios;
 
@@ -70,19 +71,17 @@ public class EnvioWS {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta editar(String json) {
-    Gson gson = new Gson();
-    try {
-        Envio envio = gson.fromJson(json, Envio.class);
-        if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
-            return EnvioImp.editar(envio);
+        Gson gson = new Gson();
+        try {
+            Envio envio = gson.fromJson(json, Envio.class);
+            if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
+                return EnvioImp.editar(envio);
+            }
+            return new Respuesta(true, "Se requiere el ID del envío para editar.");
+        } catch (Exception e) {
+            return new Respuesta(true, "Error en el servidor: " + e.getMessage());
         }
-        return new Respuesta(true, "Se requiere el ID del envío para editar.");
-    } catch (Exception e) {
-        return new Respuesta(true, "Error en el servidor: " + e.getMessage());
     }
-}
-    
-
     
     @GET
     @Path("buscar/{numeroGuia}")
@@ -93,6 +92,17 @@ public class EnvioWS {
             throw new NotFoundException("Envío no encontrado.");
         }
         return envio;
+    }
+    
+    @GET
+    @Path("historial/{numeroGuia}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<HistorialEnvio> obtenerHistorialPorGuia(@PathParam("numeroGuia") String numeroGuia) {
+        List<HistorialEnvio> historial = EnvioImp.obtenerHistorialPorGuia(numeroGuia);
+        if (historial == null) {
+            throw new NotFoundException("Envío no encontrado.");
+        }
+        return historial;
     }
 
     @GET
