@@ -38,6 +38,7 @@ public class FXMLUnidadController implements Initializable {
     private ObservableList<Unidad> listaUnidades;
     @FXML
     private TableColumn<Unidad, String> colSucursal;
+    @FXML private TableColumn<Unidad, String> colConductor;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -54,6 +55,7 @@ public class FXMLUnidadController implements Initializable {
        
         colTipo.setCellValueFactory(new PropertyValueFactory("nombreTipo")); 
         colSucursal.setCellValueFactory(new PropertyValueFactory("nombreSucursal"));
+        colConductor.setCellValueFactory(new PropertyValueFactory("nombreColaborador"));
     }
     
     private void cargarDatosTabla() {  
