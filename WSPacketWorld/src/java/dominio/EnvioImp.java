@@ -117,38 +117,48 @@ public class EnvioImp {
 
     
     
-    // se llamará cada vez que se agregue o quite un paquete
     public static void recalcularCosto(int idEnvio) {
         SqlSession conn = MyBatisUtil.getSession();
         if (conn != null) {
             try {
-              
-                List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
-                int cantidadPaquetes = (paquetes != null) ? paquetes.size() : 0;
+                // 1. Obtener el Envío
+                Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio);
                 
-               
-                Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio); 
-                
-                if(envio != null){
-                     // Obtener CP Origen (Sucursal)
-                     Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
-                     String cpOrigen = suc.getCodigoPostal();
-                     String cpDestino = envio.getCodigoPostalDestino(); 
-                     
-                     if(cpOrigen != null && cpDestino != null){
-                         Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                         float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidadPaquetes);
-                         
-                         
-                         Map<String, Object> params = new HashMap<>();
-                         params.put("idEnvio", idEnvio);
-                         params.put("costo", nuevoCosto);
-                         
-                         conn.update("envio.actualizarCosto", params);
-                         conn.commit();
-                     }
+                if (envio != null) {
+                    // 2. Obtener CP Origen (Sucursal)
+                    Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
+                    String cpOrigen = (suc != null) ? suc.getCodigoPostal() : null;
+                    String cpDestino = envio.getCodigoPostalDestino();
+                    
+                    // 3. Obtener Paquetes actuales
+                    List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
+                    int cantidad = (paquetes != null) ? paquetes.size() : 0;
+
+                    if (cpOrigen != null && cpDestino != null) {
+                        System.out.println("Recalculando Envío ID: " + idEnvio + " | Origen: " + cpOrigen + " | Destino: " + cpDestino + " | Paquetes: " + cantidad);
+                        
+                        // 4. Calcular
+                        Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+                        // Si la API falla, distancia será 50.0 (por el fallback) o lo que retorne la API
+                        
+                        if(distancia != null){
+                            float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidad);
+                            
+                            // 5. Actualizar en BD
+                            envio.setCosto(nuevoCosto);
+                            
+                            // Usamos un update específico o el genérico 'editar'
+                            conn.update("envio.editar", envio); 
+                            conn.commit();
+                            
+                            System.out.println(">>> COSTO ACTUALIZADO EXITOSAMENTE: $" + nuevoCosto);
+                        }
+                    } else {
+                        System.err.println("No se pudo recalcular: Faltan Códigos Postales.");
+                    }
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
+                System.err.println("Error en recalcularCosto: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 conn.close();

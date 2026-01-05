@@ -78,33 +78,19 @@ public class EnvioWS {
             Envio envio = gson.fromJson(json, Envio.class);
             if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
                 
-                // --- LOGICA DE RECÁLCULO AL EDITAR ---
-                try {
-                    Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
-                    String cpOrigen = (sucursal != null) ? sucursal.getCodigoPostal() : null;
-                    String cpDestino = envio.getCodigoPostalDestino();
-                    
-                    if(cpOrigen != null && cpDestino != null){
-                        Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                        if (distancia == null) distancia = 50.0;
-                        
-                        // Importante: Contar paquetes existentes
-                        List<Paquete> paquetes = PaqueteImp.obtenerPorEnvio(envio.getIdEnvio());
-                        int numPaquetes = (paquetes != null) ? paquetes.size() : 0;
-                        
-                        float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-                        envio.setCosto(costoTotal);
-                    }
-                } catch (Exception ex) {
-                    System.out.println("Error cálculo editar: " + ex.getMessage());
+                // Primero guardamos los cambios de dirección (CP nuevo)
+                Respuesta resp = EnvioImp.editar(envio);
+                
+                // Si se guardó bien, forzamos el recálculo inmediatamente
+                if (!resp.isError()) {
+                    EnvioImp.recalcularCosto(envio.getIdEnvio());
                 }
-                // -------------------------------------
-
-                return EnvioImp.editar(envio);
+                
+                return resp;
             }
-            return new Respuesta(true, "ID no válido.");
+            return new Respuesta(true, "ID requerido.");
         } catch (Exception e) {
-            return new Respuesta(true, "Error servidor: " + e.getMessage());
+            return new Respuesta(true, "Error: " + e.getMessage());
         }
     }
     

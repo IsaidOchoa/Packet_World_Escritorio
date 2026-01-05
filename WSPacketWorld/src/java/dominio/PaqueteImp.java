@@ -23,22 +23,27 @@ public class PaqueteImp {
    public static Respuesta registrar(Paquete paquete) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexionBD = MyBatisUtil.getSession();
-        
+
         if (conexionBD != null) {
             try {
-                // 1. Guardar el paquete
                 int filas = conexionBD.insert("paquete.registrar", paquete);
                 conexionBD.commit();
-                
+
                 if (filas > 0) {
                     respuesta.setError(false);
                     respuesta.setMensaje("Paquete registrado correctamente.");
                     
-                    // 2. RECÁLCULO AUTOMÁTICO SIMPLIFICADO
-                    conexionBD.close(); // Cerramos sesión actual
+                    // IMPORTANTE: Cerramos la sesión actual antes de llamar al recálculo
+                    // para evitar conflictos de transacciones.
+                    conexionBD.close(); 
                     
-                    // LLAMAMOS AL MÉTODO QUE YA EXISTE EN EnvioImp
-                    EnvioImp.recalcularCosto(paquete.getIdEnvio());
+                    // LLAMADA AL RECÁLCULO AUTOMÁTICO
+                    if (paquete.getIdEnvio() != null) {
+                         EnvioImp.recalcularCosto(paquete.getIdEnvio());
+                    }
+                    
+                    return respuesta; // Retornamos aquí porque ya cerramos la conexión
+
                 } else {
                     respuesta.setError(true);
                     respuesta.setMensaje("No se pudo registrar el paquete.");
@@ -47,9 +52,9 @@ public class PaqueteImp {
                 respuesta.setError(true);
                 respuesta.setMensaje("Error: " + e.getMessage());
             } finally {
-                // Validación extra por si no se cerró en el if
-                if(conexionBD != null && conexionBD.getConnection() != null) { 
-                    conexionBD.close(); 
+                // Validación de seguridad por si no entró al if(filas > 0)
+                if (conexionBD != null && !conexionBD.getConnection().equals(null)) { 
+                    try { conexionBD.close(); } catch(Exception ex){} 
                 }
             }
         } else {
@@ -57,6 +62,7 @@ public class PaqueteImp {
             respuesta.setMensaje("Sin conexión a BD");
         }
         return respuesta;
+    
     }
 
     private static void recalcularCostoEnvio(int idEnvio) {
