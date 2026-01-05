@@ -14,9 +14,9 @@ import java.util.List;
 
 public class UnidadImp {
     
-    public static List<Unidad> obtenerTodas() {
+    public static List<Unidad> obtenerUnidades() {
         List<Unidad> lista = new ArrayList<>();
-        String url = Constantes.URL_WS + "unidad/obtener-todas"; // Ajusta a tu URL real
+        String url = Constantes.URL_WS + "unidad/obtener-todas"; 
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
@@ -68,5 +68,27 @@ public class UnidadImp {
             msj.setMensaje("Error: " + respuesta.getContenido());
         }
         return msj;
+    }
+    public static Respuesta asignarConductor(int idUnidad, Integer idColaborador) {
+        Respuesta respuesta = new Respuesta();
+        String url = Constantes.URL_WS + "unidad/asignar";
+        
+        String parametros = "idUnidad=" + idUnidad;
+        
+        if(idColaborador != null && idColaborador > 0){
+            parametros += "&idColaborador=" + idColaborador;
+        } else {
+            parametros += "&idColaborador=0"; 
+        }
+        RespuestaHTTP res = ConexionAPI.peticionBody(url, "PUT", parametros, "application/x-www-form-urlencoded");
+        
+        if (res.getCodigo() == 200) {
+            Gson gson = new Gson();
+            respuesta = gson.fromJson(res.getContenido(), Respuesta.class);
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión al asignar.");
+        }
+        return respuesta;
     }
 }

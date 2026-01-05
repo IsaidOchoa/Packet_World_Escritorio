@@ -1,6 +1,7 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.pojo.Colaborador;
+import clienteescritoriopw.pojo.Unidad;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.io.IOException;
 import java.net.URL;
@@ -155,4 +156,8 @@ public class FXMLPrincipalController implements Initializable {
            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
        }
    }
+   
+   
+  
+
 }

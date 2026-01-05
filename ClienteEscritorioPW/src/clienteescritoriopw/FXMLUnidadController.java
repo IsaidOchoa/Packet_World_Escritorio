@@ -57,7 +57,7 @@ public class FXMLUnidadController implements Initializable {
     }
     
     private void cargarDatosTabla() {  
-      List<Unidad> lista = UnidadImp.obtenerTodas();
+      List<Unidad> lista = UnidadImp.obtenerUnidades();
         if(lista != null){
             tvUnidades.setItems(FXCollections.observableArrayList(lista));
         
@@ -148,4 +148,31 @@ public class FXMLUnidadController implements Initializable {
             ex.printStackTrace();
         }
     }
+    @FXML
+    private void clicAsignar(ActionEvent event) {
+    Unidad seleccionada = tvUnidades.getSelectionModel().getSelectedItem();
+    if (seleccionada != null) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLAsignarConductor.fxml"));
+            Parent root = loader.load();
+            
+            FXMLAsignarConductorController controlador = loader.getController();
+            controlador.inicializarDatos(seleccionada);
+            
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Asignar Conductor");
+            stage.showAndWait();
+            
+          
+            cargarDatosTabla(); 
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    } else {
+        Utilidades.mostrarAlertaSimple("Atención", "Selecciona una unidad para asignar.", Alert.AlertType.WARNING);
+    }
+}
 }

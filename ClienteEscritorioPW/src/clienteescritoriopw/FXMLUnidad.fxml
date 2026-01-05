@@ -54,6 +54,11 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
+            <Button mnemonicParsing="false" onAction="#clicAsignar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #1A3B5C;" text="Asignar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
             <Button mnemonicParsing="false" onAction="#clicEditar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12;" text="Editar" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
