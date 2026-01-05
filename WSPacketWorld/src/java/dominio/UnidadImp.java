@@ -6,6 +6,7 @@
 package dominio;
 
 import dto.Respuesta;
+import java.util.HashMap;
 import java.util.List;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
@@ -44,9 +45,7 @@ public class UnidadImp {
                     String anioStr = String.valueOf(unidad.getAnio());
                     String vinParcial = unidad.getVin().substring(0, 4).toUpperCase();
                     unidad.setNii(anioStr + vinParcial);
-                }
-                // -----------------------------------
-                
+                }                
                 int filasAfectadas = conexionBD.insert("unidad.registrar", unidad);
                 conexionBD.commit();
                 
@@ -82,8 +81,6 @@ public class UnidadImp {
                     String vinParcial = unidad.getVin().substring(0, 4).toUpperCase();
                     unidad.setNii(anioStr + vinParcial);
                 }
-                // -------------------------
-
                 int filasAfectadas = conexionBD.update("unidad.editar", unidad);
                 conexionBD.commit();
                 
@@ -130,6 +127,46 @@ public class UnidadImp {
         } else {
             respuesta.setError(true);
             respuesta.setMensaje("Sin conexión a la BD.");
+        }
+        return respuesta;
+    }
+    public static Respuesta asignarConductor(int idUnidad, Integer idColaborador) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
+            try {
+                if (idColaborador != null && idColaborador > 0) {
+                    conexionBD.update("unidad.desvincularConductor", idColaborador);
+                    HashMap<String, Object> params = new HashMap<>();
+                    params.put("idUnidad", idUnidad);
+                    params.put("idColaborador", idColaborador);
+                    int filas = conexionBD.update("unidad.asignarConductor", params);
+                    
+                    if (filas > 0) {
+                        conexionBD.commit(); 
+                        respuesta.setError(false);
+                        respuesta.setMensaje("Conductor movido y asignado correctamente.");
+                    } else {
+                        conexionBD.rollback(); 
+                        respuesta.setError(true);
+                        respuesta.setMensaje("No se pudo completar la asignación. Se cancelaron los cambios.");
+                    }
+                } else {
+                    int filas = conexionBD.update("unidad.liberarUnidad", idUnidad);
+                    conexionBD.commit(); 
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Unidad liberada.");
+                }
+            } catch (Exception e) {
+                conexionBD.rollback(); 
+                respuesta.setError(true);
+                respuesta.setMensaje("Error crítico: " + e.getMessage());
+            } finally {
+                conexionBD.close();
+            }
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Sin conexión a BD");
         }
         return respuesta;
     }
