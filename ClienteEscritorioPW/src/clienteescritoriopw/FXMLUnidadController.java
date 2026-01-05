@@ -31,12 +31,13 @@ public class FXMLUnidadController implements Initializable {
     @FXML private TableColumn<Unidad, String> colModelo;
     @FXML private TableColumn<Unidad, String> colAnio;
     @FXML private TableColumn<Unidad, String> colVin;
-    @FXML private TableColumn<Unidad, String> colPlacas;
     @FXML private TableColumn<Unidad, String> colNoIdentificacion;
     @FXML private TableColumn<Unidad, String> colTipo;
     @FXML private TextField tfBusqueda;
     
     private ObservableList<Unidad> listaUnidades;
+    @FXML
+    private TableColumn<Unidad, String> colSucursal;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -47,21 +48,19 @@ public class FXMLUnidadController implements Initializable {
     private void configurarTabla() {
         colMarca.setCellValueFactory(new PropertyValueFactory("marca"));
         colModelo.setCellValueFactory(new PropertyValueFactory("modelo"));
-        colAnio.setCellValueFactory(new PropertyValueFactory("año"));
+        colAnio.setCellValueFactory(new PropertyValueFactory("anio"));
         colVin.setCellValueFactory(new PropertyValueFactory("vin"));
-        colPlacas.setCellValueFactory(new PropertyValueFactory("placas"));
-        colNoIdentificacion.setCellValueFactory(new PropertyValueFactory("nii")); // Verifica si en tu POJO se llama así o numeroIdentificacion
-        colTipo.setCellValueFactory(new PropertyValueFactory("tipoUnidad"));
+        colNoIdentificacion.setCellValueFactory(new PropertyValueFactory("nii"));
+       
+        colTipo.setCellValueFactory(new PropertyValueFactory("nombreTipo")); 
+        colSucursal.setCellValueFactory(new PropertyValueFactory("nombreSucursal"));
     }
     
-    private void cargarDatosTabla() {
-        listaUnidades = FXCollections.observableArrayList();
-        // Asegúrate que tu método en UnidadImp se llame obtenerTodas() o similar
-        List<Unidad> respuestaWS = UnidadImp.obtenerTodas(); 
+    private void cargarDatosTabla() {  
+      List<Unidad> lista = UnidadImp.obtenerTodas();
+        if(lista != null){
+            tvUnidades.setItems(FXCollections.observableArrayList(lista));
         
-        if (respuestaWS != null) {
-            listaUnidades.addAll(respuestaWS);
-            tvUnidades.setItems(listaUnidades);
         } else {
             Utilidades.mostrarAlertaSimple("Error", "No se pudo cargar la lista de unidades.", Alert.AlertType.ERROR);
         }
@@ -78,13 +77,9 @@ public class FXMLUnidadController implements Initializable {
         ObservableList<Unidad> resultados = FXCollections.observableArrayList();
         
         for (Unidad u : listaUnidades) {
-            // Validamos nulos para evitar errores
             String marca = (u.getMarca() != null) ? u.getMarca().toLowerCase() : "";
             String vin = (u.getVin() != null) ? u.getVin().toLowerCase() : "";
-            // El NII (Número de Identificación Interno) es clave según el PDF
             String nii = (u.getNii()!= null) ? u.getNii().toLowerCase() : "";
-
-            // Lógica estricta del PDF: Buscar por VIN, Marca o NII
             if (marca.contains(busqueda) || vin.contains(busqueda) || nii.contains(busqueda)) {
                 resultados.add(u);
             }
@@ -116,7 +111,6 @@ public class FXMLUnidadController implements Initializable {
                     "¿Estás seguro de eliminar la unidad " + seleccionada.getMarca() + " " + seleccionada.getModelo() + "?");
             
             if (confirmar) {
-                // Asegúrate de que el método en UnidadImp sea eliminar(id)
                 Respuesta respuesta = UnidadImp.eliminar(seleccionada.getIdUnidad());
                 if (!respuesta.isError()) {
                     Utilidades.mostrarAlertaSimple("Éxito", "Unidad eliminada.", Alert.AlertType.INFORMATION);
@@ -137,28 +131,21 @@ public class FXMLUnidadController implements Initializable {
     
     private void abrirFormulario(Unidad unidad) {
         try {
-            // Este FXML lo crearemos en el siguiente paso
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioUnidad.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLFormularioUnidad.fxml")); 
             Parent root = loader.load();
             
-            // FXMLFormularioUnidadController controlador = loader.getController();
-            // if(unidad != null) controlador.inicializarEdicion(unidad);
+            FXMLFormularioUnidadController controlador = loader.getController();
+            if(unidad != null) controlador.inicializarEdicion(unidad); 
             
             Stage escenario = new Stage();
             escenario.setScene(new Scene(root));
             escenario.setTitle(unidad == null ? "Nueva Unidad" : "Editar Unidad");
             escenario.initModality(Modality.APPLICATION_MODAL);
-            
-            // Bloqueamos tamaño mínimo para que no se deforme
-            escenario.setMinWidth(600);
-            escenario.setMinHeight(400);
-            
             escenario.showAndWait();
             cargarDatosTabla();
             
         } catch (IOException ex) {
             ex.printStackTrace();
-            Utilidades.mostrarAlertaSimple("Aviso", "El formulario de Unidad aún no está creado.", Alert.AlertType.INFORMATION);
         }
     }
 }
