@@ -5,7 +5,7 @@
  */
 package ws;
 
-import com.google.gson.Gson; // Importante: Asegúrate de tener la librería Gson
+import com.google.gson.Gson; 
 import dominio.UnidadImp;
 import dto.Respuesta;
 import java.util.List;
