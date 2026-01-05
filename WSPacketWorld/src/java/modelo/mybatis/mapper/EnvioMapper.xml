@@ -103,6 +103,7 @@
             e.idCliente,
             e.idSucursalOrigen,
             e.idColoniaDestino,
+            
             CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
             s.nombre AS nombreSucursalOrigen,
             e.calleDestino,
@@ -111,7 +112,10 @@
             col.codigo_postal AS codigoPostalDestino, 
             mun.nombre AS municipio,
             est.nombre AS estado,
-            edo.nombre AS estatus
+            edo.nombre AS estatus,
+            
+            IFNULL(CONCAT(u.marca, ' ', u.modelo), 'Sin Unidad') AS infoUnidad
+            
         FROM envio e
         INNER JOIN cliente cl ON e.idCliente = cl.idCliente
         INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
@@ -119,6 +123,7 @@
         INNER JOIN municipios mun ON col.idMunicipio = mun.id
         INNER JOIN estados est ON mun.idEstado = est.id
         INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+                LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
     </select>
     
     <select id="obtenerPorConductor" resultType="pojo.Envio" parameterType="int">
@@ -142,14 +147,16 @@
     </select>
     
     <update id="editar" parameterType="pojo.Envio">
+   
     UPDATE envio SET 
         idCliente = #{idCliente},
         idSucursalOrigen = #{idSucursalOrigen},
         idColoniaDestino = #{idColoniaDestino},
         calleDestino = #{calleDestino},
         numeroDestino = #{numeroDestino},
-        codigoPostalDestino = #{codigoPostalDestino},
-        nombreDestinatario = #{nombreDestinatario}
+        
+        nombreDestinatario = #{nombreDestinatario},
+        idUnidad = #{idUnidad} 
     WHERE idEnvio = #{idEnvio}
     </update>
     
