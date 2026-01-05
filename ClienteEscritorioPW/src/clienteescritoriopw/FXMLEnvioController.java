@@ -44,6 +44,8 @@ public class FXMLEnvioController implements Initializable {
     private TableColumn colCosto;
     @FXML
     private TextField tfBusqueda;
+    @FXML
+    private TableColumn<Envio, String> colUnidad;
 
     private ObservableList<Envio> listaEnvios;
     private Colaborador colaboradorSesion;
@@ -65,9 +67,12 @@ public class FXMLEnvioController implements Initializable {
         colGuia.setCellValueFactory(new PropertyValueFactory("numeroGuia"));
         colCliente.setCellValueFactory(new PropertyValueFactory("nombreCliente")); 
         colOrigen.setCellValueFactory(new PropertyValueFactory("nombreSucursalOrigen"));
-        colDestino.setCellValueFactory(new PropertyValueFactory("nombreColonia")); // O calleDestino según prefieras
+        colDestino.setCellValueFactory(new PropertyValueFactory("nombreColonia")); 
         colEstatus.setCellValueFactory(new PropertyValueFactory("estatus"));
         colCosto.setCellValueFactory(new PropertyValueFactory("costo"));
+     
+        colUnidad.setCellValueFactory(new PropertyValueFactory("infoUnidad"));
+    
     }
 
     private void cargarInformacionTabla() {

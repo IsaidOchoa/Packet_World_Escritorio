@@ -4,6 +4,7 @@ import clienteescritoriopw.dominio.ClienteImp;
 import clienteescritoriopw.dominio.DireccionImp;
 import clienteescritoriopw.dominio.EnvioImp;
 import clienteescritoriopw.dominio.SucursalImp;
+import clienteescritoriopw.dominio.UnidadImp;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Cliente;
 import clienteescritoriopw.pojo.Colaborador;
@@ -12,6 +13,7 @@ import clienteescritoriopw.pojo.Envio;
 import clienteescritoriopw.pojo.Estado;
 import clienteescritoriopw.pojo.Municipio;
 import clienteescritoriopw.pojo.Sucursal;
+import clienteescritoriopw.pojo.Unidad;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.net.URL;
 import java.util.List;
@@ -43,6 +45,8 @@ public class FXMLFormularioEnvioController implements Initializable {
     @FXML private TextField tfCalle;
     @FXML private TextField tfNumero;
     @FXML private Button btnAccion; 
+    @FXML private ComboBox<Unidad> cbUnidad; // NUEVO
+
 
     private Colaborador colaboradorSesion;
     private Envio envioEdicion; 
@@ -53,16 +57,17 @@ public class FXMLFormularioEnvioController implements Initializable {
     private ObservableList<Estado> listaEstados;
     private ObservableList<Municipio> listaMunicipios;
     private ObservableList<Colonia> listaColonias;
+    private ObservableList<Unidad> listaUnidades;
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         inicializarListas();
         
-        // --- AQUÍ ESTÁ LA CLAVE: CARGAR LOS DATOS ---
         cargarClientes();     
         cargarSucursales();   
-        cargarEstados();      
-        // --------------------------------------------
+        cargarEstados();
+        cargarUnidades();
         
         configurarListeners();
         generarNumeroGuia(); 
@@ -132,7 +137,6 @@ public class FXMLFormularioEnvioController implements Initializable {
         if(respuesta != null && !respuesta.isEmpty()){
             listaClientes.addAll(respuesta);
         }
-        // Si sigue vacío, revisa que el WebService esté corriendo y la URL sea correcta
     }
     
     private void cargarSucursales() {
@@ -145,7 +149,6 @@ public class FXMLFormularioEnvioController implements Initializable {
         if(respuesta != null) listaEstados.addAll(respuesta);
     }
 
-    // --- LÓGICA DE EDICIÓN ---
     public void inicializarEnvioEdicion(Envio envio) {
         this.envioEdicion = envio;
         this.esEdicion = true;
@@ -170,7 +173,6 @@ public class FXMLFormularioEnvioController implements Initializable {
                 }
             }
         }
-
         // Seleccionar Sucursal
         if(!listaSucursales.isEmpty()){
             for(Sucursal s : listaSucursales){
@@ -180,10 +182,18 @@ public class FXMLFormularioEnvioController implements Initializable {
                 }
             }
         }
-
         // Recuperar Dirección
         if(envio.getCodigoPostalDestino() != null){
              recuperarDireccionPorCP(envio.getCodigoPostalDestino(), envio.getIdColoniaDestino());
+        }
+       // Recuperar Unidad
+        if (envio.getIdUnidad() != null && envio.getIdUnidad() > 0) {
+        for (Unidad u : cbUnidad.getItems()) {
+            if (u.getIdUnidad() == envio.getIdUnidad().intValue()) {
+                cbUnidad.getSelectionModel().select(u);
+                break;
+            }
+        }
         }
     }
     
@@ -299,7 +309,7 @@ public class FXMLFormularioEnvioController implements Initializable {
 
     @FXML
     private void btnGuardar(ActionEvent event) {
-        if (validarCampos()) {
+      if (validarCampos()) {
             Envio envio = esEdicion ? this.envioEdicion : new Envio();
             
             envio.setNumeroGuia(tfNumeroGuia.getText());
@@ -307,13 +317,18 @@ public class FXMLFormularioEnvioController implements Initializable {
             envio.setCalleDestino(tfCalle.getText());
             envio.setNumeroDestino(tfNumero.getText());
             envio.setCodigoPostalDestino(tfCP.getText());
-            
             envio.setIdCliente(cbCliente.getValue().getIdCliente());
             envio.setIdColoniaDestino(cbColonia.getValue().getIdColonia());
             envio.setIdSucursalOrigen(cbSucursalOrigen.getValue().getIdSucursal());
 
+            if (cbUnidad.getValue() != null) {
+                envio.setIdUnidad(cbUnidad.getValue().getIdUnidad());
+            } else {
+                
+                envio.setIdUnidad(null); 
+            }
+
             if (!esEdicion) {
-                envio.setPeso(0.0);
                 Respuesta respuesta = EnvioImp.registrar(envio);
                 mostrarAlerta(respuesta, "registrado");
             } else {
@@ -337,14 +352,61 @@ public class FXMLFormularioEnvioController implements Initializable {
     }
 
     private boolean validarCampos() {
-        if (tfNumeroGuia.getText().isEmpty() || tfNombreDestinatario.getText().isEmpty() || 
-            tfCalle.getText().isEmpty() || tfNumero.getText().isEmpty() ||
-            cbCliente.getValue() == null || cbColonia.getValue() == null || 
-            cbSucursalOrigen.getValue() == null) { 
-            
-            Utilidades.mostrarAlertaSimple("Campos Vacíos", "Llena todos los campos obligatorios.", Alert.AlertType.WARNING);
+        if (tfNombreDestinatario.getText().trim().isEmpty()) {
+            Utilidades.mostrarAlertaSimple("Campos requeridos", "Por favor ingresa el nombre del destinatario.", Alert.AlertType.WARNING);
+            tfNombreDestinatario.requestFocus();
+            return false;
+        }
+        if (tfCalle.getText().trim().isEmpty()) {
+            Utilidades.mostrarAlertaSimple("Campos requeridos", "La calle es obligatoria.", Alert.AlertType.WARNING);
+            tfCalle.requestFocus();
+            return false;
+        }
+        if (tfNumero.getText().trim().isEmpty()) {
+            Utilidades.mostrarAlertaSimple("Campos requeridos", "El número de casa es obligatorio.", Alert.AlertType.WARNING);
+            tfNumero.requestFocus();
+            return false;
+        }
+        if (tfCP.getText().trim().isEmpty() || tfCP.getText().trim().length() != 5) {
+             Utilidades.mostrarAlertaSimple("Formato incorrecto", "El Código Postal debe tener 5 dígitos.", Alert.AlertType.WARNING);
+             tfCP.requestFocus();
+             return false;
+        }
+
+        if (cbCliente.getValue() == null) {
+            Utilidades.mostrarAlertaSimple("Selección requerida", "Debes seleccionar un Cliente Remitente.", Alert.AlertType.WARNING);
+            cbCliente.requestFocus();
+            return false;
+        }
+        if (cbSucursalOrigen.getValue() == null) {
+            Utilidades.mostrarAlertaSimple("Selección requerida", "Debes seleccionar la Sucursal de Origen.", Alert.AlertType.WARNING);
+            cbSucursalOrigen.requestFocus();
+            return false;
+        }
+        if (cbColonia.getValue() == null) {
+            Utilidades.mostrarAlertaSimple("Dirección incompleta", "Debes buscar el CP y seleccionar una Colonia.", Alert.AlertType.WARNING);
+            tfCP.requestFocus();
             return false;
         }
         return true;
+    
     }
+    
+    private void cargarUnidades() {
+        listaUnidades = FXCollections.observableArrayList();
+        List<Unidad> lista = UnidadImp.obtenerUnidades(); 
+        if (lista != null) {
+            listaUnidades.addAll(lista);
+            cbUnidad.setItems(listaUnidades);
+            
+            cbUnidad.setConverter(new StringConverter<Unidad>() {
+                @Override
+                public String toString(Unidad u) {
+                    return (u != null) ? u.getMarca() + " " + u.getModelo() + " (" + u.getAnio() + ")" : null;
+                }
+                @Override
+                public Unidad fromString(String string) { return null; }
+            });
+        }
+}
 }

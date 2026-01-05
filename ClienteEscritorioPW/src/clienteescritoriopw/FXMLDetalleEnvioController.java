@@ -70,7 +70,7 @@ public class FXMLDetalleEnvioController implements Initializable {
             cargarDatosGenerales();
             cargarPaquetes();
             
-            recalcularCostoLocalmente();
+            actualizarDatosEnvio();
         }
     }
 
@@ -100,24 +100,19 @@ public class FXMLDetalleEnvioController implements Initializable {
             p.setDescripcion(tfDescripcion.getText());
             
             try {
-              
                 p.setPeso(Float.parseFloat(tfPeso.getText()));
                 p.setAlto(Float.parseFloat(tfAlto.getText()));
                 p.setAncho(Float.parseFloat(tfAncho.getText()));
                 p.setProfundidad(Float.parseFloat(tfProfundidad.getText()));
                 
-              
                 Respuesta resp = PaqueteImp.registrar(p);
                 
                 if(!resp.isError()){
                     Utilidades.mostrarAlertaSimple("Éxito", "Paquete agregado.", Alert.AlertType.INFORMATION);
                     limpiarFormularioPaquete();
                     
-                 
                     cargarPaquetes();
-                    
-                  
-                    recalcularCostoLocalmente();
+                    actualizarDatosEnvio(); 
                     
                 } else {
                     Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
@@ -130,14 +125,13 @@ public class FXMLDetalleEnvioController implements Initializable {
     }
     
     
-    private void recalcularCostoLocalmente() {
-        if (listaPaquetes != null) {
-            double costoTotalCalculado = 0.0;
-            for (Paquete p : listaPaquetes) {
-                costoTotalCalculado += (p.getPeso() * 10); 
-            }
-            lbCostoTotal.setText("$ " + String.format("%.2f", costoTotalCalculado));
-            envioSeleccionado.setCosto(costoTotalCalculado);
+    private void actualizarDatosEnvio() {
+        Envio envioActualizado = EnvioImp.buscarPorGuia(envioSeleccionado.getNumeroGuia());
+        
+        if (envioActualizado != null) {
+            this.envioSeleccionado = envioActualizado; 
+            
+            lbCostoTotal.setText("$ " + envioActualizado.getCosto());
         }
     }
 
