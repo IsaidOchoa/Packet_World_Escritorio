@@ -172,6 +172,21 @@ public class EnvioImp {
         return lista;
     }
     
+    public static Envio obtenerPorId(int idEnvio) {
+        Envio envio = null;
+        SqlSession conn = MyBatisUtil.getSession();
+        if (conn != null) {
+            try {
+                envio = conn.selectOne("envio.obtenerPorId", idEnvio);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+        }
+        return envio;
+    }
+    
     public static List<Envio> obtenerPorConductor(String numeroPersonal) {
         List<Envio> lista = null;
         SqlSession conexion = MyBatisUtil.getSession();

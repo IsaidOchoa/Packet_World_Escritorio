@@ -95,26 +95,21 @@
     
     <select id="obtenerTodos" resultType="pojo.Envio">
        SELECT 
-            e.idEnvio, 
-            e.numeroGuia, 
-            e.nombreDestinatario, 
-            e.costo, 
-            e.idEstadoActual,
-            e.idCliente,
-            e.idSucursalOrigen,
-            e.idColoniaDestino,
+            e.idEnvio, e.numeroGuia, e.nombreDestinatario, e.costo, e.idEstadoActual,
+            e.idCliente, e.idSucursalOrigen, e.idColoniaDestino,
             
             CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
             s.nombre AS nombreSucursalOrigen,
-            e.calleDestino,
-            e.numeroDestino,
-            col.nombre AS nombreColonia, 
-            col.codigo_postal AS codigoPostalDestino, 
-            mun.nombre AS municipio,
-            est.nombre AS estado,
+            e.calleDestino, e.numeroDestino,
+            col.nombre AS nombreColonia, col.codigo_postal AS codigoPostalDestino, 
+            mun.nombre AS municipio, est.nombre AS estado,
             edo.nombre AS estatus,
             
-            IFNULL(CONCAT(u.marca, ' ', u.modelo), 'Sin Unidad') AS infoUnidad
+            u.idUnidad,
+            IFNULL(CONCAT(u.marca, ' ', u.modelo), 'Sin Unidad') AS infoUnidad,
+            
+            u.idColaborador AS idConductor,
+            IFNULL(CONCAT(colab.nombre, ' ', colab.apellidoPaterno), 'Sin Conductor') AS nombreConductor
             
         FROM envio e
         INNER JOIN cliente cl ON e.idCliente = cl.idCliente
@@ -123,7 +118,9 @@
         INNER JOIN municipios mun ON col.idMunicipio = mun.id
         INNER JOIN estados est ON mun.idEstado = est.id
         INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
-                LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
+        
+        LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
+        LEFT JOIN colaborador colab ON u.idColaborador = colab.idColaborador 
     </select>
     
     <select id="obtenerPorConductor" resultType="pojo.Envio" parameterType="int">

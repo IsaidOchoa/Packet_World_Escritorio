@@ -24,26 +24,13 @@ public class PaqueteWS {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta registrarPaquete(String json) {
-        Gson gson = new Gson();
-        try {
-            Paquete paquete = gson.fromJson(json, Paquete.class);
-            
-            // Validaciones
-            if (paquete.getIdEnvio() == null || paquete.getIdEnvio() <= 0 || 
-                paquete.getDescripcion() == null || paquete.getDescripcion().isEmpty()) {
-                return new Respuesta(true, "Faltan datos obligatorios (idEnvio, descripcion)");
-            }
-            Respuesta resp = PaqueteImp.registrar(paquete);
-            
-            if (!resp.isError()) {
-                EnvioImp.recalcularCosto(paquete.getIdEnvio());
-            }
-            
-            return resp;
-            
-        } catch (Exception e) {
-            return new Respuesta(true, "Error al registrar paquete: " + e.getMessage());
-        }
+    Gson gson = new Gson();
+    try {
+        Paquete paquete = gson.fromJson(json, Paquete.class);
+        return PaqueteImp.registrar(paquete);
+    } catch (Exception e) {
+        return new Respuesta(true, "Error JSON: " + e.getMessage());
+    }
     }
 
     @GET

@@ -9,7 +9,10 @@ import dto.Respuesta;
 import java.util.List;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
+import pojo.Envio;
 import pojo.Paquete;
+import pojo.Sucursal;
+import utilidades.CalculadoraEnvios;
 
 /**
  *
@@ -17,33 +20,72 @@ import pojo.Paquete;
  */
 public class PaqueteImp {
 
-    public static Respuesta registrar(Paquete paquete) {
+   public static Respuesta registrar(Paquete paquete) {
         Respuesta respuesta = new Respuesta();
-        respuesta.setError(true); // Asumimos error al inicio
+        SqlSession conexionBD = MyBatisUtil.getSession();
         
-        SqlSession conexion = MyBatisUtil.getSession();
-        
-        if (conexion != null) {
+        if (conexionBD != null) {
             try {
-                int filasAfectadas = conexion.insert("paquete.registrar", paquete);
-                conexion.commit(); 
+                // 1. Guardar el paquete
+                int filas = conexionBD.insert("paquete.registrar", paquete);
+                conexionBD.commit();
                 
-                if (filasAfectadas > 0) {
+                if (filas > 0) {
                     respuesta.setError(false);
                     respuesta.setMensaje("Paquete registrado correctamente.");
+                    
+                    // 2. RECÁLCULO AUTOMÁTICO SIMPLIFICADO
+                    conexionBD.close(); // Cerramos sesión actual
+                    
+                    // LLAMAMOS AL MÉTODO QUE YA EXISTE EN EnvioImp
+                    EnvioImp.recalcularCosto(paquete.getIdEnvio());
                 } else {
-                    respuesta.setMensaje("No se pudo registrar la información del paquete.");
+                    respuesta.setError(true);
+                    respuesta.setMensaje("No se pudo registrar el paquete.");
                 }
             } catch (Exception e) {
-                respuesta.setMensaje("Error en la base de datos: " + e.getMessage());
+                respuesta.setError(true);
+                respuesta.setMensaje("Error: " + e.getMessage());
             } finally {
-                conexion.close();
+                // Validación extra por si no se cerró en el if
+                if(conexionBD != null && conexionBD.getConnection() != null) { 
+                    conexionBD.close(); 
+                }
             }
         } else {
-            respuesta.setMensaje("Error de conexión con el servidor de base de datos.");
+            respuesta.setError(true);
+            respuesta.setMensaje("Sin conexión a BD");
         }
-        
         return respuesta;
+    }
+
+    private static void recalcularCostoEnvio(int idEnvio) {
+        try {
+            Envio envio = EnvioImp.obtenerPorId(idEnvio); // Asegúrate que EnvioImp tenga este método
+            if (envio != null) {
+                Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
+                List<Paquete> paquetes = obtenerPorEnvio(idEnvio);
+                
+                String cpOrigen = (sucursal != null) ? sucursal.getCodigoPostal() : null;
+                String cpDestino = envio.getCodigoPostalDestino();
+                int numPaquetes = (paquetes != null) ? paquetes.size() : 0;
+
+                if (cpOrigen != null && cpDestino != null) {
+                    // Calculamos
+                    Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+                    if (distancia == null) distancia = 50.0; // Fallback
+                    
+                    float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
+                    
+                    // Actualizamos
+                    envio.setCosto(nuevoCosto);
+                    EnvioImp.editar(envio);
+                    System.out.println(">> Costo actualizado a: $" + nuevoCosto);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error recalculando costo: " + e.getMessage());
+        }
     }
 
     public static List<Paquete> obtenerPorEnvio(int idEnvio) {

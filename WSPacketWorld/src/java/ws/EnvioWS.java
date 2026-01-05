@@ -3,6 +3,7 @@ package ws;
 import com.google.gson.Gson;
 import dominio.ColaboradorImp;
 import dominio.EnvioImp;
+import dominio.PaqueteImp;
 import dominio.SucursalImp; 
 import dto.Respuesta;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import pojo.Colaborador;
 import pojo.Envio;
 import pojo.HistorialEnvio;
+import pojo.Paquete;
 import pojo.Sucursal;
 import utilidades.CalculadoraEnvios;
 
@@ -75,11 +77,34 @@ public class EnvioWS {
         try {
             Envio envio = gson.fromJson(json, Envio.class);
             if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
+                
+                // --- LOGICA DE RECÁLCULO AL EDITAR ---
+                try {
+                    Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
+                    String cpOrigen = (sucursal != null) ? sucursal.getCodigoPostal() : null;
+                    String cpDestino = envio.getCodigoPostalDestino();
+                    
+                    if(cpOrigen != null && cpDestino != null){
+                        Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+                        if (distancia == null) distancia = 50.0;
+                        
+                        // Importante: Contar paquetes existentes
+                        List<Paquete> paquetes = PaqueteImp.obtenerPorEnvio(envio.getIdEnvio());
+                        int numPaquetes = (paquetes != null) ? paquetes.size() : 0;
+                        
+                        float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
+                        envio.setCosto(costoTotal);
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Error cálculo editar: " + ex.getMessage());
+                }
+                // -------------------------------------
+
                 return EnvioImp.editar(envio);
             }
-            return new Respuesta(true, "Se requiere el ID del envío para editar.");
+            return new Respuesta(true, "ID no válido.");
         } catch (Exception e) {
-            return new Respuesta(true, "Error en el servidor: " + e.getMessage());
+            return new Respuesta(true, "Error servidor: " + e.getMessage());
         }
     }
     
