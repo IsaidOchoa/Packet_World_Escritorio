@@ -85,26 +85,21 @@
             e.nombreDestinatario, 
             e.costo, 
             e.idEstadoActual,
-            
+            e.idCliente,
+            e.idSucursalOrigen,
+            e.idColoniaDestino,
             CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
-            
             s.nombre AS nombreSucursalOrigen,
-
-            -- Datos de Destino (Dirección)
             e.calleDestino,
             e.numeroDestino,
             col.nombre AS nombreColonia, 
-            col.codigo_postal AS codigoPostalDestino,
+            col.codigo_postal AS codigoPostalDestino, 
             mun.nombre AS municipio,
             est.nombre AS estado,
-
             edo.nombre AS estatus
-
         FROM envio e
-       
         INNER JOIN cliente cl ON e.idCliente = cl.idCliente
         INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
-        
         INNER JOIN colonias col ON e.idColoniaDestino = col.id
         INNER JOIN municipios mun ON col.idMunicipio = mun.id
         INNER JOIN estados est ON mun.idEstado = est.id
