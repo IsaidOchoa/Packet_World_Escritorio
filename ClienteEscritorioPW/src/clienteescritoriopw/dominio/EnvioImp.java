@@ -32,6 +32,22 @@ public class EnvioImp {
         }
         return msj;
     }
+    
+    public static Respuesta editar(Envio envio) {
+    Respuesta msj = new Respuesta();
+    String url = Constantes.URL_WS + "envio/editar";
+    Gson gson = new Gson();
+    String parametros = gson.toJson(envio);
+    
+    RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "PUT", parametros, "application/json"); 
+    if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+        msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
+    } else {
+        msj.setError(true);
+        msj.setMensaje("Error al editar envío: " + respuesta.getContenido());
+    }
+    return msj;
+}
 
     
     public static List<Envio> obtenerTodos() {

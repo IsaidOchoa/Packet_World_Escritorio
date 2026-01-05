@@ -9,62 +9,76 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="550.0" prefWidth="700.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioEnvioController">
+<AnchorPane id="AnchorPane" prefHeight="550.0" prefWidth="800.0" style="-fx-background-color: #F4F6F6;" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioEnvioController">
    <children>
-      <Pane prefHeight="60.0" prefWidth="700.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <Pane prefHeight="60.0" prefWidth="800.0" style="-fx-background-color: #0B2B48;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="25.0" layoutY="15.0" text="Registrar Nuevo Envío" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="20.0" />
-               </font>
-            </Label>
+            <Label fx:id="lbTitulo" layoutX="30.0" layoutY="15.0" text="Registrar Nuevo Envío" textFill="WHITE">
+           <font>
+            <Font name="System Bold" size="22.0" />
+           </font>
+           </Label>
          </children>
       </Pane>
 
-      <Label layoutX="30.0" layoutY="80.0" text="Información General" textFill="#1a3b5c">
+      <Label layoutX="30.0" layoutY="80.0" text="Datos Generales del Envío" textFill="#0b2b48">
          <font>
-            <Font name="System Bold" size="14.0" />
+            <Font name="System Bold" size="16.0" />
          </font>
       </Label>
-      <Separator layoutX="30.0" layoutY="105.0" prefHeight="3.0" prefWidth="640.0" />
+      <Separator layoutX="30.0" layoutY="105.0" prefWidth="740.0" />
 
-      <Label layoutX="30.0" layoutY="120.0" text="No. Guía (Automático):" />
-      <TextField fx:id="tfNumeroGuia" editable="false" layoutX="30.0" layoutY="140.0" prefWidth="200.0" style="-fx-background-color: #E0E0E0;" />
+      <Label layoutX="30.0" layoutY="120.0" text="No. Guía (Auto):" />
+      <TextField fx:id="tfNumeroGuia" editable="false" layoutX="30.0" layoutY="140.0" prefHeight="25.0" prefWidth="200.0" style="-fx-background-color: #E5E7E9; -fx-font-weight: bold;" />
 
       <Label layoutX="260.0" layoutY="120.0" text="Cliente Remitente:" />
-      <ComboBox fx:id="cbCliente" layoutX="260.0" layoutY="140.0" prefHeight="25.0" prefWidth="410.0" promptText="Seleccione un cliente..." />
+      <ComboBox fx:id="cbCliente" layoutX="260.0" layoutY="140.0" prefHeight="25.0" prefWidth="240.0" promptText="Selecciona un cliente..." />
 
-      <Label layoutX="30.0" layoutY="180.0" text="Nombre del Destinatario (Quién recibe):" />
-      <TextField fx:id="tfNombreDestinatario" layoutX="30.0" layoutY="200.0" prefHeight="25.0" prefWidth="640.0" promptText="Ej. Juan Pérez" />
+      <Label layoutX="530.0" layoutY="120.0" text="Sucursal de Origen:" />
+      <ComboBox fx:id="cbSucursalOrigen" layoutX="530.0" layoutY="140.0" prefHeight="25.0" prefWidth="240.0" promptText="Selecciona sucursal salida..." />
 
-      <Label layoutX="30.0" layoutY="250.0" text="Dirección de Destino" textFill="#1a3b5c">
+
+      <Label layoutX="30.0" layoutY="190.0" text="Datos del Destinatario y Entrega" textFill="#0b2b48">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+      <Separator layoutX="30.0" layoutY="215.0" prefWidth="740.0" />
+
+      <Label layoutX="30.0" layoutY="230.0" text="Nombre Completo Destinatario:" />
+      <TextField fx:id="tfNombreDestinatario" layoutX="30.0" layoutY="250.0" prefHeight="25.0" prefWidth="470.0" promptText="Persona que recibe el paquete" />
+
+      <Label layoutX="530.0" layoutY="230.0" text="Código Postal:" />
+      <TextField fx:id="tfCP" layoutX="530.0" layoutY="250.0" prefHeight="25.0" prefWidth="120.0" promptText="Ej. 91000" />
+      <Button layoutX="660.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnBuscarCP" prefHeight="25.0" prefWidth="110.0" style="-fx-background-color: #3498DB;" text="Buscar CP" textFill="WHITE" />
+
+      <Label layoutX="30.0" layoutY="290.0" text="Estado:" />
+      <ComboBox fx:id="cbEstado" layoutX="30.0" layoutY="310.0" prefHeight="25.0" prefWidth="220.0" />
+
+      <Label layoutX="280.0" layoutY="290.0" text="Municipio:" />
+      <ComboBox fx:id="cbMunicipio" disable="true" layoutX="280.0" layoutY="310.0" prefHeight="25.0" prefWidth="220.0" />
+
+      <Label layoutX="530.0" layoutY="290.0" text="Colonia:" />
+      <ComboBox fx:id="cbColonia" disable="true" layoutX="530.0" layoutY="310.0" prefHeight="25.0" prefWidth="240.0" />
+
+      <Label layoutX="30.0" layoutY="350.0" text="Calle:" />
+      <TextField fx:id="tfCalle" layoutX="30.0" layoutY="370.0" prefHeight="25.0" prefWidth="470.0" promptText="Nombre de la calle" />
+
+      <Label layoutX="530.0" layoutY="350.0" text="Número (Ext/Int):" />
+      <TextField fx:id="tfNumero" layoutX="530.0" layoutY="370.0" prefHeight="25.0" prefWidth="150.0" promptText="#123" />
+
+      <Separator layoutX="30.0" layoutY="430.0" prefWidth="740.0" />
+      
+      <Button layoutX="460.0" layoutY="460.0" mnemonicParsing="false" onAction="#btnCancelar" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #E74C3C;" text="Cancelar" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
-      </Label>
-      <Separator layoutX="30.0" layoutY="275.0" prefHeight="3.0" prefWidth="640.0" />
-
-      <Label layoutX="30.0" layoutY="290.0" text="Código Postal:" />
-      <TextField fx:id="tfCP" layoutX="30.0" layoutY="310.0" prefHeight="25.0" prefWidth="120.0" promptText="Ej. 91000" />
-      <Button layoutX="160.0" layoutY="310.0" mnemonicParsing="false" onAction="#btnBuscarCP" style="-fx-background-color: #1A3B5C; -fx-text-fill: white;" text="Buscar CP" textFill="#1a3b5c" />
+      </Button>
       
-      <Label layoutX="260.0" layoutY="290.0" text="Colonia:" />
-      <ComboBox fx:id="cbColonia" layoutX="260.0" layoutY="310.0" prefHeight="25.0" prefWidth="410.0" promptText="-- Seleccione Colonia --" />
-
-      <Label layoutX="30.0" layoutY="350.0" text="Municipio:" />
-      <ComboBox fx:id="cbMunicipio" layoutX="30.0" layoutY="370.0" prefHeight="25.0" prefWidth="300.0" promptText="-- Seleccione Municipio --" />
-
-      <Label layoutX="370.0" layoutY="350.0" text="Estado:" />
-      <ComboBox fx:id="cbEstado" layoutX="370.0" layoutY="370.0" prefHeight="25.0" prefWidth="300.0" promptText="-- Seleccione Estado --" />
-
-      <Label layoutX="30.0" layoutY="410.0" text="Calle:" />
-      <TextField fx:id="tfCalle" layoutX="30.0" layoutY="430.0" prefHeight="25.0" prefWidth="450.0" promptText="Nombre de la calle" />
-
-      <Label layoutX="500.0" layoutY="410.0" text="Número Exterior:" />
-      <TextField fx:id="tfNumero" layoutX="500.0" layoutY="430.0" prefHeight="25.0" prefWidth="170.0" promptText="#123" />
-
-      <Button layoutX="380.0" layoutY="490.0" mnemonicParsing="false" onAction="#btnCancelar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Cancelar" />
-      <Button layoutX="520.0" layoutY="490.0" mnemonicParsing="false" onAction="#btnGuardar" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;" text="Registrar Envío" />
+      <Button fx:id="btnAccion" layoutX="630.0" layoutY="460.0" mnemonicParsing="false" onAction="#btnGuardar" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #2ECC71;" text="Registrar Envío" textFill="WHITE">         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Button>
 
    </children>
 </AnchorPane>

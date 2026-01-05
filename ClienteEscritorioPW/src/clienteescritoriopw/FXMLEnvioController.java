@@ -1,6 +1,7 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.EnvioImp;
+import clienteescritoriopw.dto.Respuesta; // Importante para manejar la respuesta de eliminar
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.Envio;
 import clienteescritoriopw.utilidad.Utilidades;
@@ -17,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType; // Importante para confirmaciones
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -63,7 +65,7 @@ public class FXMLEnvioController implements Initializable {
         colGuia.setCellValueFactory(new PropertyValueFactory("numeroGuia"));
         colCliente.setCellValueFactory(new PropertyValueFactory("nombreCliente")); 
         colOrigen.setCellValueFactory(new PropertyValueFactory("nombreSucursalOrigen"));
-        colDestino.setCellValueFactory(new PropertyValueFactory("nombreColonia")); 
+        colDestino.setCellValueFactory(new PropertyValueFactory("nombreColonia")); // O calleDestino según prefieras
         colEstatus.setCellValueFactory(new PropertyValueFactory("estatus"));
         colCosto.setCellValueFactory(new PropertyValueFactory("costo"));
     }
@@ -85,7 +87,6 @@ public class FXMLEnvioController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioEnvio.fxml"));
             Parent root = loader.load();
             
-            
             FXMLFormularioEnvioController controller = loader.getController();
             controller.inicializarColaborador(colaboradorSesion);
             
@@ -95,7 +96,6 @@ public class FXMLEnvioController implements Initializable {
             escenario.setTitle("Registrar Nuevo Envío");
             escenario.showAndWait();
             
-            
             cargarInformacionTabla();
             
         } catch (IOException ex) {
@@ -103,6 +103,62 @@ public class FXMLEnvioController implements Initializable {
             Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir el formulario.", Alert.AlertType.ERROR);
         }
     }
+
+    
+    @FXML
+    private void btnEditarEnvio(ActionEvent event) {
+        Envio envioSeleccionado = tvEnvios.getSelectionModel().getSelectedItem();
+
+        if (envioSeleccionado != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioEnvio.fxml"));
+                Parent root = loader.load();
+
+                FXMLFormularioEnvioController controller = loader.getController();
+                controller.inicializarColaborador(colaboradorSesion);
+                controller.inicializarEnvioEdicion(envioSeleccionado);
+
+                Stage escenario = new Stage();
+                escenario.initModality(Modality.APPLICATION_MODAL);
+                escenario.setScene(new Scene(root));
+                escenario.setTitle("Editar Envío");
+                escenario.showAndWait();
+                cargarInformacionTabla();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir el formulario de edición.", Alert.AlertType.ERROR);
+            }
+        } else {
+            Utilidades.mostrarAlertaSimple("Selección Requerida", "Debes seleccionar un envío para editar.", Alert.AlertType.WARNING);
+        }
+    }
+
+    /*
+    @FXML
+    private void btnEliminarEnvio(ActionEvent event) {
+        Envio envioSeleccionado = tvEnvios.getSelectionModel().getSelectedItem();
+
+        if (envioSeleccionado != null) {
+           
+            boolean confirmar = Utilidades.mostrarAlertaConfirmacion("Eliminar Envío", 
+                    "¿Estás seguro de eliminar el envío " + envioSeleccionado.getNumeroGuia() + "?\n\n"
+                    + "Esta acción eliminará también todos los paquetes asociados.");
+
+            if (confirmar) {
+                // Llamada al backend para eliminar
+                Respuesta respuesta = EnvioImp.eliminar(envioSeleccionado.getIdEnvio());
+                
+                if (!respuesta.isError()) {
+                    Utilidades.mostrarAlertaSimple("Éxito", "Envío eliminado correctamente.", Alert.AlertType.INFORMATION);
+                    cargarInformacionTabla();
+                } else {
+                    Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
+                }
+            }
+        } else {
+            Utilidades.mostrarAlertaSimple("Selección Requerida", "Debes seleccionar un envío para eliminar.", Alert.AlertType.WARNING);
+        }
+    }*/
 
     @FXML
     private void btnVerDetalles(ActionEvent event) {
@@ -113,16 +169,16 @@ public class FXMLEnvioController implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLDetalleEnvio.fxml"));
                 Parent root = loader.load();
                 
-             
                 FXMLDetalleEnvioController controller = loader.getController();
                 controller.inicializarEnvio(envioSeleccionado);
                 
-               
                 Stage escenario = new Stage();
                 escenario.setScene(new Scene(root));
                 escenario.setTitle("Detalle del Envío y Paquetes");
                 escenario.initModality(Modality.APPLICATION_MODAL);
                 escenario.showAndWait();
+                
+                cargarInformacionTabla(); 
                 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -133,14 +189,12 @@ public class FXMLEnvioController implements Initializable {
         }
     }
     
-    
     @FXML
     private void btnBuscar(ActionEvent event){
         filtrarEnvios(tfBusqueda.getText());
     }
     
     private void filtrarEnvios(String texto){
-        
         if(texto == null || texto.isEmpty()){
             tvEnvios.setItems(listaEnvios);
         }else{
