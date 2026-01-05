@@ -26,11 +26,14 @@ public class Unidad {
     // Relación con Sucursal
     private int idSucursal;
     private String nombreSucursal;
+    
+    private Integer idColaborador;  
+    private String nombreColaborador;
 
     public Unidad() {
     }
 
-    public Unidad(int idUnidad, String marca, String modelo, int anio, String vin, String nii, int idTipoUnidad, String tipo, int idSucursal, String nombreSucursal) {
+    public Unidad(int idUnidad, String marca, String modelo, int anio, String vin, String nii, int idTipoUnidad, String nombreTipo, int idSucursal, String nombreSucursal, Integer idColaborador, String nombreColaborador) {
         this.idUnidad = idUnidad;
         this.marca = marca;
         this.modelo = modelo;
@@ -38,9 +41,11 @@ public class Unidad {
         this.vin = vin;
         this.nii = nii;
         this.idTipoUnidad = idTipoUnidad;
-        this.nombreTipo = tipo;
+        this.nombreTipo = nombreTipo;
         this.idSucursal = idSucursal;
         this.nombreSucursal = nombreSucursal;
+        this.idColaborador = idColaborador;
+        this.nombreColaborador = nombreColaborador;
     }
 
     public int getIdUnidad() {
@@ -83,7 +88,6 @@ public class Unidad {
         this.vin = vin;
     }
 
-
     public String getNii() {
         return nii;
     }
@@ -123,8 +127,22 @@ public class Unidad {
     public void setNombreSucursal(String nombreSucursal) {
         this.nombreSucursal = nombreSucursal;
     }
-    
 
-       
+    public Integer getIdColaborador() {
+        return idColaborador;
+    }
+
+    public void setIdColaborador(Integer idColaborador) {
+        this.idColaborador = idColaborador;
+    }
+
+    public String getNombreColaborador() {
+        return nombreColaborador;
+    }
+
+    public void setNombreColaborador(String nombreColaborador) {
+        this.nombreColaborador = nombreColaborador;
+    }
+
    
 }
