@@ -17,11 +17,26 @@
         VALUES (#{idEnvio}, #{idEstadoEnvio}, #{comentario}, #{idColaborador}, NOW())
     </insert>
 
-    <update id="actualizarEstatus" parameterType="pojo.Envio">
-        UPDATE envio SET 
-            idEstadoActual = #{idEstadoActual},
-            idUnidad = #{idUnidad},
-            idConductor = #{idConductor}
+    <update id="actualizarEstatus" parameterType="map">
+        UPDATE envio
+        <set>
+            idEstadoActual = #{idEstadoActual}
+
+            <if test="idConductor != null">
+                , idConductor = #{idConductor}
+            </if>
+
+            <if test="idUnidad != null">
+                , idUnidad = #{idUnidad}
+            </if>
+        </set>
+        WHERE idEnvio = #{idEnvio}
+    </update>
+
+    
+    <update id="actualizarSoloEstatus" parameterType="map">
+        UPDATE envio 
+        SET idEstadoActual = #{idEstadoActual}
         WHERE idEnvio = #{idEnvio}
     </update>
 
@@ -69,7 +84,7 @@
         INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
         INNER JOIN colonias col ON e.idColoniaDestino = col.id
         INNER JOIN municipios mun ON col.idMunicipio = mun.id
-        INNER JOIN estados est ON mun.idEstado = est.id  <!-- ✅ Corregido -->
+        INNER JOIN estados est ON mun.idEstado = est.id
         INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
 
         LEFT JOIN unidad u ON e.idUnidad = u.idUnidad

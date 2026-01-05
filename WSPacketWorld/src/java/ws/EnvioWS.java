@@ -7,6 +7,7 @@ import dominio.SucursalImp;
 import dto.Respuesta;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -107,14 +108,58 @@ public class EnvioWS {
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta actualizarEstatus(String json) {
         Gson gson = new Gson();
+
         try {
             Envio envio = gson.fromJson(json, Envio.class);
-            if (envio.getIdEnvio() > 0 && envio.getIdEstadoActual() > 0) {
-                return EnvioImp.actualizarEstatus(envio);
+
+            if (envio.getIdEnvio() != null && envio.getIdEstadoActual() != null) {
+
+                int idColaborador = 1; // <-- desde sesión, token o hardcode temporal
+                String comentario = null; // opcional en escritorio
+
+                return EnvioImp.actualizarEstatus(
+                    envio,
+                    comentario,
+                    idColaborador
+                );
             }
+
             return new Respuesta(true, "Datos inválidos para actualizar estatus.");
+
         } catch (Exception e) {
             return new Respuesta(true, "Error al actualizar: " + e.getMessage());
+        }
+    }
+
+    
+    @PUT
+    @Path("actualizar-estatus-movil")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta actualizarEstatusMovil(String json) {
+        Gson gson = new Gson();
+        try {
+            Map<String, Object> datos = gson.fromJson(json, Map.class);
+
+            Double idEnvioD = (Double) datos.get("idEnvio");
+            Double idEstadoActualD = (Double) datos.get("idEstadoActual");
+            String comentario = (String) datos.get("comentario");
+            Double idColaboradorD = (Double) datos.get("idColaborador");
+
+            if (idEnvioD == null || idEstadoActualD == null || idColaboradorD == null) {
+                return new Respuesta(true, "Faltan datos obligatorios.");
+            }
+
+            return EnvioImp.actualizarEstatusMovil(
+                idEnvioD.intValue(),
+                idEstadoActualD.intValue(),
+                comentario,
+                idColaboradorD.intValue()
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Respuesta(true, "Error al procesar la actualización: " + e.getMessage());
         }
     }
     
