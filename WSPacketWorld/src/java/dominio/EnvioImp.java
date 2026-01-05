@@ -7,6 +7,7 @@ import java.util.Map;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Envio;
+import pojo.HistorialEnvio;
 import pojo.Paquete;
 import pojo.Sucursal;
 import utilidades.CalculadoraEnvios;
@@ -51,33 +52,33 @@ public class EnvioImp {
         return respuesta;
     }
     public static Respuesta editar(Envio envio) {
-    Respuesta respuesta = new Respuesta();
-    SqlSession conexion = MyBatisUtil.getSession();
-    if (conexion != null) {
-        try {
-            int resultado = conexion.update("envio.editar", envio);
-            conexion.commit();
-            if (resultado > 0) {
-                respuesta.setError(false);
-                respuesta.setMensaje("Envío actualizado correctamente.");
-            } else {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexion = MyBatisUtil.getSession();
+        if (conexion != null) {
+            try {
+                int resultado = conexion.update("envio.editar", envio);
+                conexion.commit();
+                if (resultado > 0) {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Envío actualizado correctamente.");
+                } else {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("El envío no fue encontrado o no se pudo actualizar.");
+                }
+            } catch (Exception e) {
                 respuesta.setError(true);
-                respuesta.setMensaje("El envío no fue encontrado o no se pudo actualizar.");
+                respuesta.setMensaje("Error al actualizar: " + e.getMessage());
+            } finally {
+                conexion.close();
             }
-        } catch (Exception e) {
+        } else {
             respuesta.setError(true);
-            respuesta.setMensaje("Error al actualizar: " + e.getMessage());
-        } finally {
-            conexion.close();
+            respuesta.setMensaje("Por el momento no hay conexión a la base de datos.");
         }
-    } else {
-        respuesta.setError(true);
-        respuesta.setMensaje("Por el momento no hay conexión a la base de datos.");
+        return respuesta;
     }
-    return respuesta;
-}
 
-   public static Envio buscarPorGuia(String numeroGuia) {
+    public static Envio buscarPorGuia(String numeroGuia) {
         Envio envio = null;
         SqlSession conn = MyBatisUtil.getSession();
         
@@ -95,6 +96,25 @@ public class EnvioImp {
         }
         return envio;
     }
+    
+    public static List<HistorialEnvio> obtenerHistorialPorGuia(String numeroGuia) {
+        Envio envio = buscarPorGuia(numeroGuia);
+        if (envio == null) {
+            return null;
+        }
+        SqlSession conn = MyBatisUtil.getSession();
+        List<HistorialEnvio> historial = null;
+        if (conn != null) {
+            try {
+                historial = conn.selectList("historialEnvio.obtenerPorEnvio", envio.getIdEnvio());
+            } finally {
+                conn.close();
+            }
+        }
+
+        return historial;
+    }
+
     
     
     // se llamará cada vez que se agregue o quite un paquete
