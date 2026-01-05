@@ -21,7 +21,7 @@ public class Unidad {
     
     // Relación con Tipo de Unidad
     private int idTipoUnidad;
-    private String tipo; // Ejemplo:(Gasolina, Diesel, Eléctrica,Hibrida)
+    private String nombreTipo; // Ejemplo:(Gasolina, Diesel, Eléctrica,Hibrida)
     
     // Relación con Sucursal
     private int idSucursal;
@@ -38,7 +38,7 @@ public class Unidad {
         this.vin = vin;
         this.nii = nii;
         this.idTipoUnidad = idTipoUnidad;
-        this.tipo = tipo;
+        this.nombreTipo = tipo;
         this.idSucursal = idSucursal;
         this.nombreSucursal = nombreSucursal;
     }
@@ -100,12 +100,12 @@ public class Unidad {
         this.idTipoUnidad = idTipoUnidad;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getNombreTipo() {
+        return nombreTipo;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setNombreTipo(String nombreTipo) {
+        this.nombreTipo = nombreTipo;
     }
 
     public int getIdSucursal() {

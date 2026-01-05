@@ -4,19 +4,22 @@
 <mapper namespace="unidad">
 
     <select id="obtenerUnidades" resultType="pojo.Unidad">
-        SELECT 
-            u.idUnidad,
-            u.marca,
-            u.modelo,
-            u.anio,
-            u.vin,
-            u.nii,  u.idTipoUnidad,
-            IFNULL(t.nombre, 'Sin Tipo') AS tipo,
-            u.idSucursal,
-            IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal
-        FROM Unidad u
-        LEFT JOIN TipoUnidad t ON u.idTipoUnidad = t.idTipoUnidad
-        LEFT JOIN Sucursal s ON u.idSucursal = s.idSucursal
+      SELECT 
+        u.idUnidad,
+        u.marca,
+        u.modelo,
+        u.anio,
+        u.vin,
+        u.nii,
+        u.idTipoUnidad,
+        u.idSucursal,
+        
+        IFNULL(t.nombre, 'Sin Tipo') AS nombreTipo,
+        IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal
+        
+    FROM Unidad u
+    LEFT JOIN TipoUnidad t ON u.idTipoUnidad = t.idTipoUnidad
+    LEFT JOIN Sucursal s ON u.idSucursal = s.idSucursal
     </select>
 
     <insert id="registrar" parameterType="pojo.Unidad" useGeneratedKeys="true" keyProperty="idUnidad">
