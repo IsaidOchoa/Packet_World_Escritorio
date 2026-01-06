@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,9 +28,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import org.apache.ibatis.javassist.Loader;
 
 public class FXMLFormularioColaboradorController implements Initializable {
 
@@ -55,11 +58,16 @@ public class FXMLFormularioColaboradorController implements Initializable {
     private File archivoFoto;
     private ObservableList<Rol> listaRoles;
     private ObservableList<Sucursal> listaSucursales;
+    
+    // Patrón para validar correo electrónico
+    private static final Pattern EMAIL_PATTERN = 
+        Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurarComboBoxes();
         cargarCatalogos();
+        configurarValidaciones(); // 👈 NUEVO: Configurar todas las validaciones
     }    
 
     private void configurarComboBoxes() {
@@ -73,13 +81,61 @@ public class FXMLFormularioColaboradorController implements Initializable {
         });
     }
 
+    //Configuración de todas las validaciones en tiempo real
+    private void configurarValidaciones() {
+        configurarTextFieldLetras(tfNombre, 30);
+        configurarTextFieldLetras(tfPaterno, 30);
+        configurarTextFieldLetras(tfMaterno, 30);
+        
+        configurarTextFieldConCaracteres(tfNoPersonal, 10, "[a-zA-Z0-9_-]");
+        
+        configurarTextFieldConCaracteres(tfCurp, 18, "[a-zA-Z0-9]");
+        
+        configurarTextFieldLongitudMaxima(tfCorreo, 30);
+
+        configurarTextFieldConCaracteres(tfLicencia, 30, "[a-zA-Z0-9-]");
+    }
+    
+    private void configurarTextFieldLetras(TextField field, int maxLength) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+        field.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]")) {
+                event.consume();
+            }
+        });
+    }
+    
+    private void configurarTextFieldConCaracteres(TextField field, int maxLength, String regex) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+        field.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches(regex)) {
+                event.consume();
+            }
+        });
+    }
+    
+    private void configurarTextFieldLongitudMaxima(TextField field, int maxLength) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+    }
+
     public void inicializarEdicion(Colaborador colaborador) {
         this.colaboradorEdicion = colaborador;
         lblTitulo.setText("Editar Colaborador: " + colaborador.getNombre());
         tfNoPersonal.setDisable(true);
         cbRol.setDisable(true);
         
-        // Mostrar campos de contraseña actual en modo edición
         lblPasswordActual.setVisible(true);
         lblPasswordActual.setManaged(true);
         pfPasswordActual.setVisible(true);
@@ -101,7 +157,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
         if (sucursalesWS != null) listaSucursales.addAll(sucursalesWS);
         cbSucursal.setItems(listaSucursales);
 
-        // Agregar listener para detectar cambios en el rol
         cbRol.setOnAction(e -> actualizarVisibilidadLicencia());
     }
     
@@ -137,7 +192,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
             if(imagen != null) ivFoto.setImage(imagen);
         }
 
-        // Actualizar visibilidad de licencia después de cargar los datos
         actualizarVisibilidadLicencia();
     }
 
@@ -145,9 +199,20 @@ public class FXMLFormularioColaboradorController implements Initializable {
     private void clicSeleccionarFoto(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar Foto");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.jpg", "*.png", "*.jpeg"));
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Imágenes", "*.jpg", "*.jpeg", "*.png")
+        );
         archivoFoto = fileChooser.showOpenDialog(null);
         if (archivoFoto != null) {
+            //Validar extensión del archivo
+            String nombreArchivo = archivoFoto.getName().toLowerCase();
+            if (!nombreArchivo.endsWith(".jpg") && !nombreArchivo.endsWith(".jpeg") && 
+                !nombreArchivo.endsWith(".png")) {
+                Utilidades.mostrarAlertaSimple("Formato inválido", 
+                    "Solo se permiten archivos .jpg, .jpeg y .png", Alert.AlertType.WARNING);
+                archivoFoto = null;
+                return;
+            }
             ivFoto.setImage(new Image(archivoFoto.toURI().toString()));
         }
     }
@@ -167,12 +232,9 @@ public class FXMLFormularioColaboradorController implements Initializable {
     
     private void actualizarVisibilidadLicencia() {
         boolean esConductor = false;
-
         if (cbRol.getValue() != null) {
-            esConductor = cbRol.getValue().getIdRol() == 3; // ID de conductor = 3
+            esConductor = cbRol.getValue().getIdRol() == 3;
         }
-
-        // Mostrar/ocultar en el VBox de la derecha
         lblLicencia.setVisible(esConductor);
         lblLicencia.setManaged(esConductor);
         tfLicencia.setVisible(esConductor);
@@ -180,7 +242,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
     }
 
     private void editarPerfilYFotoYPass() {
-        // 1. ACTUALIZAR PERFIL
         Colaborador perfil = new Colaborador();
         perfil.setIdColaborador(colaboradorEdicion.getIdColaborador());
         perfil.setNombre(tfNombre.getText());
@@ -196,7 +257,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
             return;
         }
 
-        // 2. ACTUALIZAR FOTO
         if (archivoFoto != null) {
             try {
                 byte[] bytes = Files.readAllBytes(archivoFoto.toPath());
@@ -215,11 +275,10 @@ public class FXMLFormularioColaboradorController implements Initializable {
             }
         }
 
-        // 3. ACTUALIZAR CONTRASEÑA (si aplica)
         if (!pfPasswordNueva.getText().isEmpty()) {
             Respuesta respPass = ColaboradorImp.editarPassword(
                 colaboradorEdicion.getIdColaborador(), 
-                pfPasswordActual.getText(), // ← Contraseña real del usuario
+                pfPasswordActual.getText(),
                 pfPasswordNueva.getText()
             );
             if (respPass.isError()) {
@@ -243,7 +302,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
         c.setNumeroLicencia(tfLicencia.getText());
         c.setIdRol(cbRol.getValue().getIdRol());
         c.setIdSucursal(cbSucursal.getValue().getIdSucursal());
-        c.setPassword(pfPasswordNueva.getText()); // ← Usa pfPasswordNueva
+        c.setPassword(pfPasswordNueva.getText());
         if (archivoFoto != null) {
             try {
                 c.setFoto(Files.readAllBytes(archivoFoto.toPath()));
@@ -273,43 +332,88 @@ public class FXMLFormularioColaboradorController implements Initializable {
     }
     
     private boolean validarCampos() {
-        if (tfNoPersonal.getText().trim().isEmpty() || tfNombre.getText().trim().isEmpty() || 
-            tfPaterno.getText().trim().isEmpty() || tfCurp.getText().trim().isEmpty()) {
-            Utilidades.mostrarAlertaSimple("Campos requeridos", "Por favor, llene los campos obligatorios (Nombre, Paterno, No. Personal, CURP).", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (cbRol.getValue() == null) {
-            Utilidades.mostrarAlertaSimple("Selección requerida", "Debe asignar un Rol al colaborador.", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (cbSucursal.getValue() == null) {
-            Utilidades.mostrarAlertaSimple("Selección requerida", "Debe asignar una Sucursal.", Alert.AlertType.WARNING);
-            return false;
-        }
-
-        // VALIDACIÓN DE CONTRASEÑA
-        if (colaboradorEdicion == null) {
-            // MODO CREACIÓN
-            if (pfPasswordNueva.getText().isEmpty()) {
-                Utilidades.mostrarAlertaSimple("Seguridad", "Debe establecer una contraseña.", Alert.AlertType.WARNING);
-                return false;
+        StringBuilder errores = new StringBuilder();
+        
+        // Validación básica de campos obligatorios
+        if (tfNoPersonal.getText().trim().isEmpty()) errores.append("- Número de Personal\n");
+        if (tfNombre.getText().trim().isEmpty()) errores.append("- Nombre\n");
+        if (tfPaterno.getText().trim().isEmpty()) errores.append("- Apellido Paterno\n");
+        if (tfCurp.getText().trim().isEmpty()) errores.append("- CURP\n");
+        if (cbRol.getValue() == null) errores.append("- Rol\n");
+        if (cbSucursal.getValue() == null) errores.append("- Sucursal\n");
+        
+        // Validaciones específicas
+        String noPersonal = tfNoPersonal.getText().trim();
+        if (!noPersonal.isEmpty()) {
+            if (noPersonal.length() > 10 || !noPersonal.matches("[a-zA-Z0-9_-]+")) {
+                errores.append("- No. Personal: máximo 10 caracteres, solo letras, números, guión y guión bajo\n");
             }
-            if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
-                Utilidades.mostrarAlertaSimple("Error", "Las contraseñas no coinciden.", Alert.AlertType.WARNING);
-                return false;
+        }
+        
+        String nombre = tfNombre.getText().trim();
+        if (!nombre.isEmpty()) {
+            if (nombre.length() > 30 || !nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                errores.append("- Nombre: máximo 30 caracteres, solo letras\n");
+            }
+        }
+        
+        String paterno = tfPaterno.getText().trim();
+        if (!paterno.isEmpty()) {
+            if (paterno.length() > 30 || !paterno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                errores.append("- Apellido Paterno: máximo 30 caracteres, solo letras\n");
+            }
+        }
+        
+        String materno = tfMaterno.getText().trim();
+        if (!materno.isEmpty() && !materno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]*")) {
+            if (materno.length() > 30 || !materno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                errores.append("- Apellido Materno: máximo 30 caracteres, solo letras\n");
+            }
+        }
+        
+        String curp = tfCurp.getText().trim();
+        if (!curp.isEmpty()) {
+            if (curp.length() != 18 || !curp.matches("[a-zA-Z0-9]{18}")) {
+                errores.append("- CURP: debe tener exactamente 18 caracteres alfanuméricos\n");
+            }
+        }
+        
+        String correo = tfCorreo.getText().trim();
+        if (!correo.isEmpty()) {
+            if (correo.length() > 30) {
+                errores.append("- Correo: máximo 30 caracteres\n");
+            } else if (!EMAIL_PATTERN.matcher(correo).matches()) {
+                errores.append("- Correo: formato de correo electrónico inválido\n");
+            }
+        }
+        
+        String licencia = tfLicencia.getText().trim();
+        if (!licencia.isEmpty() && cbRol.getValue() != null && cbRol.getValue().getIdRol() == 3) {
+            if (licencia.length() > 30 || !licencia.matches("[a-zA-Z0-9_-]+")) {
+                errores.append("- Licencia: máximo 30 caracteres alfanuméricos y (-) \n");
+            }
+        }
+        
+        // Validación de contraseña
+        if (colaboradorEdicion == null) {
+            if (pfPasswordNueva.getText().isEmpty()) {
+                errores.append("- Contraseña (requerida al registrar)\n");
+            } else if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
+                errores.append("- Las contraseñas no coinciden\n");
             }
         } else {
-            // MODO EDICIÓN
             if (!pfPasswordNueva.getText().isEmpty()) {
                 if (pfPasswordActual.getText().isEmpty()) {
-                    Utilidades.mostrarAlertaSimple("Error", "Debe ingresar su contraseña actual.", Alert.AlertType.WARNING);
-                    return false;
-                }
-                if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
-                    Utilidades.mostrarAlertaSimple("Error", "Las nuevas contraseñas no coinciden.", Alert.AlertType.WARNING);
-                    return false;
+                    errores.append("- Contraseña actual requerida\n");
+                } else if (!pfPasswordNueva.getText().equals(pfPasswordConfirmar.getText())) {
+                    errores.append("- Las nuevas contraseñas no coinciden\n");
                 }
             }
+        }
+        
+        if (errores.length() > 0) {
+            Utilidades.mostrarAlertaSimple("Campos inválidos", "Corrige:\n" + errores.toString(), Alert.AlertType.WARNING);
+            return false;
         }
         return true;
     }

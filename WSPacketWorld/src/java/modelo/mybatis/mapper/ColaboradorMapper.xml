@@ -98,5 +98,18 @@
         LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
         WHERE c.idColaborador = #{idColaborador}
     </select>
+    
+    <select id="tieneUnidadesAsignadas" resultType="int" parameterType="int">
+        SELECT COUNT(*) 
+        FROM Unidad 
+        WHERE idColaborador = #{idColaborador}
+    </select>
+
+    <select id="tieneEnviosActivos" resultType="int" parameterType="int">
+        SELECT COUNT(*) 
+        FROM Envio 
+        WHERE idConductor = #{idColaborador} 
+        AND idEstadoActual IN (1, 2)  <!-- Evita la eliminacion si estado = En transito o Detenido -->
+    </select>
 
 </mapper>

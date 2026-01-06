@@ -25,10 +25,10 @@
       
       <Button layoutX="798.0" layoutY="20.0" mnemonicParsing="false" onAction="#clicRegresar" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-radius: 5;" text="Regresar" textFill="WHITE" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="20.0" />
 
-      <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="90.0">
+      <HBox alignment="CENTER_LEFT" layoutY="91.2" prefHeight="30.0" prefWidth="400.0" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="468.0" AnchorPane.topAnchor="91.0">
          <children>
-            <TextField fx:id="tfBusqueda" prefHeight="30.0" promptText="Buscar por nombre, No. Personal o CURP..." HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
+            <TextField fx:id="tfBusqueda" prefHeight="30.0" prefWidth="478.0" promptText="Buscar por nombre, No. Personal o rol..." HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="318.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
          </children>
       </HBox>
       
