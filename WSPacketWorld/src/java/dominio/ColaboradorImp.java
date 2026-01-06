@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dominio;
 
 import dto.Respuesta;
@@ -12,10 +7,6 @@ import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Colaborador;
 
-/**
- *
- * @author pepeg
- */
 public class ColaboradorImp {
  
     public static List<Colaborador> obtenerColaboradores() {
@@ -32,15 +23,12 @@ public class ColaboradorImp {
         }
         return lista;
     }
-    
-    
-    
+
     public static List<Colaborador> buscarColaborador(String filtro) {
         List<Colaborador> lista = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
         if (conexionBD != null) {
             try {
-                // Agregamos los % para el LIKE de SQL
                 lista = conexionBD.selectList("colaborador.buscarColaborador", "%" + filtro + "%");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -50,14 +38,12 @@ public class ColaboradorImp {
         }
         return lista;
     }
-    
-    // Busca un colaborador EXACTO por numeroPersonal
+
     public static Colaborador buscarPorNoPersonal(String numeroPersonal) {
         Colaborador colaborador = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
         if (conexionBD != null) {
             try {
-                // Usa el ID del mapper: "colaborador.buscarPorNoPersonal"
                 colaborador = conexionBD.selectOne("colaborador.buscarPorNoPersonal", numeroPersonal);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -92,7 +78,7 @@ public class ColaboradorImp {
                 }
             } catch (Exception e) {
                 respuesta.setError(true);
-                respuesta.setMensaje("Error al registrar: " + e.getMessage()); // Maneja error de CURP/Correo duplicado
+                respuesta.setMensaje("Error al registrar: " + e.getMessage());
             } finally {
                 conexionBD.close();
             }
@@ -220,6 +206,24 @@ public class ColaboradorImp {
 
         if (conexionBD != null) {
             try {
+                //Verificar si tiene unidades asignadas
+                Integer unidadesAsignadas = conexionBD.selectOne("colaborador.tieneUnidadesAsignadas", idColaborador);
+
+                if (unidadesAsignadas != null && unidadesAsignadas > 0) {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("No se puede eliminar: El colaborador tiene " + unidadesAsignadas + " unidad asignada. Primero desasígnelas.");
+                    return respuesta;
+                }
+
+                //Verificar si tiene envíos activos
+                Integer enviosActivos = conexionBD.selectOne("colaborador.tieneEnviosActivos", idColaborador);
+                if (enviosActivos != null && enviosActivos > 0) {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("No se puede eliminar: El colaborador tiene " + enviosActivos + " envío(s) activo(s) asignado(s).");
+                    return respuesta;
+                }
+
+                // Si no tiene unidades ni envíos, proceder con la eliminación
                 int filasAfectadas = conexionBD.delete("colaborador.eliminar", idColaborador);
                 conexionBD.commit();
 
@@ -232,7 +236,7 @@ public class ColaboradorImp {
                 }
             } catch (Exception e) {
                 respuesta.setError(true);
-                respuesta.setMensaje("Error al eliminar (puede tener envíos asociados): " + e.getMessage());
+                respuesta.setMensaje("Error al eliminar: " + e.getMessage());
             } finally {
                 conexionBD.close();
             }
@@ -259,7 +263,6 @@ public class ColaboradorImp {
         return colaborador;
     }
 
-    // Obtiene solo la foto en Base64 (útil si solo necesitas la imagen)
     public static String obtenerFotoPorId(int idColaborador) {
         String fotoBase64 = null;
         SqlSession conexionBD = MyBatisUtil.getSession();

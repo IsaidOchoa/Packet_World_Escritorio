@@ -55,7 +55,6 @@ public class FXMLColaboradorController implements Initializable {
     @FXML private Button btEditar;
     @FXML private Button btEliminar;
     
-    // Lista observable para la tabla
     private ObservableList<Colaborador> listaColaboradores;
     private Colaborador colaboradorSesion;
     
@@ -131,17 +130,15 @@ public class FXMLColaboradorController implements Initializable {
             String nombre = (c.getNombre() != null) ? c.getNombre().toLowerCase() : "";
             String paterno = (c.getApellidoPaterno() != null) ? c.getApellidoPaterno().toLowerCase() : "";
             String materno = (c.getApellidoMaterno() != null) ? c.getApellidoMaterno().toLowerCase() : "";
-            String noPersonal = (c.getNumeroPersonal() != null) ? c.getNumeroPersonal().toLowerCase() : "";
-            String correo = (c.getCorreo() != null) ? c.getCorreo().toLowerCase() : "";
-            String curp = (c.getCurp() != null) ? c.getCurp().toLowerCase() : "";
+            String nombreCompleto = (nombre + " " + paterno + " " + materno).trim();
 
-            if (nombre.contains(busqueda) || 
-                paterno.contains(busqueda) || 
-                materno.contains(busqueda) || 
+            String noPersonal = (c.getNumeroPersonal() != null) ? c.getNumeroPersonal().toLowerCase() : "";
+            String rol = (c.getRol() != null) ? c.getRol().toLowerCase() : "";
+
+            if (nombreCompleto.contains(busqueda) || 
                 noPersonal.contains(busqueda) || 
-                correo.contains(busqueda) || 
-                curp.contains(busqueda)) {
-                
+                rol.contains(busqueda)) {
+
                 resultados.add(c);
             }
         }
