@@ -170,4 +170,20 @@ public class UnidadImp {
         }
         return respuesta;
     }
+    
+    public static Unidad buscarPorColaborador(Integer idColaborador) {
+        Unidad unidad = null;
+        SqlSession conexionBD = MyBatisUtil.getSession();
+
+        if (conexionBD != null) {
+            try {
+                unidad = conexionBD.selectOne("unidad.buscarPorColaborador", idColaborador);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexionBD.close();
+            }
+        }
+        return unidad;
+    }
 }

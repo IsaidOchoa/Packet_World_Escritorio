@@ -58,26 +58,25 @@
         SELECT 
             e.idEnvio, e.numeroGuia, e.costo, e.peso,
             e.calleDestino, e.numeroDestino, e.nombreDestinatario,
-
-            
-            e.idCliente, CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
+            e.idCliente, 
+        
+            CONCAT(cl.nombre, ' ', cl.apellidoPaterno, ' ', cl.apellidoMaterno) AS nombreCliente, <!-- Mantenido -->
+            cl.telefono AS telefonoCliente,
+            cl.correo AS correoCliente,  
 
             e.idSucursalOrigen, s.nombre AS nombreSucursalOrigen,
 
-           
             e.idColoniaDestino, 
             col.nombre AS nombreColonia, 
             col.codigo_postal AS codigoPostalDestino,
             mun.nombre AS municipio, 
             est.nombre AS estado,
 
-            
             e.idUnidad, CONCAT(u.marca, ' - ', u.modelo) AS infoUnidad,
             e.idConductor, CONCAT(colab.nombre, ' ', colab.apellidoPaterno) AS nombreConductor,
 
             e.idEstadoActual, edo.nombre AS estatus
-
-        FROM envio e
+            FROM envio e
         INNER JOIN cliente cl ON e.idCliente = cl.idCliente
         INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
         INNER JOIN colonias col ON e.idColoniaDestino = col.id
