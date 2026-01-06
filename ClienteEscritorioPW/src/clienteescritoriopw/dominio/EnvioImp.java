@@ -106,4 +106,19 @@ public class EnvioImp {
         }
         return msj;
     }
+    public static Envio obtenerPorId(int idEnvio) {
+    Envio envio = null;
+    // Asegúrate de que la URL coincida con tu @Path del WS
+    String url = Constantes.URL_WS + "envio/" + idEnvio;
+    try {
+        RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
+        if (respuesta.getCodigo()== 200) {
+            Gson gson = new Gson();
+            envio = gson.fromJson(respuesta.getContenido(), Envio.class);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return envio;
+}
 }
