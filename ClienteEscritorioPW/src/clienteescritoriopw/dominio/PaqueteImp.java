@@ -2,6 +2,7 @@ package clienteescritoriopw.dominio;
 
 import clienteescritoriopw.conexion.ConexionAPI;
 import clienteescritoriopw.dto.Respuesta;
+import clienteescritoriopw.pojo.Envio;
 import clienteescritoriopw.pojo.Paquete;
 import clienteescritoriopw.pojo.RespuestaHTTP;
 import clienteescritoriopw.utilidad.Constantes;
@@ -31,6 +32,7 @@ public class PaqueteImp {
         }
         return msj;
     }
+    
 
     
     public static List<Paquete> obtenerPaquetesPorEnvio(int idEnvio) {

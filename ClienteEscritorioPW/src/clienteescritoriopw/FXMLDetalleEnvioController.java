@@ -114,6 +114,7 @@ public class FXMLDetalleEnvioController implements Initializable {
                     cargarPaquetes();
                     actualizarDatosEnvio(); 
                     
+                    
                 } else {
                     Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
                 }
@@ -130,6 +131,7 @@ public class FXMLDetalleEnvioController implements Initializable {
         
         if (envioActualizado != null) {
             this.envioSeleccionado = envioActualizado; 
+            
             
             lbCostoTotal.setText("$ " + envioActualizado.getCosto());
         }
