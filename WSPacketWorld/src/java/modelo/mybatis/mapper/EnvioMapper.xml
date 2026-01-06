@@ -142,7 +142,6 @@
     </select>
     
     <update id="editar" parameterType="pojo.Envio">
-   
         UPDATE envio SET 
             idCliente = #{idCliente},
             idSucursalOrigen = #{idSucursalOrigen},
@@ -150,10 +149,10 @@
             calleDestino = #{calleDestino},
             numeroDestino = #{numeroDestino},
             nombreDestinatario = #{nombreDestinatario},
-            
             costo = #{costo},
             
-            idUnidad = #{idUnidad} 
+            idUnidad = #{idUnidad, jdbcType=INTEGER} 
+            
         WHERE idEnvio = #{idEnvio}
     </update>
     

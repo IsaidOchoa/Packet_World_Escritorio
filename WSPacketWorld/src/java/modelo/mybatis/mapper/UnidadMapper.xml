@@ -7,10 +7,9 @@
         SELECT 
             u.idUnidad, u.marca, u.modelo, u.anio, u.vin, u.nii, 
             u.idTipoUnidad, u.idSucursal,
-            u.idColaborador, IFNULL(t.nombre, 'Sin Tipo') AS nombreTipo,
+            u.idColaborador, 
+            IFNULL(t.nombre, 'Sin Tipo') AS nombreTipo,
             IFNULL(s.nombre, 'Sin Sucursal') AS nombreSucursal,
-            
-            
             IFNULL(CONCAT(c.nombre, ' ', c.apellidoPaterno), 'Sin Asignar') AS nombreColaborador
             
         FROM Unidad u
@@ -18,6 +17,27 @@
         LEFT JOIN Sucursal s ON u.idSucursal = s.idSucursal
         LEFT JOIN colaborador c ON u.idColaborador = c.idColaborador
     </select>
+
+    <insert id="registrar" parameterType="pojo.Unidad" useGeneratedKeys="true" keyProperty="idUnidad">
+        INSERT INTO Unidad (marca, modelo, anio, vin, nii, idTipoUnidad, idSucursal)
+        VALUES (#{marca}, #{modelo}, #{anio}, #{vin}, #{nii}, #{idTipoUnidad}, #{idSucursal})
+    </insert>
+
+    <update id="editar" parameterType="pojo.Unidad">
+        UPDATE Unidad SET 
+            marca = #{marca},
+            modelo = #{modelo},
+            anio = #{anio},
+            vin = #{vin},
+            nii = #{nii},
+            idTipoUnidad = #{idTipoUnidad},
+            idSucursal = #{idSucursal}
+        WHERE idUnidad = #{idUnidad}
+    </update>
+
+    <delete id="eliminar" parameterType="int">
+        DELETE FROM Unidad WHERE idUnidad = #{idUnidad}
+    </delete>
 
     <update id="desvincularConductor" parameterType="int">
         UPDATE Unidad SET idColaborador = NULL WHERE idColaborador = #{idColaborador}
