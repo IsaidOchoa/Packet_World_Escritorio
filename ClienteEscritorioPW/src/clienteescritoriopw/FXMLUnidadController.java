@@ -2,7 +2,9 @@ package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.UnidadImp;
 import clienteescritoriopw.dto.Respuesta;
+import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.Unidad;
+import clienteescritoriopw.utilidad.Permisos;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.io.IOException;
 import java.net.URL;
@@ -17,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -33,36 +36,57 @@ public class FXMLUnidadController implements Initializable {
     @FXML private TableColumn<Unidad, String> colVin;
     @FXML private TableColumn<Unidad, String> colNoIdentificacion;
     @FXML private TableColumn<Unidad, String> colTipo;
+    @FXML private TableColumn<Unidad, String> colSucursal;
+    @FXML private TableColumn<Unidad, String> colConductor;
+    
     @FXML private TextField tfBusqueda;
     
+    @FXML private Button btNuevo;
+    @FXML private Button btAsignar;
+    @FXML private Button btEditar;
+    @FXML private Button btEliminar;
+
     private ObservableList<Unidad> listaUnidades;
-    @FXML
-    private TableColumn<Unidad, String> colSucursal;
-    @FXML private TableColumn<Unidad, String> colConductor;
+    private Colaborador colaboradorSesion;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurarTabla();
         cargarDatosTabla();
     }    
+
+    public void inicializarColaborador(Colaborador colaborador) {
+        this.colaboradorSesion = colaborador;
+        if (colaborador != null) {
+            aplicarPermisos();
+        }
+    }
     
+    private void aplicarPermisos() {
+        if (Permisos.esConductor(colaboradorSesion.getIdRol())) {
+            btNuevo.setVisible(false);
+            btAsignar.setVisible(false);
+            btEditar.setVisible(false);
+            btEliminar.setVisible(false);
+        }
+    }
+
     private void configurarTabla() {
-        colMarca.setCellValueFactory(new PropertyValueFactory("marca"));
-        colModelo.setCellValueFactory(new PropertyValueFactory("modelo"));
-        colAnio.setCellValueFactory(new PropertyValueFactory("anio"));
-        colVin.setCellValueFactory(new PropertyValueFactory("vin"));
-        colNoIdentificacion.setCellValueFactory(new PropertyValueFactory("nii"));
-       
-        colTipo.setCellValueFactory(new PropertyValueFactory("nombreTipo")); 
-        colSucursal.setCellValueFactory(new PropertyValueFactory("nombreSucursal"));
-        colConductor.setCellValueFactory(new PropertyValueFactory("nombreColaborador"));
+        colMarca.setCellValueFactory(new PropertyValueFactory<>("marca"));
+        colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        colAnio.setCellValueFactory(new PropertyValueFactory<>("anio"));
+        colVin.setCellValueFactory(new PropertyValueFactory<>("vin"));
+        colNoIdentificacion.setCellValueFactory(new PropertyValueFactory<>("nii"));
+        colTipo.setCellValueFactory(new PropertyValueFactory<>("nombreTipo")); 
+        colSucursal.setCellValueFactory(new PropertyValueFactory<>("nombreSucursal"));
+        colConductor.setCellValueFactory(new PropertyValueFactory<>("nombreColaborador"));
     }
     
     private void cargarDatosTabla() {  
-      List<Unidad> lista = UnidadImp.obtenerUnidades();
-        if(lista != null){
-            tvUnidades.setItems(FXCollections.observableArrayList(lista));
-        
+        List<Unidad> lista = UnidadImp.obtenerUnidades();
+        if (lista != null) {
+            listaUnidades = FXCollections.observableArrayList(lista);
+            tvUnidades.setItems(listaUnidades);
         } else {
             Utilidades.mostrarAlertaSimple("Error", "No se pudo cargar la lista de unidades.", Alert.AlertType.ERROR);
         }
@@ -77,11 +101,10 @@ public class FXMLUnidadController implements Initializable {
         }
 
         ObservableList<Unidad> resultados = FXCollections.observableArrayList();
-        
         for (Unidad u : listaUnidades) {
             String marca = (u.getMarca() != null) ? u.getMarca().toLowerCase() : "";
             String vin = (u.getVin() != null) ? u.getVin().toLowerCase() : "";
-            String nii = (u.getNii()!= null) ? u.getNii().toLowerCase() : "";
+            String nii = (u.getNii() != null) ? u.getNii().toLowerCase() : "";
             if (marca.contains(busqueda) || vin.contains(busqueda) || nii.contains(busqueda)) {
                 resultados.add(u);
             }
@@ -137,7 +160,9 @@ public class FXMLUnidadController implements Initializable {
             Parent root = loader.load();
             
             FXMLFormularioUnidadController controlador = loader.getController();
-            if(unidad != null) controlador.inicializarEdicion(unidad); 
+            if (unidad != null) {
+                controlador.inicializarEdicion(unidad); 
+            }
             
             Stage escenario = new Stage();
             escenario.setScene(new Scene(root));
@@ -150,31 +175,31 @@ public class FXMLUnidadController implements Initializable {
             ex.printStackTrace();
         }
     }
+    
     @FXML
     private void clicAsignar(ActionEvent event) {
-    Unidad seleccionada = tvUnidades.getSelectionModel().getSelectedItem();
-    if (seleccionada != null) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLAsignarConductor.fxml"));
-            Parent root = loader.load();
-            
-            FXMLAsignarConductorController controlador = loader.getController();
-            controlador.inicializarDatos(seleccionada);
-            
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Asignar Conductor");
-            stage.showAndWait();
-            
-          
-            cargarDatosTabla(); 
-            
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        Unidad seleccionada = tvUnidades.getSelectionModel().getSelectedItem();
+        if (seleccionada != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLAsignarConductor.fxml"));
+                Parent root = loader.load();
+                
+                FXMLAsignarConductorController controlador = loader.getController();
+                controlador.inicializarDatos(seleccionada);
+                
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setTitle("Asignar Conductor");
+                stage.showAndWait();
+                
+                cargarDatosTabla(); 
+                
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            Utilidades.mostrarAlertaSimple("Atención", "Selecciona una unidad para asignar.", Alert.AlertType.WARNING);
         }
-    } else {
-        Utilidades.mostrarAlertaSimple("Atención", "Selecciona una unidad para asignar.", Alert.AlertType.WARNING);
     }
-}
 }

@@ -11,22 +11,19 @@
             c.apellidoMaterno,
             c.curp,
             c.correo,
-            c.numeroPersonal,   c.password,
+            c.numeroPersonal,
+            c.password,
             c.numeroLicencia,
             c.idRol,
             c.idSucursal,
-            
             r.nombre AS rol,                
-            s.nombre AS nombreSucursal      
-            
-            
-            
+            s.nombre AS nombreSucursal,
+            TO_BASE64(c.foto) AS fotoBase64
         FROM colaborador c
         INNER JOIN rol r ON c.idRol = r.idRol
         LEFT JOIN sucursal s ON c.idSucursal = s.idSucursal
-        
         WHERE c.numeroPersonal = #{numeroPersonal} 
-        AND c.password = #{password}
+          AND c.password = #{password}
     </select>
     
 </mapper>

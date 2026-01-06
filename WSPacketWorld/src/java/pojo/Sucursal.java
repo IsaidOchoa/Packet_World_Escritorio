@@ -5,10 +5,6 @@
  */
 package pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Sucursal {
     private Integer idSucursal;
     private String nombre;
@@ -16,8 +12,6 @@ public class Sucursal {
     private String numero;
     private Integer idColonia;
     private Integer estatus; 
-    
-    
     private String nombreColonia;
     private String codigoPostal;
     private String municipio;
