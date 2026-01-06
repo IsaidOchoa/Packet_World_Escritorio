@@ -112,11 +112,9 @@ public class FXMLSucursalController implements Initializable {
         }
 
         tvSucursales.setItems(resultados);
-        
-        
+               
     }
     
-
     @FXML
     private void clicNuevo(ActionEvent event) {
         abrirFormulario(null);
@@ -150,9 +148,6 @@ public class FXMLSucursalController implements Initializable {
             );
             
             if(confirmar){
-                // Llamamos al servicio eliminar.
-                // IMPORTANTE: Tu Backend debe tener el UPDATE estatus=0 en el mapper de "eliminar"
-                // para que sea una baja lógica y no física.
                 clienteescritoriopw.dto.Respuesta respuesta = SucursalImp.eliminar(seleccionado.getIdSucursal());
                 
                 if(!respuesta.isError()){
