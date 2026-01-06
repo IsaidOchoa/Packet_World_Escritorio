@@ -61,38 +61,6 @@ public class PaqueteImp {
     return respuesta;
 }
 
-   
-    
-   
-
-    private static void recalcularCostoEnvio(int idEnvio) {
-        try {
-            Envio envio = EnvioImp.obtenerPorId(idEnvio); // Asegúrate que EnvioImp tenga este método
-            if (envio != null) {
-                Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
-                List<Paquete> paquetes = obtenerPorEnvio(idEnvio);
-                
-                String cpOrigen = (sucursal != null) ? sucursal.getCodigoPostal() : null;
-                String cpDestino = envio.getCodigoPostalDestino();
-                int numPaquetes = (paquetes != null) ? paquetes.size() : 0;
-
-                if (cpOrigen != null && cpDestino != null) {
-                    // Calculamos
-                    Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                    if (distancia == null) distancia = 50.0; // Fallback
-                    
-                    float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-                    
-                    // Actualizamos
-                    envio.setCosto(nuevoCosto);
-                    EnvioImp.editar(envio);
-                    System.out.println(">> Costo actualizado a: $" + nuevoCosto);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error recalculando costo: " + e.getMessage());
-        }
-    }
 
     public static List<Paquete> obtenerPorEnvio(int idEnvio) {
         List<Paquete> lista = null;

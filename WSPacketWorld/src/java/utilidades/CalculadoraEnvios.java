@@ -88,8 +88,8 @@ public class CalculadoraEnvios {
 
     public static float calcularCosto(Double distancia, int numPaquetes) {
         // Si la distancia es nula o negativa (error en API), el costo base es 0
-        if (distancia == null || distancia < 0) return 0.0f;
-
+       if (distancia == null) distancia = 0.0;
+       if (distancia < 0) distancia = 0.0;
         // 1. COSTO POR KILÓMETRO (Según reglas de negocio)
         float costoPorKm;
         if (distancia <= 200) {

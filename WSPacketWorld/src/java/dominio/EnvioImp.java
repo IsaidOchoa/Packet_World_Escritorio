@@ -123,38 +123,43 @@ public class EnvioImp {
         try {
             Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio);
             if (envio != null) {
-                Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
-                String cpOrigen = (suc != null) ? suc.getCodigoPostal() : null;
-                String cpDestino = envio.getCodigoPostalDestino();
-                
-                List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
-                int cantidad = (paquetes != null) ? paquetes.size() : 0;
+        Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
+        String cpOrigen = (suc != null) ? suc.getCodigoPostal() : null;
+        String cpDestino = envio.getCodigoPostalDestino();
+        
+        List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
+        int cantidad = (paquetes != null) ? paquetes.size() : 0;
 
-                System.out.println(">> Recalculando Envio ID: " + idEnvio + " | Paquetes: " + cantidad);
-
-                if (cpOrigen != null && cpDestino != null) {
-                    Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                    
-                    if (distancia != null) {
-                        // Si hay distancia, calculamos y guardamos
-                        float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidad);
-                        envio.setCosto(nuevoCosto);
-                        conn.update("envio.editar", envio); 
-                        conn.commit();
-                        System.out.println(">> Costo actualizado a: $" + nuevoCosto);
-                    } else {
-                        // AQUÍ ESTÁ EL CAMBIO QUE PEDISTE: Solo alerta, sin valor por defecto
-                        System.err.println(">> ADVERTENCIA: Distancia es NULL. No se pudo recalcular el costo para Envío ID: " + idEnvio);
-                        System.err.println(">> Verifique conexión a internet o validez de los CP: " + cpOrigen + " -> " + cpDestino);
-                    }
-                }
+        // VERIFICACIÓN IMPORTANTE
+        if (cpOrigen != null && cpDestino != null && !cpOrigen.isEmpty() && !cpDestino.isEmpty()) {
+            Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
+            
+            if (distancia == null) {
+                System.err.println(">> ADVERTENCIA: Distancia NULL. Usando 0.0 para cobrar paquetes.");
+                distancia = 0.0; 
             }
+
+            float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidad);
+            envio.setCosto(nuevoCosto);
+            conn.update("envio.editar", envio); 
+            conn.commit();
+            System.out.println(">> Costo actualizado a: $" + nuevoCosto);
+
+        } else {
+            // AGREGA ESTO: Si entra aquí, es la razón por la que no actualiza el costo
+            System.err.println(">> ERROR LOGICO: No se puede cotizar. Faltan códigos postales.");
+            System.err.println(">> Origen: " + cpOrigen + " | Destino: " + cpDestino);
+        }
+    }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             conn.close();
         }
     }
+
+    
     }
     public static String cotizarEnvio(Envio envio) {
         try {
