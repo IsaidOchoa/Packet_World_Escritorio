@@ -13,7 +13,11 @@ public class Envio {
     
     // Cliente
     private int idCliente;
-    private String nombreCliente; 
+    private String nombreCliente;
+    private String apellidoPaternoCliente;
+    private String apellidoMaternoCliente; 
+    private String telefonoCliente;
+    private String correoCliente;
     
     // Origen
     private int idSucursalOrigen;
@@ -46,7 +50,7 @@ public class Envio {
     public Envio() {
     }
 
-    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, List<Paquete> paquetes, int idCliente, String nombreCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, int idUnidad, String infoUnidad, int idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
+    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, List<Paquete> paquetes, int idCliente, String nombreCliente, String apellidoPaternoCliente, String apellidoMaternoCliente, String telefonoCliente, String correoCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, Integer idUnidad, String infoUnidad, Integer idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
         this.idEnvio = idEnvio;
         this.numeroGuia = numeroGuia;
         this.costo = costo;
@@ -54,6 +58,10 @@ public class Envio {
         this.paquetes = paquetes;
         this.idCliente = idCliente;
         this.nombreCliente = nombreCliente;
+        this.apellidoPaternoCliente = apellidoPaternoCliente;
+        this.apellidoMaternoCliente = apellidoMaternoCliente;
+        this.telefonoCliente = telefonoCliente;
+        this.correoCliente = correoCliente;
         this.idSucursalOrigen = idSucursalOrigen;
         this.nombreSucursalOrigen = nombreSucursalOrigen;
         this.idColoniaDestino = idColoniaDestino;
@@ -71,6 +79,40 @@ public class Envio {
         this.idEstadoActual = idEstadoActual;
         this.estatus = estatus;
     }
+
+    public String getApellidoPaternoCliente() {
+        return apellidoPaternoCliente;
+    }
+
+    public void setApellidoPaternoCliente(String apellidoPaternoCliente) {
+        this.apellidoPaternoCliente = apellidoPaternoCliente;
+    }
+
+    public String getApellidoMaternoCliente() {
+        return apellidoMaternoCliente;
+    }
+
+    public void setApellidoMaternoCliente(String apellidoMaternoCliente) {
+        this.apellidoMaternoCliente = apellidoMaternoCliente;
+    }
+
+    public String getTelefonoCliente() {
+        return telefonoCliente;
+    }
+
+    public void setTelefonoCliente(String telefonoCliente) {
+        this.telefonoCliente = telefonoCliente;
+    }
+
+    public String getCorreoCliente() {
+        return correoCliente;
+    }
+
+    public void setCorreoCliente(String correoCliente) {
+        this.correoCliente = correoCliente;
+    }
+
+    
 
     public Integer getIdEnvio() {
         return idEnvio;

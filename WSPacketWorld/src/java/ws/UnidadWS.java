@@ -116,4 +116,15 @@ public class UnidadWS {
         
         return UnidadImp.asignarConductor(idUnidad, idColaborador);
     }
+    
+    // Buscar la unidad asignada a un colaborador específico
+    @Path("buscar-por-colaborador/{idColaborador}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Unidad buscarPorColaborador(@PathParam("idColaborador") Integer idColaborador) {
+        if (idColaborador == null || idColaborador <= 0) {
+            return null; // O podrías retornar una respuesta con error
+        }
+        return UnidadImp.buscarPorColaborador(idColaborador);
+    }
 }

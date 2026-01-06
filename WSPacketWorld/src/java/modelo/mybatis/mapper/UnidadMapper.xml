@@ -50,5 +50,20 @@
     <update id="liberarUnidad" parameterType="int">
         UPDATE Unidad SET idColaborador = NULL WHERE idUnidad = #{idUnidad}
     </update>
+    
+    <select id="buscarPorColaborador" parameterType="int" resultType="pojo.Unidad">
+        SELECT 
+            idUnidad,
+            marca,
+            modelo,
+            anio,
+            vin,
+            nii,
+            idTipoUnidad,
+            idSucursal,
+            idColaborador
+        FROM unidad
+        WHERE idColaborador = #{idColaborador}
+    </select>
 
 </mapper>
