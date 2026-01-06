@@ -75,12 +75,17 @@ public class FXMLPrincipalController implements Initializable {
         }
 
         // Aplicar permisos usando la utilidad
-        Permisos.ocultarModulosConductor(
-            colaborador.getIdRol(),
-            btColaboradores,
-            btSucursales,
-            btClientes
-        );
+        int idRol = colaborador.getIdRol();
+
+        if (Permisos.esConductor(idRol)) {
+            // Conductor: ocultar Colaboradores, Sucursales, Clientes
+            btColaboradores.setVisible(false);
+            btSucursales.setVisible(false);
+            btClientes.setVisible(false);
+        } else if (Permisos.esEjecutivo(idRol)) {
+            // Ejecutivo: ocultar Sucursales
+            btSucursales.setVisible(false);
+        }
     }
     
     @FXML
@@ -107,6 +112,10 @@ public class FXMLPrincipalController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLColaborador.fxml"));
             Parent root = loader.load();
+            
+            FXMLColaboradorController controller = loader.getController();
+            controller.inicializarColaborador(this.colaboradorSesion);
+
             Stage escenario = new Stage();
             escenario.setScene(new Scene(root));
             escenario.setTitle("Gestión de Colaboradores");
@@ -180,25 +189,25 @@ public class FXMLPrincipalController implements Initializable {
     }
 
     @FXML
-private void clicModuloUnidades(ActionEvent event) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLUnidad.fxml"));
-        Parent root = loader.load();
-        
-        FXMLUnidadController controller = loader.getController();
-        controller.inicializarColaborador(this.colaboradorSesion);
+    private void clicModuloUnidades(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLUnidad.fxml"));
+            Parent root = loader.load();
 
-        Stage escenario = new Stage();
-        escenario.setScene(new Scene(root));
-        escenario.setTitle("Gestión de Unidades");
-        escenario.initModality(Modality.APPLICATION_MODAL);
-        escenario.setMinWidth(900);
-        escenario.setMinHeight(600);
-        escenario.showAndWait();
-        
-    } catch (IOException ex) {
-        ex.printStackTrace();
-        Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
+            FXMLUnidadController controller = loader.getController();
+            controller.inicializarColaborador(this.colaboradorSesion);
+
+            Stage escenario = new Stage();
+            escenario.setScene(new Scene(root));
+            escenario.setTitle("Gestión de Unidades");
+            escenario.initModality(Modality.APPLICATION_MODAL);
+            escenario.setMinWidth(900);
+            escenario.setMinHeight(600);
+            escenario.showAndWait();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
+        }
     }
-}
 }
