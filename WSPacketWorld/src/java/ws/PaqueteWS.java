@@ -27,7 +27,16 @@ public class PaqueteWS {
     Gson gson = new Gson();
     try {
         Paquete paquete = gson.fromJson(json, Paquete.class);
-        return PaqueteImp.registrar(paquete);
+        
+        Respuesta resp = PaqueteImp.registrar(paquete);
+        
+        if (!resp.isError() && paquete.getIdEnvio() != null) {
+            EnvioImp.recalcularCosto(paquete.getIdEnvio());
+            
+            resp.setMensaje("Paquete registrado y costo de envío actualizado.");
+        }
+        
+        return resp;
     } catch (Exception e) {
         return new Respuesta(true, "Error JSON: " + e.getMessage());
     }
