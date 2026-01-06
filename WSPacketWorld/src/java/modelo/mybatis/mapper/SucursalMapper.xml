@@ -14,7 +14,9 @@
             IFNULL(c.nombre, '') AS nombreColonia,
             IFNULL(c.codigo_postal, '') AS codigoPostal,
             IFNULL(m.nombre, '') AS municipio,
-            IFNULL(e.nombre, '') AS estado
+            IFNULL(e.nombre, '') AS estado,
+            c.idMunicipio,
+            m.idEstado
         FROM Sucursal s
         LEFT JOIN colonias c ON s.idColonia = c.id
         LEFT JOIN municipios m ON c.idMunicipio = m.id
@@ -30,8 +32,11 @@
             s.idColonia,
             s.estatus,
             IFNULL(c.codigo_postal, '') AS codigoPostal
+            c.idMunicipio,
+            m.idEstado
         FROM Sucursal s
         LEFT JOIN colonias c ON s.idColonia = c.id
+        LEFT JOIN municipios m ON c.idMunicipio = m.id
         WHERE s.idSucursal = #{idSucursal}
     </select>
 

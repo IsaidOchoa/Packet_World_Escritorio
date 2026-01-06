@@ -3,6 +3,7 @@ package clienteescritoriopw;
 import clienteescritoriopw.dominio.SucursalImp;
 import clienteescritoriopw.pojo.Sucursal;
 import clienteescritoriopw.utilidad.Utilidades;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -12,11 +13,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class FXMLSucursalController implements Initializable {
@@ -84,7 +88,6 @@ public class FXMLSucursalController implements Initializable {
     private void clicBuscar(ActionEvent event) {
         String busqueda = tfBusqueda.getText().trim().toLowerCase();
 
-        // 1. Si no hay texto, restaurar la lista completa
         if (busqueda.isEmpty()) {
             tvSucursales.setItems(listaSucursales);
             return;
@@ -95,7 +98,7 @@ public class FXMLSucursalController implements Initializable {
         for (Sucursal s : listaSucursales) {
             String nombre = (s.getNombre() != null) ? s.getNombre().toLowerCase() : "";
             String calle = (s.getCalle() != null) ? s.getCalle().toLowerCase() : "";
-            String colonia = (s.getNombreColonia() != null) ? s.getNombreColonia().toLowerCase() : ""; // Ojo: usa getNombreColonia()
+            String colonia = (s.getNombreColonia() != null) ? s.getNombreColonia().toLowerCase() : "";
             String cp = (s.getCodigoPostal() != null) ? s.getCodigoPostal().toLowerCase() : "";
             String municipio = (s.getMunicipio() != null) ? s.getMunicipio().toLowerCase() : "";
             String estado = (s.getEstado() != null) ? s.getEstado().toLowerCase() : "";
@@ -112,20 +115,18 @@ public class FXMLSucursalController implements Initializable {
         }
 
         tvSucursales.setItems(resultados);
-               
     }
     
     @FXML
     private void clicNuevo(ActionEvent event) {
         abrirFormulario(null);
-    
     }
 
     @FXML
     private void clicEditar(ActionEvent event) {
         Sucursal seleccionado = tvSucursales.getSelectionModel().getSelectedItem();
         if(seleccionado != null){
-            System.out.println("Editando a: " + seleccionado.getNombre());
+            abrirFormulario(seleccionado);
         }else{
             Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona una sucursal para editar.", Alert.AlertType.WARNING);
         }
@@ -135,8 +136,6 @@ public class FXMLSucursalController implements Initializable {
     private void clicEliminar(ActionEvent event) {
         Sucursal seleccionado = tvSucursales.getSelectionModel().getSelectedItem();
         if(seleccionado != null){
-            
-            // Validar que no esté ya dada de baja
             if(seleccionado.getEstatus() != null && seleccionado.getEstatus() == 0) {
                  Utilidades.mostrarAlertaSimple("Aviso", "La sucursal ya está inactiva.", Alert.AlertType.WARNING);
                  return;
@@ -144,7 +143,7 @@ public class FXMLSucursalController implements Initializable {
 
             boolean confirmar = Utilidades.mostrarAlertaConfirmacion(
                     "Dar de Baja Sucursal", 
-                    "¿Estás seguro de inhabilitar la sucursal " + seleccionado.getNombre() + "?"
+                    "Esta accion es Irreversible. Confirmas la baja la sucursal " + seleccionado.getNombre() +"?"
             );
             
             if(confirmar){
@@ -170,9 +169,8 @@ public class FXMLSucursalController implements Initializable {
     
     private void abrirFormulario(Sucursal sucursal) {
         try {
-            // Asegúrate de importar javafx.fxml.FXMLLoader, javafx.scene.Parent, etc.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioSucursal.fxml"));
-            javafx.scene.Parent root = loader.load();
+            Parent root = loader.load();
             
             FXMLFormularioSucursalController controlador = loader.getController();
             
@@ -181,14 +179,13 @@ public class FXMLSucursalController implements Initializable {
             }
             
             Stage escenario = new Stage();
-            escenario.setScene(new javafx.scene.Scene(root));
+            escenario.setScene(new Scene(root));
             escenario.setTitle(sucursal == null ? "Nueva Sucursal" : "Editar Sucursal");
-            escenario.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            
+            escenario.initModality(Modality.APPLICATION_MODAL);
             escenario.showAndWait();
-            cargarDatosTabla(); // Recargar la tabla al cerrar
+            cargarDatosTabla();
             
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             Utilidades.mostrarAlertaSimple("Error", "No se pudo cargar el formulario.", Alert.AlertType.ERROR);
         }

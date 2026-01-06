@@ -33,7 +33,6 @@ public class FXMLFormularioSucursalController implements Initializable {
     @FXML private ComboBox<Municipio> cbMunicipio;
     @FXML private ComboBox<Colonia> cbColonia;
 
-    // 👇 VARIABLE DECLARADA AQUÍ
     private Sucursal sucursalEdicion;
 
     private ObservableList<Estado> listaEstados;
@@ -155,43 +154,47 @@ public class FXMLFormularioSucursalController implements Initializable {
     
     public void inicializarEdicion(Sucursal s) {
         this.sucursalEdicion = s;
-        lblTitulo.setText("Editar Sucursal");  // Corregido: usa lblTitulo
-        
+        lblTitulo.setText("Editar Sucursal");
+
         tfNombre.setText(s.getNombre());
         tfCalle.setText(s.getCalle());
         tfNumero.setText(s.getNumero());
-        
-        // Cargar la ubicación jerárquica
+
         if (s.getIdColonia() != null) {
-            // Primero cargar estados
+            // 1. Cargar estados y seleccionar por ID
             cargarEstados();
-            
-            // Buscar y seleccionar el estado
-            for (Estado e : listaEstados) {
-                if (e.getIdEstado().equals(s.getEstado())) {
-                    cbEstado.getSelectionModel().select(e);
-                    // Forzar carga de municipios
-                    cargarMunicipios(e.getIdEstado());
-                    break;
+            if (s.getIdEstado() != null) {
+                for (Estado e : listaEstados) {
+                    if (e.getIdEstado().equals(s.getIdEstado())) {
+                        cbEstado.getSelectionModel().select(e);
+                        cargarMunicipios(e.getIdEstado());
+                        break;
+                    }
                 }
             }
-            
-            // Buscar y seleccionar el municipio
-            for (Municipio m : listaMunicipios) {
-                if (m.getIdMunicipio().equals(s.getMunicipio())) {
-                    cbMunicipio.getSelectionModel().select(m);
-                    // Forzar carga de colonias
-                    cargarColonias(m.getIdMunicipio());
-                    break;
+
+            // 2. Seleccionar municipio por ID
+            if (s.getIdMunicipio() != null) {
+                for (Municipio m : listaMunicipios) {
+                    if (m.getIdMunicipio().equals(s.getIdMunicipio())) {
+                        cbMunicipio.getSelectionModel().select(m);
+                        cargarColonias(m.getIdMunicipio());
+                        break;
+                    }
                 }
             }
-            
-            // Buscar y seleccionar la colonia
+
+            // 3. Seleccionar colonia por ID
             for (Colonia c : listaColonias) {
                 if (c.getIdColonia().equals(s.getIdColonia())) {
                     cbColonia.getSelectionModel().select(c);
                     break;
                 }
+            }
+
+            // 4. Llenar CP
+            if (s.getCodigoPostal() != null) {
+                tfCP.setText(s.getCodigoPostal());
             }
         }
     }

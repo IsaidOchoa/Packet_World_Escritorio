@@ -26,7 +26,7 @@
 
       <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="90.0">
          <children>
-            <TextField fx:id="tfBusqueda" prefHeight="30.0" promptText="Buscar por marca, modelo, VIN o placas..." HBox.hgrow="ALWAYS" />
+            <TextField fx:id="tfBusqueda" prefHeight="30.0" promptText="Buscar por marca, VIN o NII" HBox.hgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
          </children>
       </HBox>
@@ -37,13 +37,13 @@
       <TableColumn fx:id="colMarca" prefWidth="120.0" text="Marca" />
       <TableColumn fx:id="colModelo" prefWidth="120.0" text="Modelo" />
       <TableColumn fx:id="colAnio" prefWidth="80.0" text="Año" />
-      <TableColumn fx:id="colVin" prefWidth="141.5999755859375" text="VIN" />
-      <TableColumn fx:id="colNoIdentificacion" prefWidth="134.40005493164062" text="NII" />
+      <TableColumn fx:id="colVin" prefWidth="184.00006103515625" text="VIN" />
+      <TableColumn fx:id="colNoIdentificacion" prefWidth="119.20001220703125" text="NII" />
       
-      <TableColumn fx:id="colTipo" minWidth="0.0" prefWidth="131.9998779296875" text="Tipo de Unidad" />
+      <TableColumn fx:id="colTipo" minWidth="0.0" prefWidth="105.5999755859375" text="Tipo de Unidad" />
       
-      <TableColumn fx:id="colSucursal" prefWidth="106.4000244140625" text="Sucursal" />
-      <TableColumn fx:id="colConductor" prefWidth="180.0" text="Conductor Asignado" />
+      <TableColumn fx:id="colSucursal" prefWidth="124.0" text="Sucursal" />
+      <TableColumn fx:id="colConductor" prefWidth="131.199951171875" text="Conductor Asignado" />
       
    </columns>
 </TableView>
