@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLColaboradorController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLColaboradorController">
    <children>
       
       <Pane prefHeight="70.0" prefWidth="900.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -51,17 +51,17 @@
       
       <HBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#clicNuevo" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2ecc71;" text="Nuevo" textFill="WHITE">
+            <Button fx:id="btNuevo" mnemonicParsing="false" onAction="#clicNuevo" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2ecc71;" text="Nuevo" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" onAction="#clicEditar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12;" text="Editar" textFill="WHITE">
+            <Button fx:id="btEditar" mnemonicParsing="false" onAction="#clicEditar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12;" text="Editar" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" onAction="#clicEliminar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c;" text="Eliminar" textFill="WHITE">
+            <Button fx:id="btEliminar" mnemonicParsing="false" onAction="#clicEliminar" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c;" text="Eliminar" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>

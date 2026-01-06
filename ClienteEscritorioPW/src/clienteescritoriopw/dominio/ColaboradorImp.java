@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +114,20 @@ public class ColaboradorImp {
             msj.setMensaje("Error al cambiar contraseña: " + respuesta.getCodigo());
         }
         return msj;
+    }
+    
+    public static List<Colaborador> obtenerColaboradoresPorSucursal(int idSucursal) {
+        // Aquí debes hacer una llamada al backend REST
+        // Suponiendo que ya tienes un método para hacer peticiones
+        String url = Constantes.URL_WS + "colaborador/por-sucursal/" + idSucursal;
+        RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
+
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            Gson gson = new Gson();
+            Colaborador[] array = gson.fromJson(respuesta.getContenido(), Colaborador[].class);
+            return Arrays.asList(array);
+        }
+        return new ArrayList<>();
     }
 
     public static Respuesta eliminar(int idColaborador) {

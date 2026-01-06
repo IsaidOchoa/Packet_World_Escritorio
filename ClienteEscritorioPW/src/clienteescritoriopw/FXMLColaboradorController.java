@@ -3,6 +3,7 @@ package clienteescritoriopw;
 import clienteescritoriopw.dominio.ColaboradorImp;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
+import clienteescritoriopw.utilidad.Permisos;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.io.IOException;
 import java.net.URL;
@@ -17,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -49,13 +51,17 @@ public class FXMLColaboradorController implements Initializable {
     @FXML
     private TextField tfBusqueda;
     
+    @FXML private Button btNuevo;
+    @FXML private Button btEditar;
+    @FXML private Button btEliminar;
+    
     // Lista observable para la tabla
     private ObservableList<Colaborador> listaColaboradores;
-
+    private Colaborador colaboradorSesion;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurarTabla();
-        cargarDatosTabla();
     }    
     
     private void configurarTabla(){
@@ -70,15 +76,43 @@ public class FXMLColaboradorController implements Initializable {
         colCorreo.setCellValueFactory(new PropertyValueFactory("correo"));
     }
     
-    private void cargarDatosTabla(){
+    public void inicializarColaborador(Colaborador colaborador) {
+        this.colaboradorSesion = colaborador;
+        if (colaborador != null) {
+            aplicarPermisos();
+            cargarDatosTabla();
+        }
+    }
+
+    private void aplicarPermisos() {
+        if (Permisos.esEjecutivo(colaboradorSesion.getIdRol())) {
+            btEditar.setVisible(false);
+            btEliminar.setVisible(false);
+        } else if (Permisos.esConductor(colaboradorSesion.getIdRol())) {
+            btNuevo.setVisible(false);
+            btEditar.setVisible(false);
+            btEliminar.setVisible(false);
+        }
+    }
+    private void cargarDatosTabla() {
         listaColaboradores = FXCollections.observableArrayList();
-        List<Colaborador> respuestaWS = ColaboradorImp.obtenerColaboradores();
-        
-        if(respuestaWS != null && !respuestaWS.isEmpty()){
-            listaColaboradores.addAll(respuestaWS);
+        List<Colaborador> todosLosColaboradores = ColaboradorImp.obtenerColaboradores();
+
+        if (todosLosColaboradores != null) {
+            if (colaboradorSesion != null && Permisos.esEjecutivo(colaboradorSesion.getIdRol())) {
+                // Filtrar: solo colaboradores de la misma sucursal que el ejecutivo
+                for (Colaborador c : todosLosColaboradores) {
+                    if (c.getIdSucursal() == colaboradorSesion.getIdSucursal()) {
+                        listaColaboradores.add(c);
+                    }
+                }
+            } else {
+                listaColaboradores.addAll(todosLosColaboradores);
+            }
+
             tvColaboradores.setItems(listaColaboradores);
-        }else{
-            Utilidades.mostrarAlertaSimple("Sin Resultados", "No se encontraron colaboradores.", Alert.AlertType.INFORMATION);
+        } else {
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo cargar la lista de colaboradores.", Alert.AlertType.ERROR);
         }
     }
 
@@ -86,7 +120,6 @@ public class FXMLColaboradorController implements Initializable {
     private void clicBuscar(ActionEvent event) {
         String busqueda = tfBusqueda.getText().trim().toLowerCase();
 
-        // 1. Si no hay texto, mostramos todos
         if (busqueda.isEmpty()) {
             tvColaboradores.setItems(listaColaboradores); 
             return;
@@ -95,7 +128,6 @@ public class FXMLColaboradorController implements Initializable {
         ObservableList<Colaborador> resultados = FXCollections.observableArrayList();
 
         for (Colaborador c : listaColaboradores) {
-            // Preparamos los campos (protegiendo contra nulos)
             String nombre = (c.getNombre() != null) ? c.getNombre().toLowerCase() : "";
             String paterno = (c.getApellidoPaterno() != null) ? c.getApellidoPaterno().toLowerCase() : "";
             String materno = (c.getApellidoMaterno() != null) ? c.getApellidoMaterno().toLowerCase() : "";
@@ -103,7 +135,6 @@ public class FXMLColaboradorController implements Initializable {
             String correo = (c.getCorreo() != null) ? c.getCorreo().toLowerCase() : "";
             String curp = (c.getCurp() != null) ? c.getCurp().toLowerCase() : "";
 
-            // 2. Buscamos coincidencias en CUALQUIER campo
             if (nombre.contains(busqueda) || 
                 paterno.contains(busqueda) || 
                 materno.contains(busqueda) || 
@@ -115,7 +146,6 @@ public class FXMLColaboradorController implements Initializable {
             }
         }
 
-        // 3. Actualizamos la tabla
         tvColaboradores.setItems(resultados);
     }
     
@@ -134,7 +164,6 @@ public class FXMLColaboradorController implements Initializable {
         }
     }
     
-    // Método auxiliar para abrir la ventana modal
     private void abrirFormulario(Colaborador colaborador) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioColaborador.fxml"));
@@ -142,7 +171,6 @@ public class FXMLColaboradorController implements Initializable {
             
             FXMLFormularioColaboradorController controlador = loader.getController();
             
-            // Si hay un colaborador, inicializamos el modo edición
             if (colaborador != null) {
                 controlador.inicializarEdicion(colaborador);
             }
@@ -151,8 +179,6 @@ public class FXMLColaboradorController implements Initializable {
             escenario.setScene(new Scene(root));
             escenario.setTitle((colaborador == null) ? "Registrar Colaborador" : "Editar Colaborador");
             escenario.initModality(Modality.APPLICATION_MODAL);
-            
-            // Esperar a que se cierre el modal para recargar la tabla
             escenario.showAndWait(); 
             cargarDatosTabla(); 
 
@@ -177,7 +203,7 @@ public class FXMLColaboradorController implements Initializable {
                 Respuesta respuesta = ColaboradorImp.eliminar(seleccionado.getIdColaborador());
                 if(!respuesta.isError()){
                     Utilidades.mostrarAlertaSimple("Éxito", respuesta.getMensaje(), Alert.AlertType.INFORMATION);
-                    cargarDatosTabla(); // Recargamos la tabla
+                    cargarDatosTabla();
                 }else{
                     Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
                 }
@@ -190,6 +216,6 @@ public class FXMLColaboradorController implements Initializable {
     @FXML
     private void clicRegresar(ActionEvent event) {
         Stage escenario = (Stage) tfBusqueda.getScene().getWindow();
-        escenario.close(); // O regresar al menú principal
+        escenario.close();
     }
 }
