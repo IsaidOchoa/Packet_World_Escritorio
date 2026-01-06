@@ -1,14 +1,15 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.CatalogoImp;
-import clienteescritoriopw.dominio.SucursalImp; // IMPORTANTE
+import clienteescritoriopw.dominio.SucursalImp;
 import clienteescritoriopw.dominio.UnidadImp;
 import clienteescritoriopw.dto.Respuesta;
-import clienteescritoriopw.pojo.Sucursal; // IMPORTANTE
+import clienteescritoriopw.pojo.Sucursal;
 import clienteescritoriopw.pojo.TipoUnidad;
 import clienteescritoriopw.pojo.Unidad;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.net.URL;
+import java.time.Year;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -32,18 +34,17 @@ public class FXMLFormularioUnidadController implements Initializable {
     @FXML private TextField tfVin;
     @FXML private TextField tfNII;
     @FXML private ComboBox<TipoUnidad> cbTipoUnidad;
-    
-    // --- NUEVO CAMPO ---
     @FXML private ComboBox<Sucursal> cbSucursal; 
     
     private Unidad unidadEdicion;
     private ObservableList<TipoUnidad> listaTipos;
-    private ObservableList<Sucursal> listaSucursales; // Lista para el combo
+    private ObservableList<Sucursal> listaSucursales;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cargarTiposUnidad();
-        cargarSucursales(); // --- LLAMADA NUEVA ---
+        cargarSucursales();
+        configurarValidaciones(); // Configura todas las validaciones
         configurarListenersNII();
     }
     
@@ -53,7 +54,6 @@ public class FXMLFormularioUnidadController implements Initializable {
         if(lista != null) listaTipos.addAll(lista);
         cbTipoUnidad.setItems(listaTipos);
         
-        // Convertidor para que se vea el nombre bonito
         cbTipoUnidad.setConverter(new StringConverter<TipoUnidad>() {
             @Override
             public String toString(TipoUnidad t) { return (t != null) ? t.getNombre() : null; }
@@ -62,10 +62,9 @@ public class FXMLFormularioUnidadController implements Initializable {
         });
     }
 
-    // --- MÉTODO NUEVO PARA CARGAR SUCURSALES ---
     private void cargarSucursales() {
         listaSucursales = FXCollections.observableArrayList();
-        List<Sucursal> lista = SucursalImp.obtenerSucursales(); // Reutilizamos tu método existente
+        List<Sucursal> lista = SucursalImp.obtenerSucursales();
         if(lista != null) listaSucursales.addAll(lista);
         cbSucursal.setItems(listaSucursales);
         
@@ -77,8 +76,45 @@ public class FXMLFormularioUnidadController implements Initializable {
         });
     }
 
+    // 👇 CONFIGURACIÓN DE TODAS LAS VALIDACIONES
+    private void configurarValidaciones() {
+        // Validación para Marca: máximo 30 caracteres, solo alfanuméricos
+        configurarTextFieldAlfanumerico(tfMarca, 30);
+        
+        // Validación para Modelo: máximo 30 caracteres, solo alfanuméricos  
+        configurarTextFieldAlfanumerico(tfModelo, 30);
+        
+        // Validación para Año: solo números y máximo 4 caracteres
+        tfAnio.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 4) {
+                tfAnio.setText(oldValue);
+            }
+        });
+        tfAnio.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches("[0-9]")) {
+                event.consume();
+            }
+        });
+
+        // Validación para VIN: máximo 17 caracteres, solo alfanuméricos
+        configurarTextFieldAlfanumerico(tfVin, 17);
+    }
+    
+    // 👇 MÉTODO AUXILIAR PARA VALIDACIONES COMUNES
+    private void configurarTextFieldAlfanumerico(TextField field, int maxLength) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+        field.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches("[a-zA-Z0-9]")) {
+                event.consume();
+            }
+        });
+    }
+    
     private void configurarListenersNII() {
-        // ... (Tu código de listeners igual que antes) ...
         tfAnio.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
         tfVin.textProperty().addListener((obs, viejo, nuevo) -> calcularNII());
     }
@@ -112,7 +148,7 @@ public class FXMLFormularioUnidadController implements Initializable {
             }
         }
         
-        // --- SELECCIONAR SUCURSAL SI ES EDICIÓN ---
+        // Seleccionar Sucursal
         for(Sucursal s : cbSucursal.getItems()){
             if(s.getIdSucursal() == unidad.getIdSucursal()){
                 cbSucursal.getSelectionModel().select(s);
@@ -127,15 +163,31 @@ public class FXMLFormularioUnidadController implements Initializable {
             Unidad unidad = new Unidad();
             unidad.setMarca(tfMarca.getText().trim());
             unidad.setModelo(tfModelo.getText().trim());
-            try {
-                unidad.setAnio(Integer.parseInt(tfAnio.getText().trim()));
-            } catch (NumberFormatException e) { return; }
             
-            unidad.setVin(tfVin.getText().trim());
+            // Validación final del año
+            String anioStr = tfAnio.getText().trim();
+            int anioActual = Year.now().getValue();
+            int anioMaximo = anioActual + 1;
+            
+            try {
+                int anio = Integer.parseInt(anioStr);
+                if (anio < 1900 || anio > anioMaximo) {
+                    Utilidades.mostrarAlertaSimple("Año inválido", 
+                        "El año debe estar entre 1900 y " + anioMaximo + ".", 
+                        Alert.AlertType.WARNING);
+                    return;
+                }
+                unidad.setAnio(anio);
+            } catch (NumberFormatException e) {
+                Utilidades.mostrarAlertaSimple("Año inválido", 
+                    "El año debe ser un número válido de 4 dígitos.", 
+                    Alert.AlertType.WARNING);
+                return;
+            }
+            
+            unidad.setVin(tfVin.getText().trim().toUpperCase());
             unidad.setNii(tfNII.getText().trim());
             unidad.setIdTipoUnidad(cbTipoUnidad.getValue().getIdTipoUnidad());
-            
-            // --- AQUÍ GUARDAMOS LA SUCURSAL SELECCIONADA ---
             unidad.setIdSucursal(cbSucursal.getValue().getIdSucursal());
             
             if(unidadEdicion == null) {
@@ -148,23 +200,51 @@ public class FXMLFormularioUnidadController implements Initializable {
     }
     
     private boolean validarCampos() {
-        String msg = "";
-        if(tfMarca.getText().isEmpty()) msg += "- Marca\n";
-        if(tfModelo.getText().isEmpty()) msg += "- Modelo\n";
-        if(tfAnio.getText().isEmpty()) msg += "- Año\n";
-        if(tfVin.getText().isEmpty()) msg += "- VIN\n";
-        if(cbTipoUnidad.getValue() == null) msg += "- Tipo de Unidad\n";
-        // Validar sucursal
-        if(cbSucursal.getValue() == null) msg += "- Sucursal\n";
+        StringBuilder msg = new StringBuilder();
         
-        if(!msg.isEmpty()){
-            Utilidades.mostrarAlertaSimple("Campos vacíos", "Faltan:\n" + msg, Alert.AlertType.WARNING);
+        if(tfMarca.getText().isEmpty()) msg.append("- Marca\n");
+        if(tfModelo.getText().isEmpty()) msg.append("- Modelo\n");
+        if(tfAnio.getText().isEmpty()) msg.append("- Año\n");
+        if(tfVin.getText().isEmpty()) msg.append("- VIN\n");
+        if(cbTipoUnidad.getValue() == null) msg.append("- Tipo de Unidad\n");
+        if(cbSucursal.getValue() == null) msg.append("- Sucursal\n");
+        
+        // Validaciones adicionales
+        if(!tfMarca.getText().isEmpty()) {
+            String marca = tfMarca.getText().trim();
+            if (marca.length() > 30 || !marca.matches("[a-zA-Z0-9]+")) {
+                msg.append("- Marca: máximo 30 caracteres, solo letras y números\n");
+            }
+        }
+        
+        if(!tfModelo.getText().isEmpty()) {
+            String modelo = tfModelo.getText().trim();
+            if (modelo.length() > 30 || !modelo.matches("[a-zA-Z0-9]+")) {
+                msg.append("- Modelo: máximo 30 caracteres, solo letras y números\n");
+            }
+        }
+        
+        if(!tfAnio.getText().isEmpty()) {
+            String anio = tfAnio.getText().trim();
+            if (!anio.matches("\\d{4}")) {
+                msg.append("- Año debe tener 4 dígitos\n");
+            }
+        }
+        
+        if(!tfVin.getText().isEmpty()) {
+            String vin = tfVin.getText().trim();
+            if (vin.length() != 17 || !vin.matches("[a-zA-Z0-9]{17}")) {
+                msg.append("- VIN debe tener 17 caracteres alfanuméricos\n");
+            }
+        }
+        
+        if(msg.length() > 0){
+            Utilidades.mostrarAlertaSimple("Campos inválidos", "Corrige:\n" + msg.toString(), Alert.AlertType.WARNING);
             return false;
         }
         return true;
     }
     
-    // ... (Métodos procesarRespuesta y clicCancelar igual que antes) ...
     private void procesarRespuesta(Respuesta resp, String accion) {
         if(!resp.isError()) {
             Utilidades.mostrarAlertaSimple("Éxito", "Unidad " + accion + " correctamente.", Alert.AlertType.INFORMATION);
