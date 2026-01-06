@@ -52,9 +52,9 @@ public class PaqueteImp {
             } catch (Exception e) {
                 respuesta.setMensaje("Error BD: " + e.getMessage());
             } finally {
-                // Validación extra por si no se cerró en el if
-                if (conexion != null && !conexion.getConnection().equals(null)) {
-                    try { conexion.close(); } catch(Exception ex){}
+                // CORRECCIÓN: Cierre simple y seguro
+                if (conexion != null) {
+                    conexion.close();
                 }
             }
         } else {
