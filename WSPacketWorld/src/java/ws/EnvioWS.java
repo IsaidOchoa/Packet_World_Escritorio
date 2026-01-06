@@ -3,8 +3,6 @@ package ws;
 import com.google.gson.Gson;
 import dominio.ColaboradorImp;
 import dominio.EnvioImp;
-import dominio.PaqueteImp;
-import dominio.SucursalImp; 
 import dto.Respuesta;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +19,6 @@ import javax.ws.rs.core.MediaType;
 import pojo.Colaborador;
 import pojo.Envio;
 import pojo.HistorialEnvio;
-import pojo.Paquete;
-import pojo.Sucursal;
-import utilidades.CalculadoraEnvios;
 
 @Path("envio")
 public class EnvioWS {
@@ -37,39 +32,28 @@ public class EnvioWS {
         try {
             Envio envio = gson.fromJson(json, Envio.class);
             
-            // Validaciones básicas
-            if (envio.getIdCliente() <= 0 || envio.getIdSucursalOrigen() <= 0 ||
-                envio.getCodigoPostalDestino() == null) {
-                return new Respuesta(true, "Faltan datos obligatorios.");
+            // Validaciones básicas de entrada
+            if (envio.getIdCliente() <= 0 || envio.getIdSucursalOrigen() <= 0) {
+                return new Respuesta(true, "Faltan datos obligatorios (Cliente o Sucursal).");
             }
 
-            // Cálculo inicial de costo
-            try {
-                Sucursal sucursalOrigen = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
-                String cpOrigen = (sucursalOrigen != null) ? sucursalOrigen.getCodigoPostal() : null;
-                String cpDestino = envio.getCodigoPostalDestino();
-
-                Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                
-                // Si la API falla o no hay CPs, usamos fallback de 50km
-                if (distancia == null) { 
-                    distancia = 50.0; 
-                }
-
-                int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
-                float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-                envio.setCosto(costoTotal);
-
-            } catch (Exception ex) {
-                System.out.println("Error cálculo inicial: " + ex.getMessage());
-                envio.setCosto(0.0f); // Mejor 0 que un costo falso de 150
+            // 1. Delegar el cálculo del costo a la Capa de Negocio (EnvioImp)
+            String errorCotizacion = EnvioImp.cotizarEnvio(envio);
+            
+            if (errorCotizacion != null) {
+                // Si hubo error en el cálculo (API caída, CPs mal), lo devolvemos
+                return new Respuesta(true, errorCotizacion);
             }
 
+            // 2. Si cotizó bien, procedemos a guardar
             return EnvioImp.registrar(envio);
+            
         } catch (Exception e) {
-            return new Respuesta(true, "Error al registrar: " + e.getMessage());
+            e.printStackTrace();
+            return new Respuesta(true, "Error al procesar registro: " + e.getMessage());
         }
     }
+
     @PUT
     @Path("editar")
     @Produces(MediaType.APPLICATION_JSON)
@@ -78,31 +62,33 @@ public class EnvioWS {
         Gson gson = new Gson();
         try {
             Envio envio = gson.fromJson(json, Envio.class);
+            
             if (envio.getIdEnvio() != null && envio.getIdEnvio() > 0) {
                 
-                Respuesta respuesta = EnvioImp.editar(envio);
-
-                if (!respuesta.isError()) {
-                    System.out.println(">> Dirección cambiada. Recalculando costo para envío: " + envio.getIdEnvio());
-                    EnvioImp.recalcularCosto(envio.getIdEnvio());
-                }
+                // 1. Recalcular el costo antes de actualizar (por si cambiaron la dirección)
+                String errorCotizacion = EnvioImp.cotizarEnvio(envio);
                 
-                return respuesta;
+                if (errorCotizacion != null) {
+                    return new Respuesta(true, errorCotizacion);
+                }
+
+                // 2. Actualizar en BD con el nuevo costo
+                return EnvioImp.editar(envio);
             }
             return new Respuesta(true, "Se requiere el ID del envío para editar.");
         } catch (Exception e) {
             return new Respuesta(true, "Error en el servidor: " + e.getMessage());
         }
     }
+
+    // --- RESTO DE MÉTODOS (Getters, Busquedas, etc.) ---
     
     @GET
     @Path("buscar/{numeroGuia}")
     @Produces(MediaType.APPLICATION_JSON)
     public Envio buscarPorGuia(@PathParam("numeroGuia") String numeroGuia) {
         Envio envio = EnvioImp.buscarPorGuia(numeroGuia);
-        if (envio == null) {
-            throw new NotFoundException("Envío no encontrado.");
-        }
+        if (envio == null) throw new NotFoundException("Envío no encontrado.");
         return envio;
     }
     
@@ -110,11 +96,7 @@ public class EnvioWS {
     @Path("historial/{numeroGuia}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<HistorialEnvio> obtenerHistorialPorGuia(@PathParam("numeroGuia") String numeroGuia) {
-        List<HistorialEnvio> historial = EnvioImp.obtenerHistorialPorGuia(numeroGuia);
-        if (historial == null) {
-            throw new NotFoundException("Envío no encontrado.");
-        }
-        return historial;
+        return EnvioImp.obtenerHistorialPorGuia(numeroGuia);
     }
 
     @GET
@@ -130,29 +112,26 @@ public class EnvioWS {
     @Consumes(MediaType.APPLICATION_JSON)
     public Respuesta actualizarEstatus(String json) {
         Gson gson = new Gson();
-
         try {
             Envio envio = gson.fromJson(json, Envio.class);
-
             if (envio.getIdEnvio() != null && envio.getIdEstadoActual() != null) {
-
-                int idColaborador = 1; // <-- desde sesión, token o hardcode temporal
-                String comentario = null; // opcional en escritorio
-
-                return EnvioImp.actualizarEstatus(
-                    envio,
-                    comentario,
-                    idColaborador
-                );
+                int idColaborador = 1; // TODO: Obtener de token/sesión
+                return EnvioImp.actualizarEstatus(envio, null, idColaborador);
             }
-
-            return new Respuesta(true, "Datos inválidos para actualizar estatus.");
-
+            return new Respuesta(true, "Datos inválidos.");
         } catch (Exception e) {
-            return new Respuesta(true, "Error al actualizar: " + e.getMessage());
+            return new Respuesta(true, "Error: " + e.getMessage());
         }
     }
-
+    
+    @GET
+    @Path("conductor/{numeroPersonal}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Envio> obtenerPorConductor(@PathParam("numeroPersonal") String numeroPersonal) {
+        Colaborador colaborador = ColaboradorImp.buscarPorNoPersonal(numeroPersonal);
+        if (colaborador == null) return new ArrayList<>();
+        return EnvioImp.obtenerPorConductor(colaborador.getIdColaborador());
+    }
     
     @PUT
     @Path("actualizar-estatus-movil")
@@ -162,7 +141,6 @@ public class EnvioWS {
         Gson gson = new Gson();
         try {
             Map<String, Object> datos = gson.fromJson(json, Map.class);
-
             Double idEnvioD = (Double) datos.get("idEnvio");
             Double idEstadoActualD = (Double) datos.get("idEstadoActual");
             String comentario = (String) datos.get("comentario");
@@ -171,48 +149,9 @@ public class EnvioWS {
             if (idEnvioD == null || idEstadoActualD == null || idColaboradorD == null) {
                 return new Respuesta(true, "Faltan datos obligatorios.");
             }
-
-            return EnvioImp.actualizarEstatusMovil(
-                idEnvioD.intValue(),
-                idEstadoActualD.intValue(),
-                comentario,
-                idColaboradorD.intValue()
-            );
-
+            return EnvioImp.actualizarEstatusMovil(idEnvioD.intValue(), idEstadoActualD.intValue(), comentario, idColaboradorD.intValue());
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Respuesta(true, "Error al procesar la actualización: " + e.getMessage());
+            return new Respuesta(true, "Error: " + e.getMessage());
         }
-    }
-    
-    @GET
-    @Path("conductor/{numeroPersonal}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Envio> obtenerPorConductor(@PathParam("numeroPersonal") String numeroPersonal) {
-        System.out.println("[DEBUG] Buscando envíos para conductor con numeroPersonal: " + numeroPersonal);
-
-        // 1. Buscar colaborador por numeroPersonal
-        Colaborador colaborador = ColaboradorImp.buscarPorNoPersonal(numeroPersonal);
-        if (colaborador == null) {
-            System.out.println("[ERROR] No se encontró colaborador con numeroPersonal: " + numeroPersonal);
-            return new ArrayList<>();
-        }
-
-        int idConductor = colaborador.getIdColaborador();
-        System.out.println("Colaborador encontrado: id=" + idConductor + ", nombre=" + colaborador.getNombre());
-
-        // 2. Obtener envíos por idConductor
-        List<Envio> envios = EnvioImp.obtenerPorConductor(idConductor);
-        System.out.println("?Se encontraron " + (envios != null ? envios.size() : 0) + " envíos.");
-
-        if (envios != null && !envios.isEmpty()) {
-            for (Envio e : envios) {
-                System.out.println("Envío ID: " + e.getIdEnvio() + ", Guía: " + e.getNumeroGuia() + ", Estatus: " + e.getEstatus());
-            }
-        } else {
-            System.out.println("No hay envíos asignados a este conductor.");
-        }
-
-        return envios;
     }
 }

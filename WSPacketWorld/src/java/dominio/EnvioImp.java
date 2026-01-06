@@ -118,51 +118,75 @@ public class EnvioImp {
     
     
     public static void recalcularCosto(int idEnvio) {
-        SqlSession conn = MyBatisUtil.getSession();
+       SqlSession conn = MyBatisUtil.getSession();
         if (conn != null) {
             try {
-                // 1. Obtener el Envío
                 Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio);
-                
                 if (envio != null) {
-                    // 2. Obtener CP Origen (Sucursal)
                     Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
                     String cpOrigen = (suc != null) ? suc.getCodigoPostal() : null;
                     String cpDestino = envio.getCodigoPostalDestino();
                     
-                    // 3. Obtener Paquetes actuales
                     List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
                     int cantidad = (paquetes != null) ? paquetes.size() : 0;
 
                     if (cpOrigen != null && cpDestino != null) {
-                        System.out.println("Recalculando Envío ID: " + idEnvio + " | Origen: " + cpOrigen + " | Destino: " + cpDestino + " | Paquetes: " + cantidad);
-                        
-                        // 4. Calcular
                         Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-                        // Si la API falla, distancia será 50.0 (por el fallback) o lo que retorne la API
-                        
                         if(distancia != null){
                             float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidad);
-                            
-                            // 5. Actualizar en BD
                             envio.setCosto(nuevoCosto);
-                            
-                            // Usamos un update específico o el genérico 'editar'
                             conn.update("envio.editar", envio); 
                             conn.commit();
-                            
-                            System.out.println(">>> COSTO ACTUALIZADO EXITOSAMENTE: $" + nuevoCosto);
                         }
-                    } else {
-                        System.err.println("No se pudo recalcular: Faltan Códigos Postales.");
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Error en recalcularCosto: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 conn.close();
             }
+        }
+    }
+    public static String cotizarEnvio(Envio envio) {
+        try {
+            // 1. Validar datos mínimos
+            if (envio.getIdSucursalOrigen() <= 0) return "Sucursal de origen no válida.";
+            if (envio.getCodigoPostalDestino() == null || envio.getCodigoPostalDestino().isEmpty()) 
+                return "Falta el Código Postal destino.";
+
+            // 2. Obtener CP de la Sucursal de Origen
+            // Reutilizamos tu SucursalImp para no duplicar código de consulta
+            Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
+            
+            if (sucursal == null) return "La sucursal de origen no existe.";
+            String cpOrigen = sucursal.getCodigoPostal();
+            
+            if (cpOrigen == null || cpOrigen.isEmpty()) 
+                return "La sucursal origen no tiene configurado un Código Postal.";
+
+            // 3. Consumir API de Distancia
+            Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, envio.getCodigoPostalDestino());
+
+            // Validación estricta: Si la API falla, detenemos el proceso
+            if (distancia == null) {
+                return "No se pudo calcular la distancia. Verifique los Códigos Postales (" + 
+                       cpOrigen + " -> " + envio.getCodigoPostalDestino() + ") o la conexión a internet.";
+            }
+
+            // 4. Calcular Costo Total
+            // Nota: Si es registro nuevo, getPaquetes puede ser null o venir del cliente.
+            int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
+            
+            float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
+            
+            // 5. Asignar el costo calculado al objeto
+            envio.setCosto(costoTotal);
+            
+            return null; // Null indica éxito (sin errores)
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error al cotizar envío: " + e.getMessage();
         }
     }
     
