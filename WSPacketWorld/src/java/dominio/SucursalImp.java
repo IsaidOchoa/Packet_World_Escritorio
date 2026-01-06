@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dominio;
 
 import dto.Respuesta;
@@ -95,29 +90,29 @@ public class SucursalImp {
         return resp;
     }
 
-   public static Respuesta eliminar(int idSucursal) {
-    Respuesta resp = new Respuesta();
-    SqlSession conexion = MyBatisUtil.getSession();
-    if (conexion != null) {
-        try {
-            // Llama al UPDATE estatus = 0 del Mapper
-            int filas = conexion.update("sucursal.eliminar", idSucursal);
-            conexion.commit();
-            if (filas > 0) {
-                resp.setError(false);
-                resp.setMensaje("Sucursal dada de baja correctamente.");
-            } else {
+    public static Respuesta eliminar(int idSucursal) {
+        Respuesta resp = new Respuesta();
+        SqlSession conexion = MyBatisUtil.getSession();
+        if (conexion != null) {
+            try {
+                // Llama al UPDATE estatus = 0 del Mapper
+                int filas = conexion.update("sucursal.eliminar", idSucursal);
+                conexion.commit();
+                if (filas > 0) {
+                    resp.setError(false);
+                    resp.setMensaje("Sucursal dada de baja correctamente.");
+                } else {
+                    resp.setError(true);
+                    resp.setMensaje("No se encontró la sucursal.");
+                }
+            } catch (Exception e) {
                 resp.setError(true);
-                resp.setMensaje("No se encontró la sucursal.");
+                resp.setMensaje("Error: " + e.getMessage());
+            } finally {
+                conexion.close();
             }
-        } catch (Exception e) {
-            resp.setError(true);
-            resp.setMensaje("Error: " + e.getMessage());
-        } finally {
-            conexion.close();
         }
+        return resp;
     }
-    return resp;
-}
 }   
 

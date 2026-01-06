@@ -1,9 +1,10 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.EnvioImp;
-import clienteescritoriopw.dto.Respuesta; // Importante para manejar la respuesta de eliminar
+import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.Envio;
+import clienteescritoriopw.utilidad.Permisos;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.io.IOException;
 import java.net.URL;
@@ -18,7 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType; // Importante para confirmaciones
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -28,24 +29,20 @@ import javafx.stage.Stage;
 
 public class FXMLEnvioController implements Initializable {
 
-    @FXML
-    private TableView<Envio> tvEnvios;
-    @FXML
-    private TableColumn colGuia;
-    @FXML
-    private TableColumn colCliente;
-    @FXML
-    private TableColumn colOrigen;
-    @FXML
-    private TableColumn colDestino;
-    @FXML
-    private TableColumn colEstatus;
-    @FXML
-    private TableColumn colCosto;
-    @FXML
-    private TextField tfBusqueda;
-    @FXML
-    private TableColumn<Envio, String> colUnidad;
+    @FXML private TableView<Envio> tvEnvios;
+    @FXML private TableColumn<Envio, String> colGuia;
+    @FXML private TableColumn<Envio, String> colCliente;
+    @FXML private TableColumn<Envio, String> colOrigen;
+    @FXML private TableColumn<Envio, String> colDestino;
+    @FXML private TableColumn<Envio, String> colEstatus;
+    @FXML private TableColumn<Envio, String> colCosto;
+    @FXML private TableColumn<Envio, String> colUnidad;
+    @FXML private TextField tfBusqueda;
+
+    // 👇 Botones que se ocultarán para conductores
+    @FXML private Button btNuevo;
+    @FXML private Button btEditar;
+    @FXML private Button btDetalles;
 
     private ObservableList<Envio> listaEnvios;
     private Colaborador colaboradorSesion;
@@ -61,18 +58,28 @@ public class FXMLEnvioController implements Initializable {
 
     public void inicializarColaborador(Colaborador colaborador) {
         this.colaboradorSesion = colaborador;
+        if (colaborador != null) {
+            aplicarPermisos();
+        }
+    }
+
+    private void aplicarPermisos() {
+        if (Permisos.esConductor(colaboradorSesion.getIdRol())) {
+          
+            btNuevo.setVisible(false);
+            btEditar.setVisible(false);
+            btDetalles.setVisible(false);
+        }
     }
 
     private void configurarTabla() {
-        colGuia.setCellValueFactory(new PropertyValueFactory("numeroGuia"));
-        colCliente.setCellValueFactory(new PropertyValueFactory("nombreCliente")); 
-        colOrigen.setCellValueFactory(new PropertyValueFactory("nombreSucursalOrigen"));
-        colDestino.setCellValueFactory(new PropertyValueFactory("nombreColonia")); 
-        colEstatus.setCellValueFactory(new PropertyValueFactory("estatus"));
-        colCosto.setCellValueFactory(new PropertyValueFactory("costo"));
-     
-        colUnidad.setCellValueFactory(new PropertyValueFactory("infoUnidad"));
-    
+        colGuia.setCellValueFactory(new PropertyValueFactory<>("numeroGuia"));
+        colCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCliente")); 
+        colOrigen.setCellValueFactory(new PropertyValueFactory<>("nombreSucursalOrigen"));
+        colDestino.setCellValueFactory(new PropertyValueFactory<>("nombreColonia")); 
+        colEstatus.setCellValueFactory(new PropertyValueFactory<>("estatus"));
+        colCosto.setCellValueFactory(new PropertyValueFactory<>("costo"));
+        colUnidad.setCellValueFactory(new PropertyValueFactory<>("infoUnidad"));
     }
 
     private void cargarInformacionTabla() {
@@ -109,7 +116,6 @@ public class FXMLEnvioController implements Initializable {
         }
     }
 
-    
     @FXML
     private void btnEditarEnvio(ActionEvent event) {
         Envio envioSeleccionado = tvEnvios.getSelectionModel().getSelectedItem();
@@ -137,33 +143,6 @@ public class FXMLEnvioController implements Initializable {
             Utilidades.mostrarAlertaSimple("Selección Requerida", "Debes seleccionar un envío para editar.", Alert.AlertType.WARNING);
         }
     }
-
-    /*
-    @FXML
-    private void btnEliminarEnvio(ActionEvent event) {
-        Envio envioSeleccionado = tvEnvios.getSelectionModel().getSelectedItem();
-
-        if (envioSeleccionado != null) {
-           
-            boolean confirmar = Utilidades.mostrarAlertaConfirmacion("Eliminar Envío", 
-                    "¿Estás seguro de eliminar el envío " + envioSeleccionado.getNumeroGuia() + "?\n\n"
-                    + "Esta acción eliminará también todos los paquetes asociados.");
-
-            if (confirmar) {
-                // Llamada al backend para eliminar
-                Respuesta respuesta = EnvioImp.eliminar(envioSeleccionado.getIdEnvio());
-                
-                if (!respuesta.isError()) {
-                    Utilidades.mostrarAlertaSimple("Éxito", "Envío eliminado correctamente.", Alert.AlertType.INFORMATION);
-                    cargarInformacionTabla();
-                } else {
-                    Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
-                }
-            }
-        } else {
-            Utilidades.mostrarAlertaSimple("Selección Requerida", "Debes seleccionar un envío para eliminar.", Alert.AlertType.WARNING);
-        }
-    }*/
 
     @FXML
     private void btnVerDetalles(ActionEvent event) {
