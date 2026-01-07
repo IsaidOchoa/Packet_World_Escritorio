@@ -31,7 +31,7 @@
             s.numero,
             s.idColonia,
             s.estatus,
-            IFNULL(c.codigo_postal, '') AS codigoPostal
+            IFNULL(c.codigo_postal, '') AS codigoPostal,
             c.idMunicipio,
             m.idEstado
         FROM Sucursal s

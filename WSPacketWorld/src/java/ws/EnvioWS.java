@@ -105,13 +105,14 @@ public class EnvioWS {
     public List<Envio> obtenerTodos() {
         return EnvioImp.obtenerTodos();
     }
+    
     @GET
-@Path("{idEnvio}") // La URL será: .../api/envio/15
-@Produces(MediaType.APPLICATION_JSON)
-public Envio obtenerPorId(@PathParam("idEnvio") Integer idEnvio) {
-    // Llama a tu implementación de base de datos
-    return EnvioImp.obtenerPorId(idEnvio);
-}
+    @Path("{idEnvio}") // La URL será: .../api/envio/15
+    @Produces(MediaType.APPLICATION_JSON)
+    public Envio obtenerPorId(@PathParam("idEnvio") Integer idEnvio) {
+        // Llama a tu implementación de base de datos
+        return EnvioImp.obtenerPorId(idEnvio);
+    }
 
     @PUT
     @Path("actualizar-estatus")

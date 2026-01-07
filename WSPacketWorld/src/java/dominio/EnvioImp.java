@@ -159,7 +159,6 @@ public class EnvioImp {
         }
     }
 
-    
     }
     public static String cotizarEnvio(Envio envio) {
         try {
@@ -168,34 +167,39 @@ public class EnvioImp {
                 return "Falta el Código Postal destino.";
 
             Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
-            
+
             if (sucursal == null) return "La sucursal de origen no existe.";
             String cpOrigen = sucursal.getCodigoPostal();
-            
+
             if (cpOrigen == null || cpOrigen.isEmpty()) 
                 return "La sucursal origen no tiene configurado un Código Postal.";
 
             Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, envio.getCodigoPostalDestino());
 
             if (distancia == null) {
-                return "No se pudo calcular la distancia. Verifique los Códigos Postales (" + 
-                       cpOrigen + " -> " + envio.getCodigoPostalDestino() + ") o la conexión a internet.";
+                //MENSAJE ESTRICO Y CLARO
+                return "No se puede procesar el envío: La API de cálculo de distancia no reconoce los códigos postales ingresados.\n\n" +
+                       "Códigos postales no compatibles:\n" +
+                       "• Origen: " + cpOrigen + "\n" +
+                       "• Destino: " + envio.getCodigoPostalDestino() + "\n\n" +
+                       "Para registrar envíos, usa códigos postales compatibles con la API:\n" +
+                       "• CP Origen de prueba: 91020\n" +
+                       "• CP Destino de prueba: 01089, 11000, 44100, 72000\n\n" +
+                       "El cálculo de costo es obligatorio para procesar envíos.";
             }
+
             int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
-            
             float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-            
             envio.setCosto(costoTotal);
-            
+
             return null; 
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return "Error al cotizar envío: " + e.getMessage();
         }
     }
     
-
     public static List<Envio> obtenerTodos() {
         List<Envio> lista = null;
         SqlSession conexion = MyBatisUtil.getSession();
@@ -373,7 +377,6 @@ public class EnvioImp {
         conexion.insert("historialEnvio.registrar", params);
     }
 
-    
     public static List<Envio> obtenerPorConductor(int idConductor) {
         List<Envio> lista = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
