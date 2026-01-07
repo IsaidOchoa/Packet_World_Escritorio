@@ -22,6 +22,10 @@
         WHERE idEnvio = #{idEnvio}
     </select>
     
+    <select id="contarPorEnvio" resultType="int" parameterType="int">
+        SELECT COUNT(*) FROM paquete WHERE idEnvio = #{idEnvio}
+    </select>
+    
     <update id="editar" parameterType="pojo.Paquete">
         UPDATE Paquete SET
             descripcion = #{descripcion},
@@ -35,4 +39,5 @@
     <delete id="eliminar" parameterType="int">
     DELETE FROM Paquete WHERE idPaquete = #{idPaquete}
     </delete>
+    
 </mapper>

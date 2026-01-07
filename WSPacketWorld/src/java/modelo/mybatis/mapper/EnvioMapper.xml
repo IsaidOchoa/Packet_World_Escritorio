@@ -5,10 +5,10 @@
 
     <insert id="registrar" parameterType="pojo.Envio" useGeneratedKeys="true" keyProperty="idEnvio">
         INSERT INTO envio 
-        (numeroGuia, costo, peso, idCliente, idSucursalOrigen, idColoniaDestino, 
+        (numeroGuia, costo, costoBase, cantidadPaquetes, peso, idCliente, idSucursalOrigen, idColoniaDestino, 
          calleDestino, numeroDestino, nombreDestinatario, idEstadoActual)
         VALUES 
-        (#{numeroGuia}, #{costo}, #{peso}, #{idCliente}, #{idSucursalOrigen}, #{idColoniaDestino},
+        (#{numeroGuia}, #{costo}, #{costoBase}, #{cantidadPaquetes}, #{peso}, #{idCliente}, #{idSucursalOrigen}, #{idColoniaDestino},
          #{calleDestino}, #{numeroDestino}, #{nombreDestinatario}, 1)
     </insert>
 
@@ -33,7 +33,6 @@
         WHERE idEnvio = #{idEnvio}
     </update>
 
-    
     <update id="actualizarSoloEstatus" parameterType="map">
         UPDATE envio 
         SET idEstadoActual = #{idEstadoActual}
@@ -43,10 +42,21 @@
     <update id="actualizarCosto" parameterType="map">
         UPDATE envio SET costo = #{costo} WHERE idEnvio = #{idEnvio}
     </update>
+    
+    <update id="actualizarCostoYCantidad" parameterType="map">
+        UPDATE envio SET 
+            costo = #{costo},
+            costoBase = #{costoBase},
+            cantidadPaquetes = #{cantidadPaquetes}
+        WHERE idEnvio = #{idEnvio}
+    </update>
 
     <select id="obtenerPorId" resultType="pojo.Envio" parameterType="int">
         SELECT 
             e.idEnvio, 
+            e.costo,
+            e.costoBase,
+            e.cantidadPaquetes,
             e.idSucursalOrigen, 
             col.codigo_postal AS codigoPostalDestino 
         FROM envio e
@@ -56,11 +66,11 @@
 
     <select id="buscarPorGuia" resultType="pojo.Envio" parameterType="string">
         SELECT 
-            e.idEnvio, e.numeroGuia, e.costo, e.peso,
+            e.idEnvio, e.numeroGuia, e.costo, e.costoBase, e.cantidadPaquetes, e.peso,
             e.calleDestino, e.numeroDestino, e.nombreDestinatario,
             e.idCliente, 
-        
-            CONCAT(cl.nombre, ' ', cl.apellidoPaterno, ' ', cl.apellidoMaterno) AS nombreCliente, <!-- Mantenido -->
+
+            CONCAT(cl.nombre, ' ', cl.apellidoPaterno, ' ', cl.apellidoMaterno) AS nombreCliente,
             cl.telefono AS telefonoCliente,
             cl.correo AS correoCliente,  
 
@@ -91,34 +101,34 @@
     </select>
     
     <select id="obtenerTodos" resultType="pojo.Envio">
-       SELECT 
-            e.idEnvio, e.numeroGuia, e.nombreDestinatario, e.costo, e.idEstadoActual,
-            e.idCliente, e.idSucursalOrigen, e.idColoniaDestino,
-            
-            CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
-            s.nombre AS nombreSucursalOrigen,
-            e.calleDestino, e.numeroDestino,
-            col.nombre AS nombreColonia, col.codigo_postal AS codigoPostalDestino, 
-            mun.nombre AS municipio, est.nombre AS estado,
-            edo.nombre AS estatus,
-            
-            u.idUnidad,
-            IFNULL(CONCAT(u.marca, ' ', u.modelo), 'Sin Unidad') AS infoUnidad,
-            
-            u.idColaborador AS idConductor,
-            IFNULL(CONCAT(colab.nombre, ' ', colab.apellidoPaterno), 'Sin Conductor') AS nombreConductor
-            
-        FROM envio e
-        INNER JOIN cliente cl ON e.idCliente = cl.idCliente
-        INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
-        INNER JOIN colonias col ON e.idColoniaDestino = col.id
-        INNER JOIN municipios mun ON col.idMunicipio = mun.id
-        INNER JOIN estados est ON mun.idEstado = est.id
-        INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
-        
-        LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
-        LEFT JOIN colaborador colab ON u.idColaborador = colab.idColaborador 
-    </select>
+    SELECT 
+         e.idEnvio, e.numeroGuia, e.nombreDestinatario, e.costo, e.costoBase, e.cantidadPaquetes, e.idEstadoActual,
+         e.idCliente, e.idSucursalOrigen, e.idColoniaDestino,
+
+         CONCAT(cl.nombre, ' ', cl.apellidoPaterno) AS nombreCliente,
+         s.nombre AS nombreSucursalOrigen,
+         e.calleDestino, e.numeroDestino,
+         col.nombre AS nombreColonia, col.codigo_postal AS codigoPostalDestino, 
+         mun.nombre AS municipio, est.nombre AS estado,
+         edo.nombre AS estatus,
+
+         u.idUnidad,
+         IFNULL(CONCAT(u.marca, ' ', u.modelo), 'Sin Unidad') AS infoUnidad,
+
+         u.idColaborador AS idConductor,
+         IFNULL(CONCAT(colab.nombre, ' ', colab.apellidoPaterno), 'Sin Conductor') AS nombreConductor
+
+     FROM envio e
+     INNER JOIN cliente cl ON e.idCliente = cl.idCliente
+     INNER JOIN sucursal s ON e.idSucursalOrigen = s.idSucursal
+     INNER JOIN colonias col ON e.idColoniaDestino = col.id
+     INNER JOIN municipios mun ON col.idMunicipio = mun.id
+     INNER JOIN estados est ON mun.idEstado = est.id
+     INNER JOIN estadoenvio edo ON e.idEstadoActual = edo.idEstadoEnvio
+
+     LEFT JOIN unidad u ON e.idUnidad = u.idUnidad
+     LEFT JOIN colaborador colab ON u.idColaborador = colab.idColaborador 
+ </select>
     
     <select id="obtenerPorConductor" resultType="pojo.Envio" parameterType="int">
         SELECT 
@@ -149,9 +159,9 @@
             numeroDestino = #{numeroDestino},
             nombreDestinatario = #{nombreDestinatario},
             costo = #{costo},
-            
+            costoBase = #{costoBase},
+            cantidadPaquetes = #{cantidadPaquetes},
             idUnidad = #{idUnidad, jdbcType=INTEGER} 
-            
         WHERE idEnvio = #{idEnvio}
     </update>
     

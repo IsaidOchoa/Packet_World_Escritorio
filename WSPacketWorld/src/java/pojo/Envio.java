@@ -7,7 +7,8 @@ public class Envio {
     private String numeroGuia;
     private double costo;
     private double peso;
-    
+    private double costoBase;
+    private int cantidadPaquetes;
     
     private List<Paquete> paquetes; 
     
@@ -50,11 +51,13 @@ public class Envio {
     public Envio() {
     }
 
-    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, List<Paquete> paquetes, int idCliente, String nombreCliente, String apellidoPaternoCliente, String apellidoMaternoCliente, String telefonoCliente, String correoCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, Integer idUnidad, String infoUnidad, Integer idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
+    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, double costoBase, int cantidadPaquetes, List<Paquete> paquetes, int idCliente, String nombreCliente, String apellidoPaternoCliente, String apellidoMaternoCliente, String telefonoCliente, String correoCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, Integer idUnidad, String infoUnidad, Integer idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
         this.idEnvio = idEnvio;
         this.numeroGuia = numeroGuia;
         this.costo = costo;
         this.peso = peso;
+        this.costoBase = costoBase;
+        this.cantidadPaquetes = cantidadPaquetes;
         this.paquetes = paquetes;
         this.idCliente = idCliente;
         this.nombreCliente = nombreCliente;
@@ -78,6 +81,22 @@ public class Envio {
         this.nombreConductor = nombreConductor;
         this.idEstadoActual = idEstadoActual;
         this.estatus = estatus;
+    }
+
+    public double getCostoBase() {
+        return costoBase;
+    }
+
+    public void setCostoBase(double costoBase) {
+        this.costoBase = costoBase;
+    }
+
+    public int getCantidadPaquetes() {
+        return cantidadPaquetes;
+    }
+
+    public void setCantidadPaquetes(int cantidadPaquetes) {
+        this.cantidadPaquetes = cantidadPaquetes;
     }
 
     public String getApellidoPaternoCliente() {

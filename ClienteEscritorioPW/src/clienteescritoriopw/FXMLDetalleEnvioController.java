@@ -8,7 +8,6 @@ import clienteescritoriopw.pojo.Paquete;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +15,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,9 +38,9 @@ public class FXMLDetalleEnvioController implements Initializable {
     
     // Tabla
     @FXML private TableView<Paquete> tvPaquetes;
-    @FXML private TableColumn colDescripcion;
-    @FXML private TableColumn colPeso;
-    @FXML private TableColumn colDimensiones; 
+    @FXML private TableColumn<Paquete, String> colDescripcion;
+    @FXML private TableColumn<Paquete, Float> colPeso;
+    @FXML private TableColumn<Paquete, String> colDimensiones; 
 
     private Envio envioSeleccionado;
     private ObservableList<Paquete> listaPaquetes;
@@ -52,16 +50,12 @@ public class FXMLDetalleEnvioController implements Initializable {
         configurarTabla();
     }
     
-    
     private void configurarTabla() {
         listaPaquetes = FXCollections.observableArrayList();
         
-       
-        colDescripcion.setCellValueFactory(new PropertyValueFactory("descripcion"));
-       
-        colPeso.setCellValueFactory(new PropertyValueFactory("peso"));
-       
-        colDimensiones.setCellValueFactory(new PropertyValueFactory("dimensiones"));      
+        colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
+        colPeso.setCellValueFactory(new PropertyValueFactory<>("peso"));
+        colDimensiones.setCellValueFactory(new PropertyValueFactory<>("dimensiones"));      
     }
 
     public void inicializarEnvio(Envio envio) {
@@ -69,8 +63,6 @@ public class FXMLDetalleEnvioController implements Initializable {
         if(envio != null){
             cargarDatosGenerales();
             cargarPaquetes();
-            
-            actualizarDatosEnvio();
         }
     }
 
@@ -78,7 +70,7 @@ public class FXMLDetalleEnvioController implements Initializable {
         lbGuia.setText(envioSeleccionado.getNumeroGuia());
         lbClienteDestino.setText(envioSeleccionado.getNombreCliente() + " -> " + envioSeleccionado.getNombreDestinatario());
         lbDestino.setText(envioSeleccionado.getCalleDestino() + ", " + envioSeleccionado.getNumeroDestino() + " (CP: " + envioSeleccionado.getCodigoPostalDestino() + ")");
-        lbCostoTotal.setText("$ " + envioSeleccionado.getCosto());
+        lbCostoTotal.setText("$ " + String.format("%.2f", envioSeleccionado.getCosto()));
     }
 
     private void cargarPaquetes() {
@@ -95,51 +87,78 @@ public class FXMLDetalleEnvioController implements Initializable {
     @FXML
     private void clicAgregarPaquete(ActionEvent event) {
         if(validarCamposPaquete()){
-            Paquete p = new Paquete();
-            p.setIdEnvio(envioSeleccionado.getIdEnvio());
-            p.setDescripcion(tfDescripcion.getText());
-            
             try {
-                p.setPeso(Float.parseFloat(tfPeso.getText()));
-                p.setAlto(Float.parseFloat(tfAlto.getText()));
-                p.setAncho(Float.parseFloat(tfAncho.getText()));
-                p.setProfundidad(Float.parseFloat(tfProfundidad.getText()));
+                float peso = Float.parseFloat(tfPeso.getText().trim());
+                float alto = Float.parseFloat(tfAlto.getText().trim());
+                float ancho = Float.parseFloat(tfAncho.getText().trim());
+                float profundidad = Float.parseFloat(tfProfundidad.getText().trim());
                 
-                Respuesta resp = PaqueteImp.registrar(p);
-                
-                if(!resp.isError()){
-                    Utilidades.mostrarAlertaSimple("Éxito", "Paquete agregado.", Alert.AlertType.INFORMATION);
-                    limpiarFormularioPaquete();
-                    
-                    cargarPaquetes();
-                    actualizarDatosEnvio(); 
-                    
-                    
-                } else {
-                    Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
+                if (peso <= 0 || alto <= 0 || ancho <= 0 || profundidad <= 0) {
+                    Utilidades.mostrarAlertaSimple("Valores inválidos", "Todos los valores deben ser mayores a 0.", Alert.AlertType.WARNING);
+                    return;
                 }
                 
+                Paquete p = new Paquete();
+                p.setIdEnvio(envioSeleccionado.getIdEnvio());
+                p.setDescripcion(tfDescripcion.getText().trim());
+                p.setPeso(peso);
+                p.setAlto(alto);
+                p.setAncho(ancho);
+                p.setProfundidad(profundidad);
+                
+                // Ejecutar en segundo plano para evitar congelamiento
+                new Thread(() -> {
+                    try {
+                        // USAR EL NUEVO MÉTODO QUE ACTUALIZA EL COSTO
+                        Respuesta resp = PaqueteImp.agregarPaquete(p);
+                        
+                        javafx.application.Platform.runLater(() -> {
+                            if(!resp.isError()){
+                                limpiarFormularioPaquete();
+                                // Recargar datos completos del envío
+                                recargarDatosCompletos();
+                                Utilidades.mostrarAlertaSimple("Éxito", "Paquete agregado y costo actualizado.", Alert.AlertType.INFORMATION);
+                            } else {
+                                Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
+                            }
+                        });
+                        
+                    } catch (Exception ex) {
+                        javafx.application.Platform.runLater(() -> {
+                            Utilidades.mostrarAlertaSimple("Error", "Error al procesar el paquete.", Alert.AlertType.ERROR);
+                        });
+                    }
+                }).start();
+                
             } catch(NumberFormatException ex){
-                Utilidades.mostrarAlertaSimple("Datos inválidos", "Peso y dimensiones deben ser números.", Alert.AlertType.WARNING);
+                Utilidades.mostrarAlertaSimple("Datos inválidos", "Peso y dimensiones deben ser números válidos.", Alert.AlertType.WARNING);
             }
         }
     }
     
-    
-    private void actualizarDatosEnvio() {
-        Envio envioActualizado = EnvioImp.buscarPorGuia(envioSeleccionado.getNumeroGuia());
-        
-        if (envioActualizado != null) {
-            this.envioSeleccionado = envioActualizado; 
-            
-            
-            lbCostoTotal.setText("$ " + envioActualizado.getCosto());
-        }
+    private void recargarDatosCompletos() {
+        new Thread(() -> {
+            try {
+                Envio envioActualizado = EnvioImp.obtenerPorId(envioSeleccionado.getIdEnvio());
+                if (envioActualizado != null) {
+                    javafx.application.Platform.runLater(() -> {
+                        this.envioSeleccionado = envioActualizado;
+                        cargarDatosGenerales();
+                        cargarPaquetes();
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private boolean validarCamposPaquete() {
-        if(tfDescripcion.getText().isEmpty() || tfPeso.getText().isEmpty() || 
-           tfAlto.getText().isEmpty() || tfAncho.getText().isEmpty() || tfProfundidad.getText().isEmpty()){
+        if(tfDescripcion.getText().trim().isEmpty() || 
+           tfPeso.getText().trim().isEmpty() || 
+           tfAlto.getText().trim().isEmpty() || 
+           tfAncho.getText().trim().isEmpty() || 
+           tfProfundidad.getText().trim().isEmpty()){
             Utilidades.mostrarAlertaSimple("Campos vacíos", "Llena todos los datos del paquete.", Alert.AlertType.WARNING);
             return false;
         }
@@ -156,12 +175,13 @@ public class FXMLDetalleEnvioController implements Initializable {
     
     @FXML
     private void clicGuardarCostoTotal(ActionEvent event) {
-        
+        // El botón guardar solo cierra la ventana (los paquetes ya se guardan al agregarlos)
+        Utilidades.mostrarAlertaSimple("Información", "Los paquetes ya se guardaron automáticamente al agregarlos.", Alert.AlertType.INFORMATION);
+        clicRegresar(event);
     }
 
     @FXML
     private void clicRegresar(ActionEvent event) {
         ((Stage) lbGuia.getScene().getWindow()).close();
     }
-
-    }
+}
