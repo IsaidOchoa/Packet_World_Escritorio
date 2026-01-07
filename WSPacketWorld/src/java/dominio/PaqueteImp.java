@@ -1,66 +1,41 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dominio;
 
 import dto.Respuesta;
 import java.util.List;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
-import pojo.Envio;
 import pojo.Paquete;
-import pojo.Sucursal;
-import utilidades.CalculadoraEnvios;
 
-/**
- *
- * @author pepeg
- */
 public class PaqueteImp {
 
-   public static Respuesta registrar(Paquete paquete) {
-    Respuesta respuesta = new Respuesta();
-    respuesta.setError(true);
-    
-    SqlSession conexion = MyBatisUtil.getSession();
-    boolean registroExitoso = false; 
+    public static Respuesta registrar(Paquete paquete) {
+        Respuesta respuesta = new Respuesta();
+        respuesta.setError(true);
+        
+        SqlSession conexion = MyBatisUtil.getSession();
 
-    if (conexion != null) {
-        try {
-            int filasAfectadas = conexion.insert("paquete.registrar", paquete);
-            conexion.commit();
-            
-            if (filasAfectadas > 0) {
-                respuesta.setError(false);
-                respuesta.setMensaje("Paquete registrado correctamente.");
-                registroExitoso = true;
-            } else {
-                respuesta.setMensaje("No se pudo registrar el paquete.");
+        if (conexion != null) {
+            try {
+                int filasAfectadas = conexion.insert("paquete.registrar", paquete);
+                conexion.commit();
+                
+                if (filasAfectadas > 0) {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Paquete registrado correctamente.");
+                } else {
+                    respuesta.setMensaje("No se pudo registrar el paquete.");
+                }
+            } catch (Exception e) {
+                respuesta.setMensaje("Error BD: " + e.getMessage());
+            } finally {
+                conexion.close();
             }
-        } catch (Exception e) {
-            respuesta.setMensaje("Error BD: " + e.getMessage());
-        } finally {
-            // 1. Cerramos la conexión AQUÍ para liberar el recurso
-            conexion.close();
+        } else {
+            respuesta.setMensaje("Error de conexión BD.");
         }
-    } else {
-        respuesta.setMensaje("Error de conexión BD.");
+        
+        return respuesta;
     }
-    
-    // 2. Llamamos a recalcular AFUERA del bloque try/finally anterior
-    if (registroExitoso && paquete.getIdEnvio() != null) {
-        try {
-            EnvioImp.recalcularCosto(paquete.getIdEnvio());
-        } catch(Exception ex) {
-            System.err.println("Error invocando recalcularCosto: " + ex.getMessage());
-        }
-    }
-    
-    return respuesta;
-}
-
 
     public static List<Paquete> obtenerPorEnvio(int idEnvio) {
         List<Paquete> lista = null;
@@ -106,6 +81,7 @@ public class PaqueteImp {
         
         return respuesta;
     }
+    
     public static Respuesta eliminar(int idPaquete) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexion = MyBatisUtil.getSession();
@@ -135,5 +111,21 @@ public class PaqueteImp {
         
         return respuesta;
     }
+    
+    // Nuevo método para contar paquetes por envío
+    public static Integer contarPorEnvio(int idEnvio) {
+        Integer cantidad = null;
+        SqlSession conexion = MyBatisUtil.getSession();
+        
+        if (conexion != null) {
+            try {
+                cantidad = conexion.selectOne("paquete.contarPorEnvio", idEnvio);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexion.close();
+            }
+        }
+        return cantidad;
+    }
 }
-

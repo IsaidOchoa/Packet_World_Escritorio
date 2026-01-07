@@ -115,52 +115,6 @@ public class EnvioImp {
         return historial;
     }
 
-    
-    
-    public static void recalcularCosto(int idEnvio) {
-    SqlSession conn = MyBatisUtil.getSession();
-    if (conn != null) {
-        try {
-            Envio envio = conn.selectOne("envio.obtenerPorId", idEnvio);
-            if (envio != null) {
-        Sucursal suc = conn.selectOne("sucursal.obtenerPorId", envio.getIdSucursalOrigen());
-        String cpOrigen = (suc != null) ? suc.getCodigoPostal() : null;
-        String cpDestino = envio.getCodigoPostalDestino();
-        
-        List<Paquete> paquetes = conn.selectList("paquete.obtenerPorEnvio", idEnvio);
-        int cantidad = (paquetes != null) ? paquetes.size() : 0;
-
-        // VERIFICACIÓN IMPORTANTE
-        if (cpOrigen != null && cpDestino != null && !cpOrigen.isEmpty() && !cpDestino.isEmpty()) {
-            Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, cpDestino);
-            
-            if (distancia == null) {
-                System.err.println(">> ADVERTENCIA: Distancia NULL. Usando 0.0 para cobrar paquetes.");
-                distancia = 0.0; 
-            }
-
-            float nuevoCosto = CalculadoraEnvios.calcularCosto(distancia, cantidad);
-            envio.setCosto(nuevoCosto);
-            conn.update("envio.editar", envio); 
-            conn.commit();
-            System.out.println(">> Costo actualizado a: $" + nuevoCosto);
-
-        } else {
-            // AGREGA ESTO: Si entra aquí, es la razón por la que no actualiza el costo
-            System.err.println(">> ERROR LOGICO: No se puede cotizar. Faltan códigos postales.");
-            System.err.println(">> Origen: " + cpOrigen + " | Destino: " + cpDestino);
-        }
-    }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            conn.close();
-        }
-    }
-
-    
-    }
     public static String cotizarEnvio(Envio envio) {
         try {
             if (envio.getIdSucursalOrigen() <= 0) return "Sucursal de origen no válida.";
@@ -168,34 +122,40 @@ public class EnvioImp {
                 return "Falta el Código Postal destino.";
 
             Sucursal sucursal = SucursalImp.obtenerSucursal(envio.getIdSucursalOrigen());
-            
+
             if (sucursal == null) return "La sucursal de origen no existe.";
             String cpOrigen = sucursal.getCodigoPostal();
-            
+
             if (cpOrigen == null || cpOrigen.isEmpty()) 
                 return "La sucursal origen no tiene configurado un Código Postal.";
 
             Double distancia = CalculadoraEnvios.obtenerDistancia(cpOrigen, envio.getCodigoPostalDestino());
 
             if (distancia == null) {
-                return "No se pudo calcular la distancia. Verifique los Códigos Postales (" + 
-                       cpOrigen + " -> " + envio.getCodigoPostalDestino() + ") o la conexión a internet.";
+                return "No se puede procesar el envío: La API de cálculo de distancia no reconoce los códigos postales ingresados.\n\n" +
+                       "Códigos postales no compatibles:\n" +
+                       "• Origen: " + cpOrigen + "\n" +
+                       "• Destino: " + envio.getCodigoPostalDestino() + "\n\n" +
+                       "Para registrar envíos, usa códigos postales compatibles con la API:\n" +
+                       "• CP Origen de prueba: 91020\n" +
+                       "• CP Destino de prueba: 01089, 11000, 44100, 72000\n\n" +
+                       "El cálculo de costo es obligatorio para procesar envíos.";
             }
-            int numPaquetes = (envio.getPaquetes() != null) ? envio.getPaquetes().size() : 0;
-            
-            float costoTotal = CalculadoraEnvios.calcularCosto(distancia, numPaquetes);
-            
-            envio.setCosto(costoTotal);
+
+            // Calcular SOLO el costo base (sin paquetes)
+            float costoBase = CalculadoraEnvios.calcularCosto(distancia, 0);
+            envio.setCostoBase(costoBase);
+            envio.setCosto(costoBase);
+            envio.setCantidadPaquetes(0);
             
             return null; 
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return "Error al cotizar envío: " + e.getMessage();
         }
     }
     
-
     public static List<Envio> obtenerTodos() {
         List<Envio> lista = null;
         SqlSession conexion = MyBatisUtil.getSession();
@@ -282,7 +242,7 @@ public class EnvioImp {
             Map<String, Object> historial = new HashMap<>();
             historial.put("idEnvio", envio.getIdEnvio());
             historial.put("idEstadoEnvio", envio.getIdEstadoActual());
-            historial.put("comentario", comentario); // ahora sí
+            historial.put("comentario", comentario);
             historial.put("idColaborador", idColaborador);
 
             conexion.insert("historialEnvio.registrar", historial);
@@ -373,7 +333,6 @@ public class EnvioImp {
         conexion.insert("historialEnvio.registrar", params);
     }
 
-    
     public static List<Envio> obtenerPorConductor(int idConductor) {
         List<Envio> lista = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
@@ -387,5 +346,68 @@ public class EnvioImp {
             }
         }
         return lista;
+    }
+    
+    // Metodo para agregar paquete y actualizar costo
+    public static Respuesta agregarPaquete(Paquete paquete) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexion = MyBatisUtil.getSession();
+
+        if (conexion != null) {
+            try {
+                // 1. Guardar el paquete
+                conexion.insert("paquete.registrar", paquete);
+
+                // 2. Actualizar cantidad de paquetes y recalcular costo
+                actualizarCantidadYCosto(conexion, paquete.getIdEnvio());
+
+                conexion.commit();
+                respuesta.setError(false);
+                respuesta.setMensaje("Paquete agregado correctamente.");
+
+            } catch (Exception e) {
+                conexion.rollback();
+                respuesta.setError(true);
+                respuesta.setMensaje("Error al agregar paquete: " + e.getMessage());
+            } finally {
+                conexion.close();
+            }
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión a la base de datos.");
+        }
+        return respuesta;
+    }
+
+    // Metodo auxiliar para actualizar cantidad y costo
+    private static void actualizarCantidadYCosto(SqlSession conexion, int idEnvio) {
+        Envio envio = conexion.selectOne("envio.obtenerPorId", idEnvio);
+        if (envio != null) {
+            Integer cantidad = conexion.selectOne("paquete.contarPorEnvio", idEnvio);
+            if (cantidad == null) cantidad = 0;
+
+            float costoExtra = 0.00f;
+            if (cantidad >= 2) {
+                if (cantidad == 2) costoExtra = 50.00f;
+                else if (cantidad == 3) costoExtra = 80.00f;
+                else if (cantidad == 4) costoExtra = 110.00f;
+                else costoExtra = 150.00f;
+            }
+
+            float costoTotal = (float)(envio.getCostoBase() + costoExtra);
+
+            // Usar el nuevo método que solo actualiza los campos necesarios
+            actualizarCostoYCantidad(conexion, idEnvio, costoTotal, cantidad, envio.getCostoBase());
+        }
+    }
+    // Metodo auxiliar para actualizar SOLO costo y cantidad
+    private static void actualizarCostoYCantidad(SqlSession conexion, int idEnvio, float costoTotal, int cantidadPaquetes, double costoBase) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("idEnvio", idEnvio);
+        params.put("costo", costoTotal);
+        params.put("costoBase", costoBase);
+        params.put("cantidadPaquetes", cantidadPaquetes);
+
+        conexion.update("envio.actualizarCostoYCantidad", params);
     }
 }

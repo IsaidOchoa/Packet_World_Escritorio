@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import pojo.Colaborador;
 import pojo.Envio;
 import pojo.HistorialEnvio;
+import pojo.Paquete;
 
 @Path("envio")
 public class EnvioWS {
@@ -105,13 +106,14 @@ public class EnvioWS {
     public List<Envio> obtenerTodos() {
         return EnvioImp.obtenerTodos();
     }
+    
     @GET
-@Path("{idEnvio}") // La URL será: .../api/envio/15
-@Produces(MediaType.APPLICATION_JSON)
-public Envio obtenerPorId(@PathParam("idEnvio") Integer idEnvio) {
-    // Llama a tu implementación de base de datos
-    return EnvioImp.obtenerPorId(idEnvio);
-}
+    @Path("{idEnvio}") // La URL será: .../api/envio/15
+    @Produces(MediaType.APPLICATION_JSON)
+    public Envio obtenerPorId(@PathParam("idEnvio") Integer idEnvio) {
+        // Llama a tu implementación de base de datos
+        return EnvioImp.obtenerPorId(idEnvio);
+    }
 
     @PUT
     @Path("actualizar-estatus")
@@ -159,6 +161,26 @@ public Envio obtenerPorId(@PathParam("idEnvio") Integer idEnvio) {
             return EnvioImp.actualizarEstatusMovil(idEnvioD.intValue(), idEstadoActualD.intValue(), comentario, idColaboradorD.intValue());
         } catch (Exception e) {
             return new Respuesta(true, "Error: " + e.getMessage());
+        }
+    }
+    
+    @POST
+    @Path("agregar-paquete")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta agregarPaquete(String json) {
+        Gson gson = new Gson();
+        try {
+            Paquete paquete = gson.fromJson(json, Paquete.class);
+
+            if (paquete.getIdEnvio() == null || paquete.getIdEnvio() <= 0) {
+                return new Respuesta(true, "ID de envío inválido.");
+            }
+
+            return EnvioImp.agregarPaquete(paquete);
+
+        } catch (Exception e) {
+            return new Respuesta(true, "Error al procesar paquete: " + e.getMessage());
         }
     }
 }
