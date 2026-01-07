@@ -1,17 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pojo;
 
-/**
- *
- * @author pepeg
- */
 public class Colaborador {
 
-    private int idColaborador;
+    private Integer idColaborador;
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;
@@ -52,11 +43,11 @@ public class Colaborador {
         this.fotoBase64 = fotoBase64;
     }
 
-    public int getIdColaborador() {
+    public Integer getIdColaborador() {
         return idColaborador;
     }
 
-    public void setIdColaborador(int idColaborador) {
+    public void setIdColaborador(Integer idColaborador) {
         this.idColaborador = idColaborador;
     }
 

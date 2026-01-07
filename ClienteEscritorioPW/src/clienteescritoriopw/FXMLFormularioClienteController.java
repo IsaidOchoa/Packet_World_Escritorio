@@ -12,6 +12,7 @@ import clienteescritoriopw.utilidad.Utilidades;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -43,11 +45,16 @@ public class FXMLFormularioClienteController implements Initializable {
     private ObservableList<Estado> listaEstados;
     private ObservableList<Municipio> listaMunicipios;
     private ObservableList<Colonia> listaColonias;
+    
+    // Patrón para validar correo electrónico
+    private static final Pattern EMAIL_PATTERN = 
+        Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         inicializarListas();
         configurarListeners();
+        configurarValidaciones(); // 👈 NUEVO: Configurar validaciones
         cargarEstados();
     }
     
@@ -81,8 +88,65 @@ public class FXMLFormularioClienteController implements Initializable {
         });
     }
 
+    // 👇 NUEVO: Configuración de validaciones en tiempo real
+    private void configurarValidaciones() {
+        // Nombre, Apellidos: solo letras, máximo 30
+        configurarTextFieldLetras(tfNombre, 30);
+        configurarTextFieldLetras(tfPaterno, 30);
+        configurarTextFieldLetras(tfMaterno, 30);
+        
+        // Teléfono: solo números, máximo 10
+        configurarTextFieldConCaracteres(tfTelefono, 10, "[0-9]");
+        
+        // Correo: máximo 30 caracteres (validación de formato al guardar)
+        configurarTextFieldLongitudMaxima(tfCorreo, 30);
+        
+        // Calle: alfanuméricos + espacios + acentos, máximo 50
+        configurarTextFieldConCaracteres(tfCalle, 50, "[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s]");
+        
+        // Número: alfanuméricos + guión, máximo 10
+        configurarTextFieldConCaracteres(tfNumero, 10, "[a-zA-Z0-9-]");
+        
+        // Código Postal: solo números, máximo 5
+        configurarTextFieldConCaracteres(tfCodigoPostal, 5, "[0-9]");
+    }
+    
+    // 👇 MÉTODOS AUXILIARES PARA VALIDACIONES
+    private void configurarTextFieldLetras(TextField field, int maxLength) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+        field.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]")) {
+                event.consume();
+            }
+        });
+    }
+    
+    private void configurarTextFieldConCaracteres(TextField field, int maxLength, String regex) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+        field.setOnKeyTyped(event -> {
+            if (!event.getCharacter().matches(regex)) {
+                event.consume();
+            }
+        });
+    }
+    
+    private void configurarTextFieldLongitudMaxima(TextField field, int maxLength) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                field.setText(oldValue);
+            }
+        });
+    }
+
     private void configurarListeners() {
-        // Cuando cambia ESTADO -> Cargar Municipios
         cbEstado.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 cargarMunicipios(nuevo.getIdEstado());
@@ -95,7 +159,6 @@ public class FXMLFormularioClienteController implements Initializable {
             tfCodigoPostal.clear();
         });
 
-        // Cuando cambia MUNICIPIO -> Cargar Colonias
         cbMunicipio.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 cargarColonias(nuevo.getIdMunicipio());
@@ -106,7 +169,6 @@ public class FXMLFormularioClienteController implements Initializable {
             }
         });
 
-        // Cuando cambia COLONIA -> Poner CP Automático
         cbColonia.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 tfCodigoPostal.setText(String.valueOf(nuevo.getCodigoPostal()));
@@ -115,9 +177,9 @@ public class FXMLFormularioClienteController implements Initializable {
             }
         });
     }
+    
     @FXML 
     private void clicBuscarCP(ActionEvent event) {
-       
         String cp = tfCodigoPostal.getText().trim();
         if(cp.isEmpty() || cp.length() != 5){
             Utilidades.mostrarAlertaSimple("CP Inválido", "Ingresa un CP de 5 dígitos.", Alert.AlertType.WARNING);
@@ -126,29 +188,23 @@ public class FXMLFormularioClienteController implements Initializable {
 
         List<Colonia> coloniasEncontradas = DireccionImp.buscarPorCP(cp);        
         if(coloniasEncontradas != null && !coloniasEncontradas.isEmpty()){
-            // Tomamos la primera colonia para saber Estado y Municipio
             Colonia primerResultado = coloniasEncontradas.get(0);
             
-            // Verificamos que traiga el ID del Estado (gracias a tu Mapper)
             if(primerResultado.getIdEstado() != null && primerResultado.getIdEstado() > 0){
-                // Buscamos en el combo el estado que coincida con el ID
                 for(Estado e : cbEstado.getItems()){
                     if(e.getIdEstado().equals(primerResultado.getIdEstado())){
                         cbEstado.getSelectionModel().select(e);
                         break;
                     }
                 }
-                // Al seleccionar Estado, se cargan los municipios. Buscamos el correcto.
                 for(Municipio m : cbMunicipio.getItems()){
                     if(m.getIdMunicipio().equals(primerResultado.getIdMunicipio())){
                         cbMunicipio.getSelectionModel().select(m);
                         break;
                     }
                 }
-                //  Llenar Combo de Colonias solo con las del CP
                 cbColonia.getItems().clear();
                 cbColonia.getItems().addAll(coloniasEncontradas);
-                // Seleccionar la primera por defecto
                 cbColonia.getSelectionModel().select(0);
             }
         } else {
@@ -193,32 +249,23 @@ public class FXMLFormularioClienteController implements Initializable {
         tfCalle.setText(cliente.getCalle());
         tfNumero.setText(cliente.getNumero());
         
-        
-       if(cliente.getCodigoPostal() > 0){
-             
-             tfCodigoPostal.setText(String.valueOf(cliente.getCodigoPostal()));
-             
-             
-             clicBuscarCP(null); 
-             
-             if(cliente.getIdColonia() > 0){
-               
-                 for(Colonia c : cbColonia.getItems()){
-                     
-                     if(c.getIdColonia().equals(cliente.getIdColonia())){
-                         cbColonia.getSelectionModel().select(c);
-                         break;
-                     }
-                 }
-             }
-
+        if(cliente.getCodigoPostal() > 0){
+            tfCodigoPostal.setText(String.valueOf(cliente.getCodigoPostal()));
+            clicBuscarCP(null); 
+            if(cliente.getIdColonia() > 0){
+                for(Colonia c : cbColonia.getItems()){
+                    if(c.getIdColonia().equals(cliente.getIdColonia())){
+                        cbColonia.getSelectionModel().select(c);
+                        break;
+                    }
+                }
+            }
         }
     }
 
     @FXML
     private void clicGuardar(ActionEvent event) {
-        if(validarCamposVacios()){
-            Utilidades.mostrarAlertaSimple("Faltan datos", "Por favor llena todos los campos.", Alert.AlertType.WARNING);
+        if (!validarCampos()) {
             return;
         }
 
@@ -234,7 +281,11 @@ public class FXMLFormularioClienteController implements Initializable {
         Colonia col = cbColonia.getValue();
         if(col != null) cliente.setIdColonia(col.getIdColonia());
         
-        try { cliente.setCodigoPostal(Integer.parseInt(tfCodigoPostal.getText())); } catch(Exception e){}
+        try { 
+            cliente.setCodigoPostal(Integer.parseInt(tfCodigoPostal.getText())); 
+        } catch(Exception e) {
+            // El CP ya fue validado, esto no debería ocurrir
+        }
 
         if(clienteEdicion == null){
             procesarRespuesta(ClienteImp.registrar(cliente), "registrado");
@@ -242,6 +293,80 @@ public class FXMLFormularioClienteController implements Initializable {
             cliente.setIdCliente(clienteEdicion.getIdCliente());
             procesarRespuesta(ClienteImp.editar(cliente), "actualizado");
         }
+    }
+    
+    private boolean validarCampos() {
+        StringBuilder errores = new StringBuilder();
+        
+        // Validaciones básicas
+        if (tfNombre.getText().trim().isEmpty()) errores.append("- Nombre\n");
+        if (tfPaterno.getText().trim().isEmpty()) errores.append("- Apellido Paterno\n");
+        if (cbColonia.getValue() == null) errores.append("- Colonia\n");
+        if (tfCalle.getText().trim().isEmpty()) errores.append("- Calle\n");
+        if (tfNumero.getText().trim().isEmpty()) errores.append("- Número\n");
+        if (tfTelefono.getText().trim().isEmpty()) errores.append("- Teléfono\n");
+        if (tfCorreo.getText().trim().isEmpty()) errores.append("- Correo\n");
+        
+        // Validaciones específicas
+        // Validación de correo duplicado (solo en modo creación)
+        if (clienteEdicion == null) {
+            String correo = tfCorreo.getText().trim();
+            if (!correo.isEmpty() && ClienteImp.existePorCorreo(correo)) {
+                errores.append("- Ya existe un cliente con este correo electrónico\n");
+            }
+        }
+        
+        String nombre = tfNombre.getText().trim();
+        if (!nombre.isEmpty() && (nombre.length() > 30 || !nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+"))) {
+            errores.append("- Nombre: máximo 30 caracteres, solo letras\n");
+        }
+        
+        String paterno = tfPaterno.getText().trim();
+        if (!paterno.isEmpty() && (paterno.length() > 30 || !paterno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+"))) {
+            errores.append("- Apellido Paterno: máximo 30 caracteres, solo letras\n");
+        }
+        
+        String materno = tfMaterno.getText().trim();
+        if (!materno.isEmpty() && !materno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]*")) {
+            if (materno.length() > 30 || !materno.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+                errores.append("- Apellido Materno: máximo 30 caracteres, solo letras\n");
+            }
+        }
+        
+        String telefono = tfTelefono.getText().trim();
+        if (!telefono.isEmpty() && (telefono.length() != 10 || !telefono.matches("[0-9]{10}"))) {
+            errores.append("- Teléfono: debe tener exactamente 10 dígitos\n");
+        }
+        
+        String correo = tfCorreo.getText().trim();
+        if (!correo.isEmpty()) {
+            if (correo.length() > 30) {
+                errores.append("- Correo: máximo 30 caracteres\n");
+            } else if (!EMAIL_PATTERN.matcher(correo).matches()) {
+                errores.append("- Correo: formato de correo electrónico inválido\n");
+            }
+        }
+        
+        String calle = tfCalle.getText().trim();
+        if (!calle.isEmpty() && calle.length() > 50) {
+            errores.append("- Calle: máximo 50 caracteres\n");
+        }
+        
+        String numero = tfNumero.getText().trim();
+        if (!numero.isEmpty() && (numero.length() > 10 || !numero.matches("[a-zA-Z0-9-]+"))) {
+            errores.append("- Número: máximo 10 caracteres, alfanuméricos y guión\n");
+        }
+        
+        String cp = tfCodigoPostal.getText().trim();
+        if (cp.isEmpty() || cp.length() != 5 || !cp.matches("[0-9]{5}")) {
+            errores.append("- Código Postal: debe tener 5 dígitos\n");
+        }
+        
+        if (errores.length() > 0) {
+            Utilidades.mostrarAlertaSimple("Campos inválidos", "Corrige:\n" + errores.toString(), Alert.AlertType.WARNING);
+            return false;
+        }
+        return true;
     }
     
     private void procesarRespuesta(Respuesta resp, String accion){
@@ -255,9 +380,5 @@ public class FXMLFormularioClienteController implements Initializable {
 
     @FXML private void clicCancelar(ActionEvent event) {
         ((Stage)tfNombre.getScene().getWindow()).close();
-    }
-
-    private boolean validarCamposVacios(){
-        return tfNombre.getText().isEmpty() || cbColonia.getValue() == null;
     }
 }

@@ -4,6 +4,7 @@ import clienteescritoriopw.conexion.ConexionAPI;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.RespuestaHTTP;
+import clienteescritoriopw.pojo.ValidacionDuplicadoColaborador;
 import clienteescritoriopw.utilidad.Constantes;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -117,8 +118,6 @@ public class ColaboradorImp {
     }
     
     public static List<Colaborador> obtenerColaboradoresPorSucursal(int idSucursal) {
-        // Aquí debes hacer una llamada al backend REST
-        // Suponiendo que ya tienes un método para hacer peticiones
         String url = Constantes.URL_WS + "colaborador/por-sucursal/" + idSucursal;
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
 
@@ -144,5 +143,22 @@ public class ColaboradorImp {
             msj.setMensaje("Error al eliminar: " + respuesta.getCodigo());
         }
         return msj;
+    }
+    
+    // Agrega este método en la clase ColaboradorImp
+    public static Respuesta validarDuplicadosColaborador(ValidacionDuplicadoColaborador datos) {
+        String url = Constantes.URL_WS + "colaborador/validar-duplicados";
+        Gson gson = new Gson();
+        String json = gson.toJson(datos);
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "POST", json, "application/json");
+
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            return gson.fromJson(respuesta.getContenido(), Respuesta.class);
+        } else {
+            Respuesta error = new Respuesta();
+            error.setError(true);
+            error.setMensaje("Error de conexión al validar duplicados.");
+            return error;
+        }
     }
 }

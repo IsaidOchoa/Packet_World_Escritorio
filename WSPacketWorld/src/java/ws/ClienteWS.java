@@ -3,6 +3,7 @@ package ws;
 import com.google.gson.Gson;
 import dominio.ClienteImp;
 import dto.Respuesta;
+import dto.ValidacionDuplicadoCliente;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -12,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import pojo.Cliente;
 
@@ -85,4 +87,23 @@ public class ClienteWS {
     public List<Cliente> buscar(@PathParam("filtro") String filtro) { 
         return ClienteImp.buscar(filtro); 
     }
+    
+    @Path("validar-duplicados")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta validarDuplicadosCliente(String json) {
+        Gson gson = new Gson();
+        try {
+            ValidacionDuplicadoCliente datos = gson.fromJson(json, ValidacionDuplicadoCliente.class);
+            return ClienteImp.validarDuplicadosCliente(datos);
+        } catch (Exception e) {
+            Respuesta error = new Respuesta();
+            error.setError(true);
+            error.setMensaje("Error al procesar la validación: " + e.getMessage());
+            return error;
+        }
+    }
 }
+
+

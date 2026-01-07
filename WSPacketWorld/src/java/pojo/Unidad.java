@@ -8,7 +8,7 @@ package pojo;
 public class Unidad {
     
     
-    private int idUnidad;
+    private Integer idUnidad;
     private String marca;
     private String modelo;
     private int anio;
@@ -44,11 +44,11 @@ public class Unidad {
         this.nombreColaborador = nombreColaborador;
     }
 
-    public int getIdUnidad() {
+    public Integer getIdUnidad() {
         return idUnidad;
     }
 
-    public void setIdUnidad(int idUnidad) {
+    public void setIdUnidad(Integer idUnidad) {
         this.idUnidad = idUnidad;
     }
 

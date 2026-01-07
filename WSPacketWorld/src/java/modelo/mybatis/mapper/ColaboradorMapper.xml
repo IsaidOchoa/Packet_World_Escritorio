@@ -61,6 +61,18 @@
     <select id="buscarPorNoPersonal" resultType="pojo.Colaborador" parameterType="string">
         SELECT * FROM Colaborador WHERE numeroPersonal = #{numeroPersonal}
     </select>
+    
+    <select id="buscarPorCurp" resultType="pojo.Colaborador" parameterType="string">
+        SELECT idColaborador FROM Colaborador WHERE curp = #{curp}
+    </select>
+
+    <select id="buscarPorCorreo" resultType="pojo.Colaborador" parameterType="string">
+        SELECT idColaborador FROM Colaborador WHERE correo = #{correo}
+    </select>
+
+    <select id="buscarPorLicencia" resultType="pojo.Colaborador" parameterType="string">
+        SELECT idColaborador FROM Colaborador WHERE numeroLicencia = #{numeroLicencia}
+    </select>
 
     <select id="obtenerPorId" resultType="pojo.Colaborador" parameterType="int">
         SELECT 
@@ -111,5 +123,5 @@
         WHERE idConductor = #{idColaborador} 
         AND idEstadoActual IN (1, 2)  <!-- Evita la eliminacion si estado = En transito o Detenido -->
     </select>
-
+    
 </mapper>

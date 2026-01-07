@@ -44,15 +44,23 @@
         WHERE nombre LIKE #{filtro} OR apellidoPaterno LIKE #{filtro}
     </select>
     
-    <update id="editar" parameterType="pojo.Cliente">
-    UPDATE Cliente SET 
-        nombre=#{nombre}, apellidoPaterno=#{apellidoPaterno}, apellidoMaterno=#{apellidoMaterno},
-        correo=#{correo}, telefono=#{telefono}, idColonia=#{idColonia}, 
-        calle=#{calle}, numero=#{numero}
-    WHERE idCliente = #{idCliente}
-</update>
+    <select id="buscarPorCorreo" resultType="pojo.Cliente" parameterType="string">
+        SELECT idCliente FROM Cliente WHERE correo = #{correo}
+    </select>
 
-<delete id="eliminar" parameterType="int">
-    DELETE FROM Cliente WHERE idCliente = #{idCliente}
-</delete>
+    <select id="buscarPorTelefono" resultType="pojo.Cliente" parameterType="string">
+        SELECT idCliente FROM Cliente WHERE telefono = #{telefono}
+    </select>
+    
+    <update id="editar" parameterType="pojo.Cliente">
+        UPDATE Cliente SET 
+            nombre=#{nombre}, apellidoPaterno=#{apellidoPaterno}, apellidoMaterno=#{apellidoMaterno},
+            correo=#{correo}, telefono=#{telefono}, idColonia=#{idColonia}, 
+            calle=#{calle}, numero=#{numero}
+        WHERE idCliente = #{idCliente}
+    </update>
+
+    <delete id="eliminar" parameterType="int">
+        DELETE FROM Cliente WHERE idCliente = #{idCliente}
+    </delete>
 </mapper>

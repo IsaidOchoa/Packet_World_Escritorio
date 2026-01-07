@@ -65,5 +65,9 @@
         FROM unidad
         WHERE idColaborador = #{idColaborador}
     </select>
+    
+    <select id="buscarPorVin" resultType="pojo.Unidad" parameterType="string">
+        SELECT idUnidad FROM Unidad WHERE vin = #{vin}
+    </select>
 
 </mapper>

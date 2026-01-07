@@ -91,4 +91,24 @@ public class UnidadImp {
         }
         return respuesta;
     }
+    
+    public static boolean existeVinDuplicado(String vin, Integer idExcluir) {
+        try {
+            String url = Constantes.URL_WS + "unidad/validar-vin-duplicado?vin=" + 
+                         java.net.URLEncoder.encode(vin, "UTF-8");
+            if (idExcluir != null) {
+                url += "&idExcluir=" + idExcluir;
+            }
+
+            RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
+            if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+                Gson gson = new Gson();
+                Respuesta resp = gson.fromJson(respuesta.getContenido(), Respuesta.class);
+                return resp.isError(); // true si hay duplicado
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

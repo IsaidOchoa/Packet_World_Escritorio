@@ -1,6 +1,7 @@
 package dominio;
 
 import dto.Respuesta;
+import dto.ValidacionDuplicadoColaborador;
 import java.util.Base64;
 import java.util.List;
 import modelo.mybatis.MyBatisUtil;
@@ -53,6 +54,76 @@ public class ColaboradorImp {
         }
         return colaborador;
     }
+    
+    // Agrega este método en la clase ColaboradorImp
+    public static Respuesta validarDuplicadosColaborador(ValidacionDuplicadoColaborador datos) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexionBD = MyBatisUtil.getSession();
+
+        if (conexionBD != null) {
+            try {
+                StringBuilder errores = new StringBuilder();
+
+                // Verificar número de personal
+                if (datos.getNumeroPersonal() != null && !datos.getNumeroPersonal().isEmpty()) {
+                    Colaborador porNumero = conexionBD.selectOne("colaborador.buscarPorNoPersonal", datos.getNumeroPersonal());
+                    if (porNumero != null && 
+                        (datos.getIdColaboradorExcluir() == null || 
+                         !porNumero.getIdColaborador().equals(datos.getIdColaboradorExcluir()))) {
+                        errores.append("Ya existe un colaborador con este número de personal.\n");
+                    }
+                }
+
+                // Verificar CURP
+                if (datos.getCurp() != null && !datos.getCurp().isEmpty()) {
+                    Colaborador porCurp = conexionBD.selectOne("colaborador.buscarPorCurp", datos.getCurp());
+                    if (porCurp != null && 
+                        (datos.getIdColaboradorExcluir() == null || 
+                         !porCurp.getIdColaborador().equals(datos.getIdColaboradorExcluir()))) {
+                        errores.append("Ya existe un colaborador con esta CURP.\n");
+                    }
+                }
+
+                // Verificar correo
+                if (datos.getCorreo() != null && !datos.getCorreo().isEmpty()) {
+                    Colaborador porCorreo = conexionBD.selectOne("colaborador.buscarPorCorreo", datos.getCorreo());
+                    if (porCorreo != null && 
+                        (datos.getIdColaboradorExcluir() == null || 
+                         !porCorreo.getIdColaborador().equals(datos.getIdColaboradorExcluir()))) {
+                        errores.append("Ya existe un colaborador con este correo.\n");
+                    }
+                }
+
+                // Verificar licencia
+                if (datos.getNumeroLicencia() != null && !datos.getNumeroLicencia().isEmpty()) {
+                    Colaborador porLicencia = conexionBD.selectOne("colaborador.buscarPorLicencia", datos.getNumeroLicencia());
+                    if (porLicencia != null && 
+                        (datos.getIdColaboradorExcluir() == null || 
+                         !porLicencia.getIdColaborador().equals(datos.getIdColaboradorExcluir()))) {
+                        errores.append("Ya existe un colaborador con esta licencia.\n");
+                    }
+                }
+
+                if (errores.length() > 0) {
+                    respuesta.setError(true);
+                    respuesta.setMensaje(errores.toString().trim());
+                } else {
+                    respuesta.setError(false);
+                    respuesta.setMensaje("Validación exitosa.");
+                }
+
+            } catch (Exception e) {
+                respuesta.setError(true);
+                respuesta.setMensaje("Error en la validación: " + e.getMessage());
+            } finally {
+                conexionBD.close();
+            }
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión a la base de datos.");
+        }
+        return respuesta;
+    }
 
     public static Respuesta registrar(Colaborador colaborador) {
         Respuesta respuesta = new Respuesta();
@@ -65,7 +136,7 @@ public class ColaboradorImp {
                      byte[] fotoBytes = Base64.getDecoder().decode(colaborador.getFotoBase64());
                      colaborador.setFoto(fotoBytes);
                 }
-                
+
                 int filasAfectadas = conexionBD.insert("colaborador.registrar", colaborador);
                 conexionBD.commit();
 
@@ -77,8 +148,14 @@ public class ColaboradorImp {
                     respuesta.setMensaje("No se pudo registrar el colaborador.");
                 }
             } catch (Exception e) {
-                respuesta.setError(true);
-                respuesta.setMensaje("Error al registrar: " + e.getMessage());
+                // NUEVO: Verificar si es un error de duplicado
+                if (e instanceof java.sql.SQLIntegrityConstraintViolationException) {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("Ya existe un colaborador con ese número de personal.");
+                } else {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("Error al registrar: " + e.getMessage());
+                }
             } finally {
                 conexionBD.close();
             }
