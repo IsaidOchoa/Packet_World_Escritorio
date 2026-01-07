@@ -75,4 +75,17 @@ public class ClienteImp {
         }
         return msj;
     }
+    
+    public static boolean existePorCorreo(String correo) {
+        try {
+            String url = Constantes.URL_WS + "cliente/existe-correo?correo=" + 
+                         java.net.URLEncoder.encode(correo, "UTF-8");
+            RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
+            return respuesta.getCodigo() == HttpURLConnection.HTTP_OK && 
+                   "true".equals(respuesta.getContenido().trim());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

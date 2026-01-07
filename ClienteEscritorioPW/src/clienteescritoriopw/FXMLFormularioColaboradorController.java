@@ -7,6 +7,7 @@ import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Colaborador;
 import clienteescritoriopw.pojo.Rol;
 import clienteescritoriopw.pojo.Sucursal;
+import clienteescritoriopw.pojo.ValidacionDuplicadoColaborador;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +29,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import org.apache.ibatis.javassist.Loader;
 
 public class FXMLFormularioColaboradorController implements Initializable {
 
@@ -67,7 +66,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         configurarComboBoxes();
         cargarCatalogos();
-        configurarValidaciones(); // 👈 NUEVO: Configurar todas las validaciones
+        configurarValidaciones();
     }    
 
     private void configurarComboBoxes() {
@@ -343,6 +342,29 @@ public class FXMLFormularioColaboradorController implements Initializable {
         if (cbSucursal.getValue() == null) errores.append("- Sucursal\n");
         
         // Validaciones específicas
+
+        if (colaboradorEdicion == null || 
+            !tfNoPersonal.getText().trim().equals(colaboradorEdicion.getNumeroPersonal()) ||
+            !tfCurp.getText().trim().equals(colaboradorEdicion.getCurp()) ||
+            !tfCorreo.getText().trim().equals(colaboradorEdicion.getCorreo()) ||
+            !tfLicencia.getText().trim().equals(colaboradorEdicion.getNumeroLicencia())) {
+
+            ValidacionDuplicadoColaborador datos = new ValidacionDuplicadoColaborador();
+            datos.setNumeroPersonal(tfNoPersonal.getText().trim());
+            datos.setCurp(tfCurp.getText().trim());
+            datos.setCorreo(tfCorreo.getText().trim());
+            datos.setNumeroLicencia(tfLicencia.getText().trim());
+
+            if (colaboradorEdicion != null) {
+                datos.setIdColaboradorExcluir(colaboradorEdicion.getIdColaborador());
+            }
+
+            Respuesta validacion = ColaboradorImp.validarDuplicadosColaborador(datos);
+            if (validacion.isError()) {
+                errores.append(validacion.getMensaje()).append("\n");
+            }
+        }
+        
         String noPersonal = tfNoPersonal.getText().trim();
         if (!noPersonal.isEmpty()) {
             if (noPersonal.length() > 10 || !noPersonal.matches("[a-zA-Z0-9_-]+")) {

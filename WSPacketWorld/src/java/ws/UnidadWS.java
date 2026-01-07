@@ -13,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import pojo.Unidad;
 
@@ -126,5 +127,13 @@ public class UnidadWS {
             return null; // O podrías retornar una respuesta con error
         }
         return UnidadImp.buscarPorColaborador(idColaborador);
+    }
+    
+    @Path("validar-vin-duplicado")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Respuesta validarVinDuplicado(@QueryParam("vin") String vin, 
+                                        @QueryParam("idExcluir") Integer idExcluir) {
+        return UnidadImp.validarVinDuplicado(vin, idExcluir);
     }
 }

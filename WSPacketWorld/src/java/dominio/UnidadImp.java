@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dominio;
 
 import dto.Respuesta;
@@ -11,11 +6,6 @@ import java.util.List;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Unidad;
-
-/**
- *
- * @author pepeg
- */
 
 public class UnidadImp {
 
@@ -185,5 +175,35 @@ public class UnidadImp {
             }
         }
         return unidad;
+    }
+    
+    public static Respuesta validarVinDuplicado(String vin, Integer idExcluir) {
+        Respuesta respuesta = new Respuesta();
+        SqlSession conexionBD = MyBatisUtil.getSession();
+
+        if (conexionBD != null) {
+            try {
+                if (vin != null && !vin.isEmpty()) {
+                    Unidad existente = conexionBD.selectOne("unidad.buscarPorVin", vin);
+                    if (existente != null && 
+                        (idExcluir == null || !existente.getIdUnidad().equals(idExcluir))) {
+                        respuesta.setError(true);
+                        respuesta.setMensaje("Ya existe una unidad con este VIN.");
+                        return respuesta;
+                    }
+                }
+                respuesta.setError(false);
+                respuesta.setMensaje("Validación exitosa.");
+            } catch (Exception e) {
+                respuesta.setError(true);
+                respuesta.setMensaje("Error en la validación: " + e.getMessage());
+            } finally {
+                conexionBD.close();
+            }
+        } else {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error de conexión a la base de datos.");
+        }
+        return respuesta;
     }
 }

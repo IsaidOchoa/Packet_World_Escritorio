@@ -21,7 +21,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -76,7 +75,7 @@ public class FXMLFormularioUnidadController implements Initializable {
         });
     }
 
-    // 👇 CONFIGURACIÓN DE TODAS LAS VALIDACIONES
+    //CONFIGURACIÓN DE TODAS LAS VALIDACIONES
     private void configurarValidaciones() {
         // Validación para Marca: máximo 30 caracteres, solo alfanuméricos
         configurarTextFieldAlfanumerico(tfMarca, 30);
@@ -100,7 +99,7 @@ public class FXMLFormularioUnidadController implements Initializable {
         configurarTextFieldAlfanumerico(tfVin, 17);
     }
     
-    // 👇 MÉTODO AUXILIAR PARA VALIDACIONES COMUNES
+    //MÉTODO AUXILIAR PARA VALIDACIONES COMUNES
     private void configurarTextFieldAlfanumerico(TextField field, int maxLength) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > maxLength) {
@@ -210,6 +209,16 @@ public class FXMLFormularioUnidadController implements Initializable {
         if(cbSucursal.getValue() == null) msg.append("- Sucursal\n");
         
         // Validaciones adicionales
+        if (unidadEdicion == null || 
+        !tfVin.getText().trim().equals(unidadEdicion.getVin())) {
+
+        String vin = tfVin.getText().trim();
+        Integer idExcluir = unidadEdicion != null ? unidadEdicion.getIdUnidad() : null;
+
+        if (!vin.isEmpty() && UnidadImp.existeVinDuplicado(vin, idExcluir)) {
+            msg.append("- Ya existe una unidad con este VIN\n");
+        }
+    }
         if(!tfMarca.getText().isEmpty()) {
             String marca = tfMarca.getText().trim();
             if (marca.length() > 30 || !marca.matches("[a-zA-Z0-9]+")) {

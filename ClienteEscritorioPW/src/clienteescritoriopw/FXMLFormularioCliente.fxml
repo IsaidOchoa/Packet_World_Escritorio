@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioClienteController">
+<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioClienteController">
    <children>
       <Pane prefHeight="60.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -56,29 +56,28 @@
                </VBox.margin>
             </Label>
 
-            <HBox spacing="15.0" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
-                  <ComboBox fx:id="cbEstado" prefHeight="30.0" prefWidth="180.0" promptText="Selecciona Estado..." />
-                  <ComboBox fx:id="cbMunicipio" prefHeight="30.0" prefWidth="180.0" promptText="Selecciona Municipio..." />
-                  
-                  <Pane HBox.hgrow="ALWAYS" /> 
-                  
-                  <TextField fx:id="tfCodigoPostal" onAction="#clicBuscarCP" prefHeight="30.0" prefWidth="80.0" promptText="C.P." />
-                  <Button mnemonicParsing="false" onAction="#clicBuscarCP" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Button>
+                  <ComboBox fx:id="cbEstado" prefHeight="29.0" prefWidth="201.0" promptText="Estado" />
+                  <ComboBox fx:id="cbMunicipio" prefHeight="29.0" prefWidth="207.0" promptText="Municipio" />
+                  <ComboBox fx:id="cbColonia" prefHeight="30.0" prefWidth="200.0" promptText="Colonia" />
                </children>
             </HBox>
 
             <HBox spacing="15.0">
                <children>
-                  <ComboBox fx:id="cbColonia" prefHeight="30.0" prefWidth="250.0" promptText="Selecciona Colonia..." />
                   <TextField fx:id="tfCalle" prefHeight="30.0" promptText="Calle" HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="tfNumero" prefHeight="30.0" prefWidth="100.0" promptText="Número" />
+                  <TextField fx:id="tfNumero" prefHeight="30.0" prefWidth="100.0" promptText="Número" /> 
+                  
+                  <TextField fx:id="tfCodigoPostal" onAction="#clicBuscarCP" prefHeight="29.0" prefWidth="101.0" promptText="C.P." />
                </children>
             </HBox>
+            <Label text="Escribe el C.P. y preciona &quot;Buscar&quot; para autocompelar algunos los campos" />
+            <Button mnemonicParsing="false" onAction="#clicBuscarCP" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Button>
          </children>
       </VBox>
 
