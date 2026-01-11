@@ -112,7 +112,6 @@ public class PaqueteImp {
         return respuesta;
     }
     
-    // Nuevo método para contar paquetes por envío
     public static Integer contarPorEnvio(int idEnvio) {
         Integer cantidad = null;
         SqlSession conexion = MyBatisUtil.getSession();
@@ -127,5 +126,36 @@ public class PaqueteImp {
             }
         }
         return cantidad;
+    }
+    
+    public static List<Paquete> obtenerTodos() {
+        List<Paquete> lista = null;
+        SqlSession conexion = MyBatisUtil.getSession();
+        if (conexion != null) {
+            try {
+                lista = conexion.selectList("paquete.obtenerTodos");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexion.close();
+            }
+        }
+        return lista;
+    }
+    
+    public static Paquete obtenerPorId(int idPaquete) {
+        Paquete paquete = null;
+        SqlSession conexion = MyBatisUtil.getSession();
+
+        if (conexion != null) {
+            try {
+                paquete = conexion.selectOne("paquete.obtenerPorId", idPaquete);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexion.close();
+            }
+        }
+        return paquete;
     }
 }

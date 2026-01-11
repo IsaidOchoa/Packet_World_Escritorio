@@ -72,13 +72,29 @@ public class PaqueteWS {
     public Respuesta eliminar(@PathParam("idPaquete") int id) { 
         try {
             if(id > 0){
+                Paquete paquete = PaqueteImp.obtenerPorId(id);
+                if (paquete == null) {
+                    return new Respuesta(true, "Paquete no encontrado.");
+                }
+
                 Respuesta resp = PaqueteImp.eliminar(id);
-                
+
+                if (!resp.isError()) {
+                    EnvioImp.actualizarCantidadYCosto(paquete.getIdEnvio());
+                }
+
                 return resp;
             }
             return new Respuesta(true, "ID de paquete no válido.");
         } catch (Exception e) {
             return new Respuesta(true, "Error al eliminar paquete: " + e.getMessage());
         }
+    }
+    
+    @GET
+    @Path("todos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Paquete> obtenerTodos() {
+        return PaqueteImp.obtenerTodos();
     }
 }

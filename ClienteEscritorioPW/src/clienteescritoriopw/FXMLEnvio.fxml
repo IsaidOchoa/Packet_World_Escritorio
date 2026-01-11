@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLEnvioController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLEnvioController">
    <children>
       <Pane prefHeight="70.0" prefWidth="900.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -22,7 +22,7 @@
          </children>
       </Pane>
       
-      <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="90.0">
+      <HBox alignment="CENTER_LEFT" layoutY="91.2" prefHeight="30.0" prefWidth="370.0" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="498.0" AnchorPane.topAnchor="91.0">
          <children>
             <TextField fx:id="tfBusqueda" prefHeight="30.0" promptText="Buscar por No. Guía o Cliente..." HBox.hgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#btnBuscar" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
@@ -51,12 +51,12 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Button fx:id="btDetalles" mnemonicParsing="false" onAction="#btnVerDetalles" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #1A3B5C;" text="Ver Detalles" textFill="WHITE">
+            <Button fx:id="btEditar" mnemonicParsing="false" onAction="#btnEditarEnvio" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f39c12;" text="Editar Envío" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Button fx:id="btEditar" mnemonicParsing="false" onAction="#btnEditarEnvio" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f39c12;" text="Editar" textFill="WHITE">
+            <Button fx:id="btDetalles" mnemonicParsing="false" onAction="#btnVerDetalles" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #1A3B5C;" text="Asignar Paquetes" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>

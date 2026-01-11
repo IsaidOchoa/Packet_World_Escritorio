@@ -378,6 +378,22 @@ public class EnvioImp {
         }
         return respuesta;
     }
+    
+    // Método público para actualizar costo desde otros controladores (como PaqueteWS)
+    public static void actualizarCantidadYCosto(int idEnvio) {
+        SqlSession conexion = MyBatisUtil.getSession();
+        if (conexion != null) {
+            try {
+                actualizarCantidadYCosto(conexion, idEnvio);
+                conexion.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                conexion.rollback();
+            } finally {
+                conexion.close();
+            }
+        }
+    }
 
     // Metodo auxiliar para actualizar cantidad y costo
     private static void actualizarCantidadYCosto(SqlSession conexion, int idEnvio) {

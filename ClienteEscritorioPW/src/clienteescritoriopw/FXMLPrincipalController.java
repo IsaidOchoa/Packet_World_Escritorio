@@ -210,4 +210,22 @@ public class FXMLPrincipalController implements Initializable {
             Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Unidades.", Alert.AlertType.ERROR);
         }
     }
+    
+    @FXML
+    private void clicModuloPaquetes(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLPaquete.fxml"));
+            Parent root = loader.load();
+            Stage escenario = new Stage();
+            escenario.setScene(new Scene(root));
+            escenario.setTitle("Gestión de Paquetes");
+            escenario.initModality(Modality.APPLICATION_MODAL);
+            escenario.setMinWidth(800);
+            escenario.setMinHeight(500);
+            escenario.showAndWait();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir la ventana de Paquetes.", Alert.AlertType.ERROR);
+        }
+    }
 }

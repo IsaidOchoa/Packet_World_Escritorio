@@ -32,7 +32,25 @@ public class PaqueteImp {
         return msj;
     }
     
-    // 👇 NUEVO MÉTODO PARA EL FLUJO DE COSTO ACTUALIZADO
+    public static List<Paquete> obtenerTodos() {
+        List<Paquete> lista = new ArrayList<>();
+        String url = Constantes.URL_WS + "paquete/todos";
+
+        RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
+
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            Gson gson = new Gson();
+            try {
+                Type tipoLista = new TypeToken<ArrayList<Paquete>>(){}.getType();
+                lista = gson.fromJson(respuesta.getContenido(), tipoLista);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return lista;
+    }
+    
+    //NUEVO MÉTODO PARA EL FLUJO DE COSTO ACTUALIZADO
     public static Respuesta agregarPaquete(Paquete paquete) {
         Respuesta msj = new Respuesta();
         String url = Constantes.URL_WS + "envio/agregar-paquete";
@@ -66,5 +84,20 @@ public class PaqueteImp {
             }
         }
         return lista;
+    }
+    
+    public static Respuesta eliminar(int idPaquete) {
+        Respuesta msj = new Respuesta();
+        String url = Constantes.URL_WS + "paquete/eliminar/" + idPaquete;
+
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "DELETE", "", "application/json");
+
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            msj = new Gson().fromJson(respuesta.getContenido(), Respuesta.class);
+        } else {
+            msj.setError(true);
+            msj.setMensaje("Error al eliminar paquete: " + respuesta.getContenido());
+        }
+        return msj;
     }
 }
