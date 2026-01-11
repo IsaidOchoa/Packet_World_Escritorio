@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPaqueteController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPaqueteController">
    <children>
       <Pane prefHeight="70.0" prefWidth="900.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -24,23 +24,24 @@
       
       <Button layoutX="798.0" layoutY="20.0" mnemonicParsing="false" onAction="#clicRegresar" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-radius: 5;" text="Regresar" textFill="WHITE" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="20.0" />
 
-      <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="90.0">
+      <HBox alignment="CENTER_LEFT" layoutY="91.2" prefHeight="30.0" prefWidth="403.0" spacing="15.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="465.0" AnchorPane.topAnchor="91.0">
          <children>
-            <TextField fx:id="tfBusqueda" prefHeight="30.0" promptText="Buscar por nombre, correo o teléfono..." HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
+            <TextField fx:id="tfBusqueda" prefHeight="30.0" prefWidth="258.0" promptText="Buscar por descripción o ID de envío..." HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#clicBuscar" prefHeight="30.0" prefWidth="100.0" style="-fx-background-color: #555;" text="Buscar" textFill="WHITE" />
          </children>
       </HBox>
       
-      <TableView fx:id="tvClientes" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="140.0">
+      <!-- CORREGIDO: fx:id="tvPaquetes" -->
+      <TableView fx:id="tvPaquetes" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="140.0">
         <columns>
-          <TableColumn fx:id="colNombre" prefWidth="120.0" text="IdEnvio" />
-          <TableColumn fx:id="colPaterno" prefWidth="120.0" text="IdPaquete" />
-          <TableColumn fx:id="colMaterno" prefWidth="166.39996337890625" text="Descripcion" />
-          
-          <TableColumn fx:id="colTelefono" prefWidth="128.00003051757812" text="Peso" />
-          <TableColumn fx:id="colCorreo" prefWidth="95.20001220703125" text="Alto" />
-          <TableColumn fx:id="colDireccion" prefWidth="107.9998779296875" text="Ancho" />
-          <TableColumn fx:id="colColonia" prefWidth="103.2000732421875" text="Profundidad" />
+          <!-- CORREGIDOS: IDs que coinciden con el controlador -->
+          <TableColumn fx:id="colIdEnvio" prefWidth="100.0" text="ID Envío" />
+          <TableColumn fx:id="colIdPaquete" prefWidth="100.0" text="ID Paquete" />
+          <TableColumn fx:id="colDescripcion" prefWidth="250.0" text="Descripción" />
+          <TableColumn fx:id="colPeso" prefWidth="80.0" text="Peso (kg)" />
+          <TableColumn fx:id="colAlto" prefWidth="80.0" text="Alto (cm)" />
+          <TableColumn fx:id="colAncho" prefWidth="80.0" text="Ancho (cm)" />
+          <TableColumn fx:id="colProfundidad" prefWidth="100.0" text="Profundidad (cm)" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPrincipalController">
+<BorderPane prefHeight="700.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPrincipalController">
    
    <top>
       <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #1A3B5C; -fx-padding: 15;">
@@ -45,7 +45,14 @@
       </HBox>
    </top>
    
-   <center>
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" style="-fx-padding: 20;">
+         <children>
+            <Button mnemonicParsing="false" onAction="#clicCerrarSesion" style="-fx-background-color: #1A3B5C; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-size: 14px;" text="Cerrar Sesión" />
+         </children>
+      </HBox>
+   </bottom>
+   <right>
       <VBox alignment="TOP_CENTER" prefHeight="558.0" prefWidth="900.0" spacing="30.0" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="30.0" left="30.0" right="30.0" top="40.0" />
@@ -95,7 +102,7 @@
                      </graphic>
                   </Button>
                   
-                  <Button fx:id="btSucursales" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloSucursales" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Sucursales" GridPane.columnIndex="1">
+                  <Button fx:id="btSucursales" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloSucursales" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Sucursales" GridPane.columnIndex="2">
                      <graphic>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -115,7 +122,7 @@
                      </graphic>
                   </Button>
                   
-                  <Button fx:id="btEnvios" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloEnvios" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Envíos" GridPane.columnIndex="2">
+                  <Button fx:id="btEnvios" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloEnvios" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Envíos" GridPane.columnIndex="1">
                      <graphic>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -124,7 +131,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Button fx:id="btPaquetes" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloPaquetes" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Sucursales" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <Button fx:id="btPaquetes" graphicTextGap="15.0" mnemonicParsing="false" onAction="#clicModuloPaquetes" prefHeight="Infinity" prefWidth="Infinity" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-size: 18px; -fx-font-weight: bold;" text="Paquetes" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <graphic>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -141,13 +148,5 @@
             </GridPane>
          </children>
       </VBox>
-   </center>
-   
-   <bottom>
-      <HBox alignment="CENTER_RIGHT" style="-fx-padding: 20;">
-         <children>
-            <Button mnemonicParsing="false" onAction="#clicCerrarSesion" style="-fx-background-color: #1A3B5C; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-size: 14px;" text="Cerrar Sesión" />
-         </children>
-      </HBox>
-   </bottom>
+   </right>
 </BorderPane>

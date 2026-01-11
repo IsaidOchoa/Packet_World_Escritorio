@@ -15,7 +15,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -28,6 +30,7 @@ public class FXMLDetalleEnvioController implements Initializable {
     @FXML private Label lbClienteDestino;
     @FXML private Label lbDestino;
     @FXML private Label lbCostoTotal;
+    @FXML private Label lbEstatus; // Nueva etiqueta para estatus
     
     // Formulario Paquete
     @FXML private TextField tfDescripcion;
@@ -36,11 +39,14 @@ public class FXMLDetalleEnvioController implements Initializable {
     @FXML private TextField tfAncho;
     @FXML private TextField tfProfundidad;
     
-    // Tabla
+    // Tabla y botones
     @FXML private TableView<Paquete> tvPaquetes;
     @FXML private TableColumn<Paquete, String> colDescripcion;
     @FXML private TableColumn<Paquete, Float> colPeso;
-    @FXML private TableColumn<Paquete, String> colDimensiones; 
+    @FXML private TableColumn<Paquete, String> colDimensiones;
+    
+    @FXML private Button btnAgregarPaquete;
+    @FXML private Button btnEliminarPaquete;
 
     private Envio envioSeleccionado;
     private ObservableList<Paquete> listaPaquetes;
@@ -48,6 +54,7 @@ public class FXMLDetalleEnvioController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurarTabla();
+        configurarValidaciones();
     }
     
     private void configurarTabla() {
@@ -55,7 +62,43 @@ public class FXMLDetalleEnvioController implements Initializable {
         
         colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         colPeso.setCellValueFactory(new PropertyValueFactory<>("peso"));
-        colDimensiones.setCellValueFactory(new PropertyValueFactory<>("dimensiones"));      
+        colDimensiones.setCellValueFactory(new PropertyValueFactory<>("dimensiones"));
+        
+        tvPaquetes.setItems(listaPaquetes);
+        tvPaquetes.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    }
+    
+    private void configurarValidaciones() {
+        // Validación para descripción: letras, números, espacios y paréntesis (máx 50 caracteres)
+        tfDescripcion.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() <= 50 && newText.matches("[a-zA-Z0-9()\\s]*")) {
+                return change;
+            }
+            return null;
+        }));
+        
+        // Validación para campos numéricos: solo números y punto decimal (máx 6 caracteres)
+        configurarValidacionNumerica(tfPeso);
+        configurarValidacionNumerica(tfAlto);
+        configurarValidacionNumerica(tfAncho);
+        configurarValidacionNumerica(tfProfundidad);
+    }
+    
+    private void configurarValidacionNumerica(TextField field) {
+        field.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (newText.length() <= 6 && newText.matches("[0-9.]*")) {
+                long puntos = newText.chars().filter(ch -> ch == '.').count();
+                if (puntos <= 1) {
+                    return change;
+                }
+            }
+            return null;
+        }));
     }
 
     public void inicializarEnvio(Envio envio) {
@@ -63,6 +106,7 @@ public class FXMLDetalleEnvioController implements Initializable {
         if(envio != null){
             cargarDatosGenerales();
             cargarPaquetes();
+            aplicarRestriccionesPorEstatus();
         }
     }
 
@@ -71,6 +115,27 @@ public class FXMLDetalleEnvioController implements Initializable {
         lbClienteDestino.setText(envioSeleccionado.getNombreCliente() + " -> " + envioSeleccionado.getNombreDestinatario());
         lbDestino.setText(envioSeleccionado.getCalleDestino() + ", " + envioSeleccionado.getNumeroDestino() + " (CP: " + envioSeleccionado.getCodigoPostalDestino() + ")");
         lbCostoTotal.setText("$ " + String.format("%.2f", envioSeleccionado.getCosto()));
+        
+        // Mostrar estatus
+        lbEstatus.setText(envioSeleccionado.getEstatus());
+        
+        // Colorear según estatus
+        switch (envioSeleccionado.getIdEstadoActual()) {
+            case 1: // En tránsito
+                lbEstatus.setStyle("-fx-text-fill: #3498db; -fx-font-weight: bold;");
+                break;
+            case 2: // Detenido
+                lbEstatus.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                break;
+            case 3: // Entregado
+                lbEstatus.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                break;
+            case 4: // Cancelado
+                lbEstatus.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                break;
+            default:
+                lbEstatus.setStyle("-fx-text-fill: #666666;");
+        }
     }
 
     private void cargarPaquetes() {
@@ -82,6 +147,49 @@ public class FXMLDetalleEnvioController implements Initializable {
             }
             tvPaquetes.setItems(listaPaquetes);
         }
+    }
+    
+    private void aplicarRestriccionesPorEstatus() {
+        int idEstatus = envioSeleccionado.getIdEstadoActual();
+        boolean esEditable = (idEstatus == 1 || idEstatus == 2); // En tránsito o detenido
+        
+        // Deshabilitar formulario de paquetes si no es editable
+        tfDescripcion.setDisable(!esEditable);
+        tfPeso.setDisable(!esEditable);
+        tfAlto.setDisable(!esEditable);
+        tfAncho.setDisable(!esEditable);
+        tfProfundidad.setDisable(!esEditable);
+        
+        btnAgregarPaquete.setDisable(!esEditable);
+        btnEliminarPaquete.setDisable(!esEditable);
+    }
+    
+    private void actualizarCostoYTabla() {
+        new Thread(() -> {
+            try {
+                // 1. Obtener solo el envío actualizado (para el costo)
+                Envio envioActualizado = EnvioImp.obtenerPorId(envioSeleccionado.getIdEnvio());
+                if (envioActualizado != null) {
+                    javafx.application.Platform.runLater(() -> {
+                        // Actualizar SOLO el costo (el estatus no cambia aquí)
+                        envioSeleccionado.setCosto(envioActualizado.getCosto());
+                        lbCostoTotal.setText("$ " + String.format("%.2f", envioActualizado.getCosto()));
+                    });
+                }
+
+                // 2. Obtener solo los paquetes actualizados
+                List<Paquete> paquetesActualizados = PaqueteImp.obtenerPaquetesPorEnvio(envioSeleccionado.getIdEnvio());
+                javafx.application.Platform.runLater(() -> {
+                    listaPaquetes.clear();
+                    if (paquetesActualizados != null) {
+                        listaPaquetes.addAll(paquetesActualizados);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @FXML
@@ -106,17 +214,14 @@ public class FXMLDetalleEnvioController implements Initializable {
                 p.setAncho(ancho);
                 p.setProfundidad(profundidad);
                 
-                // Ejecutar en segundo plano para evitar congelamiento
                 new Thread(() -> {
                     try {
-                        // USAR EL NUEVO MÉTODO QUE ACTUALIZA EL COSTO
                         Respuesta resp = PaqueteImp.agregarPaquete(p);
                         
                         javafx.application.Platform.runLater(() -> {
                             if(!resp.isError()){
                                 limpiarFormularioPaquete();
-                                // Recargar datos completos del envío
-                                recargarDatosCompletos();
+                                actualizarCostoYTabla();
                                 Utilidades.mostrarAlertaSimple("Éxito", "Paquete agregado y costo actualizado.", Alert.AlertType.INFORMATION);
                             } else {
                                 Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
@@ -136,10 +241,60 @@ public class FXMLDetalleEnvioController implements Initializable {
         }
     }
     
+    @FXML
+    private void clicEliminarPaquete(ActionEvent event) {
+        Paquete paqueteSeleccionado = tvPaquetes.getSelectionModel().getSelectedItem();
+        
+        if (paqueteSeleccionado == null) {
+            Utilidades.mostrarAlertaSimple("Selección requerida", 
+                "Debe seleccionar un paquete de la tabla para eliminarlo.", 
+                Alert.AlertType.WARNING);
+            return;
+        }
+        
+        // Verificar restricciones por estatus
+        if (!btnEliminarPaquete.isDisable()) {
+            boolean confirmar = Utilidades.mostrarAlertaConfirmacion(
+                "Eliminar Paquete", 
+                "¿Está seguro de eliminar el paquete '" + paqueteSeleccionado.getDescripcion() + "'?\n\n" +
+                "Esta acción actualizará el costo del envío."
+            );
+            
+            if (confirmar) {
+                new Thread(() -> {
+                    try {
+                        Respuesta resp = PaqueteImp.eliminar(paqueteSeleccionado.getIdPaquete());
+                        
+                        javafx.application.Platform.runLater(() -> {
+                            if(!resp.isError()){
+                                actualizarCostoYTabla();
+                                Utilidades.mostrarAlertaSimple("Éxito", "Paquete eliminado y costo actualizado.", Alert.AlertType.INFORMATION);
+                            } else {
+                                Utilidades.mostrarAlertaSimple("Error", resp.getMensaje(), Alert.AlertType.ERROR);
+                            }
+                        });
+                        
+                    } catch (Exception ex) {
+                        javafx.application.Platform.runLater(() -> {
+                            Utilidades.mostrarAlertaSimple("Error", "Error al eliminar el paquete.", Alert.AlertType.ERROR);
+                        });
+                    }
+                }).start();
+            }
+        } else {
+            // Intentó eliminar en estado no permitido
+            Utilidades.mostrarAlertaSimple("Acción no permitida", 
+                "No se pueden modificar paquetes en envíos con estatus '" + 
+                envioSeleccionado.getEstatus() + "'.", 
+                Alert.AlertType.WARNING);
+        }
+    }
+    
     private void recargarDatosCompletos() {
         new Thread(() -> {
             try {
-                Envio envioActualizado = EnvioImp.obtenerPorId(envioSeleccionado.getIdEnvio());
+                // Usar el mismo método que se usa en FXMLEnvioController para obtener TODOS los datos
+                Envio envioActualizado = EnvioImp.buscarPorGuia(envioSeleccionado.getNumeroGuia());
                 if (envioActualizado != null) {
                     javafx.application.Platform.runLater(() -> {
                         this.envioSeleccionado = envioActualizado;
@@ -173,13 +328,6 @@ public class FXMLDetalleEnvioController implements Initializable {
         tfProfundidad.clear();
     }
     
-    @FXML
-    private void clicGuardarCostoTotal(ActionEvent event) {
-        // El botón guardar solo cierra la ventana (los paquetes ya se guardan al agregarlos)
-        Utilidades.mostrarAlertaSimple("Información", "Los paquetes ya se guardaron automáticamente al agregarlos.", Alert.AlertType.INFORMATION);
-        clicRegresar(event);
-    }
-
     @FXML
     private void clicRegresar(ActionEvent event) {
         ((Stage) lbGuia.getScene().getWindow()).close();

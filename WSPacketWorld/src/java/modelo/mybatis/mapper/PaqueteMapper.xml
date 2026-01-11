@@ -8,6 +8,10 @@
         INSERT INTO Paquete (idEnvio, descripcion, peso, alto, ancho, profundidad)
         VALUES (#{idEnvio}, #{descripcion}, #{peso}, #{alto}, #{ancho}, #{profundidad})
     </insert>
+    
+    <select id="obtenerTodos" resultType="pojo.Paquete">
+        SELECT * FROM paquete
+    </select>
 
     <select id="obtenerPorEnvio" resultType="pojo.Paquete" parameterType="int">
         SELECT 
@@ -20,6 +24,19 @@
             profundidad
         FROM Paquete
         WHERE idEnvio = #{idEnvio}
+    </select>
+    
+    <select id="obtenerPorId" resultType="pojo.Paquete" parameterType="int">
+        SELECT 
+            idPaquete,
+            idEnvio,
+            descripcion,
+            peso,
+            alto,
+            ancho,
+            profundidad
+        FROM Paquete
+        WHERE idPaquete = #{idPaquete}
     </select>
     
     <select id="contarPorEnvio" resultType="int" parameterType="int">
