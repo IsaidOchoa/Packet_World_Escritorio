@@ -27,6 +27,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -66,7 +67,33 @@ public class FXMLFormularioColaboradorController implements Initializable {
         configurarComboBoxes();
         cargarCatalogos();
         configurarValidaciones();
-    }    
+        configurarValidacionPassword();
+    }
+
+    private void configurarValidacionPassword() {
+        pfPasswordNueva.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.contains(" ")) {
+                return null;
+            }
+            return change;
+        }));
+
+        pfPasswordConfirmar.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.contains(" ")) {
+                return null;}
+            return change;
+        }));
+
+        pfPasswordActual.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.contains(" ")) {
+                return null;
+            }
+            return change;
+        }));
+    }   
 
     private void configurarComboBoxes() {
         cbRol.setConverter(new StringConverter<Rol>() {
