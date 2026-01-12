@@ -44,7 +44,6 @@
       
       <TableColumn fx:id="colSucursal" prefWidth="124.0" text="Sucursal" />
       <TableColumn fx:id="colConductor" prefWidth="131.199951171875" text="Conductor Asignado" />
-      
    </columns>
 </TableView>
       

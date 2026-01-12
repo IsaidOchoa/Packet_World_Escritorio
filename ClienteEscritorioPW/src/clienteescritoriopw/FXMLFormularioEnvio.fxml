@@ -50,7 +50,7 @@
 
       <Label layoutX="530.0" layoutY="230.0" text="Código Postal:" />
       <TextField fx:id="tfCP" layoutX="530.0" layoutY="250.0" prefHeight="25.0" prefWidth="120.0" promptText="Ej. 91000" />
-      <Button layoutX="660.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnBuscarCP" prefHeight="25.0" prefWidth="110.0" style="-fx-background-color: #3498DB;" text="Buscar CP" textFill="WHITE" />
+      <Button fx:id="btnBuscarCP" layoutX="660.0" layoutY="250.0" mnemonicParsing="false" onAction="#btnBuscarCP" prefHeight="25.0" prefWidth="110.0" style="-fx-background-color: #3498DB;" text="Buscar CP" textFill="WHITE" />
 
       <Label layoutX="30.0" layoutY="290.0" text="Estado:" />
       <ComboBox fx:id="cbEstado" layoutX="30.0" layoutY="310.0" prefHeight="25.0" prefWidth="220.0" />

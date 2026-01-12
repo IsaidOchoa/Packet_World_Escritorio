@@ -79,12 +79,9 @@ public class Paquete {
         this.profundidad = profundidad;
     }
 
-  
-  
     public String getDimensiones() {
-   
-    return this.alto + " x " + this.ancho + " x " + this.profundidad;
-}
+        return this.alto + " x " + this.ancho + " x " + this.profundidad;
+    }
 
 }
 

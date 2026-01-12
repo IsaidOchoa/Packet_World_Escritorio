@@ -1,7 +1,7 @@
 package ws;
 
 import com.google.gson.Gson;
-import dominio.EnvioImp; // <--- IMPORTANTE: Para recalcular el costo
+import dominio.EnvioImp;
 import dominio.PaqueteImp;
 import dto.Respuesta;
 import java.util.List;
@@ -27,8 +27,7 @@ public class PaqueteWS {
     Gson gson = new Gson();
     try {
         Paquete paquete = gson.fromJson(json, Paquete.class);
-        
-        // La llamada interna ya recalcula el costo con el código corregido arriba
+
         Respuesta resp = PaqueteImp.registrar(paquete);
         
         return resp;
