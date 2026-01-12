@@ -63,7 +63,7 @@ public class FXMLFormularioUnidadController implements Initializable {
 
     private void cargarSucursales() {
         listaSucursales = FXCollections.observableArrayList();
-        List<Sucursal> lista = SucursalImp.obtenerSucursales();
+        List<Sucursal> lista = SucursalImp.obtenerSucursalesActivas();
         if(lista != null) listaSucursales.addAll(lista);
         cbSucursal.setItems(listaSucursales);
         

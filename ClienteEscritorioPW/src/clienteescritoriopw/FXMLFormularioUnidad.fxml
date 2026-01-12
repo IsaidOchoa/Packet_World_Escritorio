@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="450.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioUnidadController">
+<AnchorPane id="AnchorPane" prefHeight="450.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioUnidadController">
    <children>
       <Pane prefHeight="60.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -42,7 +42,7 @@
            <Font name="System Bold" size="14.0" />
            </font>
 </Label>
-<ComboBox fx:id="cbSucursal" prefHeight="30.0" prefWidth="300.0" promptText="Selecciona una sucursal..." />
+<ComboBox fx:id="cbSucursal" prefHeight="30.0" prefWidth="300.0" promptText="-- Selecciona una sucursal --" />
             
             <HBox spacing="15.0">
                <children>
