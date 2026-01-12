@@ -370,8 +370,8 @@ public class FXMLFormularioEnvioController implements Initializable {
     
     private void generarNumeroGuia() {
         if(!esEdicion){
-            long timestamp = System.currentTimeMillis();
-            tfNumeroGuia.setText("PKW-" + (timestamp % 100000000));
+            String uuid = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            tfNumeroGuia.setText("PKW-" + uuid);
         }
     }
     
