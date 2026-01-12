@@ -250,6 +250,10 @@ public class FXMLFormularioColaboradorController implements Initializable {
         perfil.setCorreo(tfCorreo.getText());
         perfil.setNumeroLicencia(tfLicencia.getText());
 
+        if (cbSucursal.getValue() != null) {
+            perfil.setIdSucursal(cbSucursal.getValue().getIdSucursal());
+        }
+        
         Respuesta respPerfil = ColaboradorImp.editarPerfil(perfil);
         if (respPerfil.isError()) {
             Utilidades.mostrarAlertaSimple("Error", "Perfil: " + respPerfil.getMensaje(), Alert.AlertType.ERROR);

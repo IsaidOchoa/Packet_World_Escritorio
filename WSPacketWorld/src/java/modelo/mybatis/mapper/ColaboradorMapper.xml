@@ -72,7 +72,8 @@
             apellidoMaterno = #{apellidoMaterno},
             curp = #{curp},
             correo = #{correo},
-            numeroLicencia = #{numeroLicencia}
+            numeroLicencia = #{numeroLicencia},
+            idSucursal = #{idSucursal}
         WHERE idColaborador = #{idColaborador}
     </update>
 
