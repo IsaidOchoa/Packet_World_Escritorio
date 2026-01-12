@@ -70,6 +70,10 @@ public class FXMLEnvioController implements Initializable {
             btDetalles.setVisible(false);
         }
     }
+     @FXML
+    private void clicRegresar(ActionEvent event) {
+        ((Stage) tfBusqueda.getScene().getWindow()).close();
+    }
 
     private void configurarTabla() {
         colGuia.setCellValueFactory(new PropertyValueFactory<>("numeroGuia"));

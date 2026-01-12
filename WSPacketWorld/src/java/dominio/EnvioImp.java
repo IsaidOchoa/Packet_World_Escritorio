@@ -27,15 +27,6 @@ public class EnvioImp {
                 conexion.commit();
 
                 if (filasAfectadas > 0) {
-                    Map<String, Object> historial = new HashMap<>();
-                    historial.put("idEnvio", envio.getIdEnvio());
-                    historial.put("idEstadoEnvio", 1); 
-                    historial.put("comentario", "Envío creado");
-                    historial.put("idColaborador", 1); 
-
-                    conexion.insert("envio.registrarHistorial", historial);
-                    conexion.commit();
-
                     respuesta.setError(false);
                     respuesta.setMensaje("Envío registrado correctamente.");
                 } else {
@@ -52,6 +43,7 @@ public class EnvioImp {
         }
         return respuesta;
     }
+    
     public static Respuesta editar(Envio envio) {
         Respuesta respuesta = new Respuesta();
         SqlSession conexion = MyBatisUtil.getSession();
@@ -156,8 +148,7 @@ public class EnvioImp {
             return "Error al cotizar envío: " + e.getMessage();
         }
     }
-    
-    // En EnvioImp.java (BACKEND)
+
     public static List<Envio> obtenerTodos() {
         System.out.println("=== BACKEND: Iniciando obtenerTodos() ===");
         List<Envio> lista = null;
@@ -176,7 +167,6 @@ public class EnvioImp {
         } else {
             System.err.println("=== BACKEND: ERROR: No se pudo obtener la sesión de MyBatis ===");
         }
-        // Si la lista es null, devuelve una lista vacía para evitar errores
         return lista != null ? lista : new ArrayList<>();
     }
     
@@ -256,7 +246,6 @@ public class EnvioImp {
 
             conexion.insert("historialEnvio.registrar", historial);
 
-            // 3. Commit
             conexion.commit();
             respuesta.setError(false);
             respuesta.setMensaje("Estatus actualizado correctamente.");
@@ -388,7 +377,7 @@ public class EnvioImp {
         return respuesta;
     }
     
-    // Método público para actualizar costo desde otros controladores (como PaqueteWS)
+    // Método para actualizar costo desde otros controladores
     public static void actualizarCantidadYCosto(int idEnvio) {
         SqlSession conexion = MyBatisUtil.getSession();
         if (conexion != null) {
@@ -404,7 +393,7 @@ public class EnvioImp {
         }
     }
 
-    // Metodo auxiliar para actualizar cantidad y costo
+    // Metodo para actualizar cantidad y costo
     private static void actualizarCantidadYCosto(SqlSession conexion, int idEnvio) {
         Envio envio = conexion.selectOne("envio.obtenerPorId", idEnvio);
         if (envio != null) {
@@ -421,11 +410,10 @@ public class EnvioImp {
 
             float costoTotal = (float)(envio.getCostoBase() + costoExtra);
 
-            // Usar el nuevo método que solo actualiza los campos necesarios
             actualizarCostoYCantidad(conexion, idEnvio, costoTotal, cantidad, envio.getCostoBase());
         }
     }
-    // Metodo auxiliar para actualizar SOLO costo y cantidad
+    // Metodo para actualizar SOLO costo y cantidad
     private static void actualizarCostoYCantidad(SqlSession conexion, int idEnvio, float costoTotal, int cantidadPaquetes, double costoBase) {
         Map<String, Object> params = new HashMap<>();
         params.put("idEnvio", idEnvio);

@@ -14,6 +14,7 @@
    <children>
       <Pane prefHeight="70.0" prefWidth="900.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
+            <Button layoutX="802.0" layoutY="22.0" mnemonicParsing="false" onAction="#clicRegresar" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-radius: 5;" text="Regresar" textFill="WHITE" />
             <Label layoutX="32.0" layoutY="18.0" text="Gestión de Envíos" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="24.0" />
