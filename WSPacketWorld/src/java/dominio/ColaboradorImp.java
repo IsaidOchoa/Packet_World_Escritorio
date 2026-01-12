@@ -303,16 +303,15 @@ public class ColaboradorImp {
 
         if (conexionBD != null) {
             try {
-                //Verificar si tiene unidades asignadas
+                // 1. Verificar si tiene unidades asignadas
                 Integer unidadesAsignadas = conexionBD.selectOne("colaborador.tieneUnidadesAsignadas", idColaborador);
-
                 if (unidadesAsignadas != null && unidadesAsignadas > 0) {
                     respuesta.setError(true);
                     respuesta.setMensaje("No se puede eliminar: El colaborador tiene " + unidadesAsignadas + " unidad asignada. Primero desasígnelas.");
                     return respuesta;
                 }
 
-                //Verificar si tiene envíos activos
+                // 2. Verificar si tiene envíos activos
                 Integer enviosActivos = conexionBD.selectOne("colaborador.tieneEnviosActivos", idColaborador);
                 if (enviosActivos != null && enviosActivos > 0) {
                     respuesta.setError(true);
@@ -320,18 +319,21 @@ public class ColaboradorImp {
                     return respuesta;
                 }
 
-                // Si no tiene unidades ni envíos, proceder con la eliminación
+                // 3. Eliminar del historial de envíos
+                conexionBD.delete("colaborador.eliminarHistorialPorColaborador", idColaborador);
+
                 int filasAfectadas = conexionBD.delete("colaborador.eliminar", idColaborador);
                 conexionBD.commit();
 
                 if (filasAfectadas > 0) {
                     respuesta.setError(false);
-                    respuesta.setMensaje("Colaborador eliminado correctamente.");
+                    respuesta.setMensaje("Colaborador y su historial eliminados correctamente.");
                 } else {
                     respuesta.setError(true);
                     respuesta.setMensaje("No se encontró el colaborador a eliminar.");
                 }
             } catch (Exception e) {
+                conexionBD.rollback();
                 respuesta.setError(true);
                 respuesta.setMensaje("Error al eliminar: " + e.getMessage());
             } finally {

@@ -91,6 +91,10 @@
     <delete id="eliminar" parameterType="int">
         DELETE FROM Colaborador WHERE idColaborador = #{idColaborador}
     </delete>
+    
+    <delete id="eliminarHistorialPorColaborador" parameterType="int">
+        DELETE FROM historialenvio WHERE idColaborador = #{idColaborador}
+    </delete>
 
     <select id="buscarPorNoPersonal" resultType="pojo.Colaborador" parameterType="string">
         SELECT * FROM Colaborador WHERE numeroPersonal = #{numeroPersonal}
