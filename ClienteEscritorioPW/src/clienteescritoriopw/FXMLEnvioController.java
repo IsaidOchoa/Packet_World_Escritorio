@@ -36,10 +36,10 @@ public class FXMLEnvioController implements Initializable {
     @FXML private TableColumn<Envio, String> colDestino;
     @FXML private TableColumn<Envio, String> colEstatus;
     @FXML private TableColumn<Envio, String> colCosto;
+    @FXML private TableColumn<Envio, String> colConductor; // Nueva columna
     @FXML private TableColumn<Envio, String> colUnidad;
     @FXML private TextField tfBusqueda;
 
-    // 👇 Botones que se ocultarán para conductores
     @FXML private Button btNuevo;
     @FXML private Button btEditar;
     @FXML private Button btDetalles;
@@ -65,7 +65,6 @@ public class FXMLEnvioController implements Initializable {
 
     private void aplicarPermisos() {
         if (Permisos.esConductor(colaboradorSesion.getIdRol())) {
-          
             btNuevo.setVisible(false);
             btEditar.setVisible(false);
             btDetalles.setVisible(false);
@@ -79,17 +78,40 @@ public class FXMLEnvioController implements Initializable {
         colDestino.setCellValueFactory(new PropertyValueFactory<>("nombreColonia")); 
         colEstatus.setCellValueFactory(new PropertyValueFactory<>("estatus"));
         colCosto.setCellValueFactory(new PropertyValueFactory<>("costo"));
+        colConductor.setCellValueFactory(new PropertyValueFactory<>("nombreConductor")); // Configurada
         colUnidad.setCellValueFactory(new PropertyValueFactory<>("infoUnidad"));
     }
 
     private void cargarInformacionTabla() {
-        listaEnvios = FXCollections.observableArrayList();
-        List<Envio> enviosBD = EnvioImp.obtenerTodos(); 
-        if (enviosBD != null) {
-            listaEnvios.addAll(enviosBD);
-            tvEnvios.setItems(listaEnvios);
-        } else {
-            Utilidades.mostrarAlertaSimple("Error", "No se pudo conectar con el servidor.", Alert.AlertType.ERROR);
+        try {
+            System.out.println("=== INICIANDO carga de envíos ===");
+            List<Envio> enviosBD = EnvioImp.obtenerTodos(); 
+
+            if (enviosBD != null) {
+                System.out.println("Número de envíos recibidos: " + enviosBD.size());
+
+                // Imprimir los primeros 3 envíos para ver su contenido
+                for (int i = 0; i < Math.min(3, enviosBD.size()); i++) {
+                    Envio e = enviosBD.get(i);
+                    System.out.println("Envío #" + (i+1) + ":");
+                    System.out.println("  - Guía: " + e.getNumeroGuia());
+                    System.out.println("  - ID Conductor: " + e.getIdConductor());
+                    System.out.println("  - Nombre Conductor: '" + e.getNombreConductor() + "'");
+                    System.out.println("  - Info Unidad: '" + e.getInfoUnidad() + "'");
+                }
+
+                listaEnvios = FXCollections.observableArrayList(enviosBD);
+                tvEnvios.setItems(listaEnvios);
+            } else {
+                System.err.println("ERROR: EnviosBD es NULL");
+                Utilidades.mostrarAlertaSimple("Error", "No se pudo conectar con el servidor.", Alert.AlertType.ERROR);
+            }
+            System.out.println("=== FIN de carga de envíos ===");
+
+        } catch (Exception ex) {
+            System.err.println("EXCEPCIÓN al cargar envíos:");
+            ex.printStackTrace();
+            Utilidades.mostrarAlertaSimple("Error Crítico", "Error al procesar la lista de envíos.", Alert.AlertType.ERROR);
         }
     }
 

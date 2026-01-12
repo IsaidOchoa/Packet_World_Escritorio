@@ -2,13 +2,33 @@ package dominio;
 
 import dto.Respuesta;
 import dto.ValidacionDuplicadoColaborador;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import modelo.mybatis.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import pojo.Colaborador;
 
 public class ColaboradorImp {
+    
+    public static Colaborador loginMovil(String numeroPersonal, String password) {
+        SqlSession session = MyBatisUtil.getSession();
+        if (session != null) {
+            try {
+                Map<String, Object> params = new HashMap<>();
+                params.put("numeroPersonal", numeroPersonal);
+                params.put("password", password);
+
+                // Este statement NO debe incluir la foto
+                return session.selectOne("colaborador.loginMovil", params);
+            } finally {
+                session.close();
+            }
+        }
+        return null;
+    }
  
     public static List<Colaborador> obtenerColaboradores() {
         List<Colaborador> lista = null;
@@ -353,6 +373,22 @@ public class ColaboradorImp {
             }
         }
         return fotoBase64;
+    }
+    
+    public static List<Colaborador> obtenerConductoresPorSucursal(int idSucursal) {
+        SqlSession session = MyBatisUtil.getSession();
+        if (session != null) {
+            try {
+                Map<String, Object> params = new HashMap<>();
+                params.put("idSucursal", idSucursal);
+                params.put("idRolConductor", 3); // Asumiendo que el ID de rol "Conductor" es 3
+
+                return session.selectList("colaborador.obtenerConductoresPorSucursal", params);
+            } finally {
+                session.close();
+            }
+        }
+        return new ArrayList<>();
     }
 }
 

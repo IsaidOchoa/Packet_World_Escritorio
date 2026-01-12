@@ -1,6 +1,7 @@
 package dominio;
 
 import dto.Respuesta;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,19 +157,27 @@ public class EnvioImp {
         }
     }
     
+    // En EnvioImp.java (BACKEND)
     public static List<Envio> obtenerTodos() {
+        System.out.println("=== BACKEND: Iniciando obtenerTodos() ===");
         List<Envio> lista = null;
-        SqlSession conexion = MyBatisUtil.getSession();
-        if (conexion != null) {
+        SqlSession conexionBD = MyBatisUtil.getSession();
+        if (conexionBD != null) {
             try {
-                lista = conexion.selectList("envio.obtenerTodos");
+                lista = conexionBD.selectList("envio.obtenerTodos");
+                System.out.println("=== BACKEND: Número de envíos encontrados: " + 
+                    (lista != null ? lista.size() : "null"));
             } catch (Exception e) {
+                System.err.println("=== BACKEND: ERROR en obtenerTodos():");
                 e.printStackTrace();
             } finally {
-                conexion.close();
+                conexionBD.close();
             }
+        } else {
+            System.err.println("=== BACKEND: ERROR: No se pudo obtener la sesión de MyBatis ===");
         }
-        return lista;
+        // Si la lista es null, devuelve una lista vacía para evitar errores
+        return lista != null ? lista : new ArrayList<>();
     }
     
     public static Envio obtenerPorId(int idEnvio) {

@@ -2,12 +2,15 @@ package ws;
 
 import com.google.gson.Gson;
 import dominio.ColaboradorImp;
+import dto.RSAutenticacionColaborador;
 import dto.Respuesta;
 import dto.ValidacionDuplicadoColaborador;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -26,6 +29,16 @@ public class ColaboradorWS {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Colaborador> obtenerTodos() {
         return ColaboradorImp.obtenerColaboradores();
+    }
+
+    @Path("por-sucursal/{idSucursal}/conductores")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Colaborador> obtenerConductoresPorSucursal(@PathParam("idSucursal") Integer idSucursal) {
+        if (idSucursal == null || idSucursal <= 0) {
+            return new ArrayList<>();
+        }
+        return ColaboradorImp.obtenerConductoresPorSucursal(idSucursal);
     }
 
     @Path("registrar")
@@ -162,5 +175,44 @@ public class ColaboradorWS {
             error.setMensaje("Error al procesar la validación: " + e.getMessage());
             return error;
         }
+    }
+    
+    @POST
+    @Path("login-movil")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RSAutenticacionColaborador loginMovil(@FormParam("noPersonal") String noPersonal,
+                                               @FormParam("password") String password) {
+        RSAutenticacionColaborador respuesta = new RSAutenticacionColaborador();
+
+        if (noPersonal == null || password == null) {
+            respuesta.setError(true);
+            respuesta.setMensaje("Datos incompletos");
+            return respuesta;
+        }
+
+        try {
+            // Llama al método que NO trae la foto
+            Colaborador colaborador = ColaboradorImp.loginMovil(noPersonal, password);
+
+            if (colaborador != null && colaborador.getIdColaborador() > 0) {
+                // Verifica el rol aquí mismo para mayor seguridad
+                if ("Conductor".equalsIgnoreCase(colaborador.getRol())) {
+                    respuesta.setColaborador(colaborador);
+                    respuesta.setError(false);
+                } else {
+                    respuesta.setError(true);
+                    respuesta.setMensaje("Acceso denegado: solo para conductores.");
+                }
+            } else {
+                respuesta.setError(true);
+                respuesta.setMensaje("Credenciales incorrectas.");
+            }
+        } catch (Exception e) {
+            respuesta.setError(true);
+            respuesta.setMensaje("Error interno del servidor.");
+            e.printStackTrace();
+        }
+
+        return respuesta;
     }
 }

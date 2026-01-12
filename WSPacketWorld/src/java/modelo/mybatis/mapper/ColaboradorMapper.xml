@@ -24,6 +24,40 @@
         LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
     </select>
 
+    <select id="obtenerConductoresPorSucursal" resultType="pojo.Colaborador" parameterType="map">
+        SELECT 
+            c.idColaborador,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.numeroPersonal
+        FROM Colaborador c
+        WHERE c.idSucursal = #{idSucursal}
+        AND c.idRol = #{idRolConductor}
+    </select>
+    
+     <select id="loginMovil" parameterType="map" resultType="pojo.Colaborador">
+        SELECT 
+            c.idColaborador,
+            c.nombre,
+            c.apellidoPaterno,
+            c.apellidoMaterno,
+            c.curp,
+            c.correo,
+            c.numeroPersonal,
+            c.numeroLicencia,
+            c.idRol,
+            c.idSucursal,
+            r.nombre AS rol,                
+            s.nombre AS nombreSucursal
+        
+        FROM Colaborador c
+        INNER JOIN Rol r ON c.idRol = r.idRol
+        LEFT JOIN Sucursal s ON c.idSucursal = s.idSucursal
+        WHERE c.numeroPersonal = #{numeroPersonal} 
+        AND c.password = #{password}
+    </select>
+
     <insert id="registrar" parameterType="pojo.Colaborador">
         INSERT INTO Colaborador 
         (nombre, apellidoPaterno, apellidoMaterno, curp, correo, numeroPersonal, password, idRol, idSucursal, numeroLicencia, foto)

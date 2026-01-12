@@ -117,14 +117,15 @@ public class ColaboradorImp {
         return msj;
     }
     
-    public static List<Colaborador> obtenerColaboradoresPorSucursal(int idSucursal) {
-        String url = Constantes.URL_WS + "colaborador/por-sucursal/" + idSucursal;
+    public static List<Colaborador> obtenerConductoresPorSucursal(int idSucursal) {
+        String url = Constantes.URL_WS + "colaborador/por-sucursal/" + idSucursal + "/conductores";
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
-
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
-            Colaborador[] array = gson.fromJson(respuesta.getContenido(), Colaborador[].class);
-            return Arrays.asList(array);
+            try {
+                Type tipoLista = new TypeToken<ArrayList<Colaborador>>(){}.getType();
+                return gson.fromJson(respuesta.getContenido(), tipoLista);
+            } catch (Exception e) {}
         }
         return new ArrayList<>();
     }
@@ -145,7 +146,6 @@ public class ColaboradorImp {
         return msj;
     }
     
-    // Agrega este método en la clase ColaboradorImp
     public static Respuesta validarDuplicadosColaborador(ValidacionDuplicadoColaborador datos) {
         String url = Constantes.URL_WS + "colaborador/validar-duplicados";
         Gson gson = new Gson();

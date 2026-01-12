@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="580.0" prefWidth="800.0" style="-fx-background-color: #F4F6F6;" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioEnvioController">
+<AnchorPane id="AnchorPane" prefHeight="595.0" prefWidth="800.0" style="-fx-background-color: #F4F6F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLFormularioEnvioController">
    <children>
       <Pane prefHeight="60.0" prefWidth="800.0" style="-fx-background-color: #0B2B48;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -65,7 +65,7 @@
       <TextField fx:id="tfCalle" layoutX="30.0" layoutY="370.0" prefHeight="25.0" prefWidth="470.0" promptText="Nombre de la calle" />
 
       <Label layoutX="530.0" layoutY="350.0" text="Número (Ext/Int):" />
-      <TextField fx:id="tfNumero" layoutX="530.0" layoutY="370.0" prefHeight="25.0" prefWidth="150.0" promptText="#123" />
+      <TextField fx:id="tfNumero" layoutX="530.0" layoutY="370.0" prefHeight="26.0" prefWidth="120.0" promptText="#123" />
 
       <Label layoutX="30.0" layoutY="420.0" text="Logística y Transporte" textFill="#0b2b48">
          <font>
@@ -74,23 +74,24 @@
       </Label>
       <Separator layoutX="30.0" layoutY="445.0" prefWidth="740.0" />
 
-      <Label layoutX="30.0" layoutY="460.0" text="Asignar Unidad de Transporte:" />
-      <ComboBox fx:id="cbUnidad" layoutX="30.0" layoutY="480.0" prefHeight="30.0" prefWidth="350.0" promptText="-- Seleccionar Unidad --" />
+      <Label layoutX="30.0" layoutY="460.0" text="Asignar Conductor:" />
+      <ComboBox fx:id="cbConductor" layoutX="30.0" layoutY="480.0" prefHeight="30.0" prefWidth="339.0" promptText="-- Seleccionar Conductor --" />
 
 
       <Separator layoutX="30.0" layoutY="530.0" prefWidth="740.0" />
       
-      <Button layoutX="460.0" layoutY="545.0" mnemonicParsing="false" onAction="#btnCancelar" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #E74C3C;" text="Cancelar" textFill="WHITE">
+      <Button layoutX="531.0" layoutY="542.0" mnemonicParsing="false" onAction="#btnCancelar" prefHeight="38.0" prefWidth="102.0" style="-fx-background-color: #E74C3C;" text="Cancelar" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
       
-      <Button fx:id="btnAccion" layoutX="630.0" layoutY="545.0" mnemonicParsing="false" onAction="#btnGuardar" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #2ECC71;" text="Registrar Envío" textFill="WHITE">
+      <Button fx:id="btnAccion" layoutX="653.0" layoutY="542.0" mnemonicParsing="false" onAction="#btnGuardar" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #2ECC71;" text="Registrar Envío" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
+      <Button fx:id="btnDesasignarEnvio" layoutX="390.0" layoutY="482.0" mnemonicParsing="false" onAction="#btnDesasignarEnvio" prefHeight="25.0" prefWidth="110.0" style="-fx-background-color: #3498DB;" text="Liberar" textFill="WHITE" />
 
    </children>
 </AnchorPane>
