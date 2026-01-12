@@ -17,7 +17,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import pojo.Colaborador;
 
@@ -128,17 +127,38 @@ public class ColaboradorWS {
     @Path("eliminar/{idColaborador}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Respuesta eliminar(@PathParam("idColaborador") Integer idColaborador) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Respuesta eliminar(@PathParam("idColaborador") Integer idColaboradorAEliminar, String jsonSesion) {
         Respuesta resp = new Respuesta();
         try {
-            if (idColaborador != null && idColaborador > 0) {
-                return ColaboradorImp.eliminar(idColaborador);
+            if (idColaboradorAEliminar == null || idColaboradorAEliminar <= 0) {
+                resp.setError(true);
+                resp.setMensaje("ID de colaborador a eliminar inválido.");
+                return resp;
             }
-            resp.setError(true);
-            resp.setMensaje("ID inválido.");
+
+            // Parsear el ID del admin desde el cuerpo de la petición
+            Gson gson = new Gson();
+            Map<String, Object> datosSesion = gson.fromJson(jsonSesion, Map.class);
+            Double idSesionDouble = (Double) datosSesion.get("idSesion");
+            if (idSesionDouble == null) {
+                resp.setError(true);
+                resp.setMensaje("Sesión de usuario no válida.");
+                return resp;
+            }
+            int idColaboradorSesion = idSesionDouble.intValue();
+
+            //No permitir auto-eliminacion
+            if (idColaboradorAEliminar.equals(idColaboradorSesion)) {
+                resp.setError(true);
+                resp.setMensaje("UPS! No puedes eliminarte a ti mismo.");
+                return resp;
+            }
+
+            return ColaboradorImp.eliminar(idColaboradorAEliminar, idColaboradorSesion);
         } catch (Exception e) {
             resp.setError(true);
-            resp.setMensaje("Error al eliminar: " + e.getMessage());
+            resp.setMensaje("Error al procesar la eliminación: " + e.getMessage());
         }
         return resp;
     }
@@ -155,7 +175,7 @@ public class ColaboradorWS {
     @Produces(MediaType.APPLICATION_JSON)
     public Colaborador obtenerPerfilCompleto(@PathParam("idColaborador") Integer idColaborador) {
         if (idColaborador == null || idColaborador <= 0) {
-            return null; // O podrías lanzar una excepción, pero JAX-RS convertirá null a 204/404
+            return null;
         }
         return ColaboradorImp.obtenerPorIdCompleto(idColaborador);
     }
@@ -191,11 +211,9 @@ public class ColaboradorWS {
         }
 
         try {
-            // Llama al método que NO trae la foto
             Colaborador colaborador = ColaboradorImp.loginMovil(noPersonal, password);
 
             if (colaborador != null && colaborador.getIdColaborador() > 0) {
-                // Verifica el rol aquí mismo para mayor seguridad
                 if ("Conductor".equalsIgnoreCase(colaborador.getRol())) {
                     respuesta.setColaborador(colaborador);
                     respuesta.setError(false);

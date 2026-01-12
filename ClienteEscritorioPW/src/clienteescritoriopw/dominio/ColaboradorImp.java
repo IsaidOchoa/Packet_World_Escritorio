@@ -130,14 +130,19 @@ public class ColaboradorImp {
         return new ArrayList<>();
     }
 
-    public static Respuesta eliminar(int idColaborador) {
+    public static Respuesta eliminar(int idColaboradorAEliminar, int idColaboradorSesion) {
         Respuesta msj = new Respuesta();
-        String url = Constantes.URL_WS + "colaborador/eliminar/" + idColaborador;
-        
-        RespuestaHTTP respuesta = ConexionAPI.peticionSinBody(url, "DELETE");
-        
+        String url = Constantes.URL_WS + "colaborador/eliminar/" + idColaboradorAEliminar;
+
+        // Crear un JSON con el ID del admin
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("idSesion", idColaboradorSesion);
+        Gson gson = new Gson();
+        String json = gson.toJson(datos);
+
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "DELETE", json, "application/json");
+
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
-            Gson gson = new Gson();
             msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
         } else {
             msj.setError(true);
