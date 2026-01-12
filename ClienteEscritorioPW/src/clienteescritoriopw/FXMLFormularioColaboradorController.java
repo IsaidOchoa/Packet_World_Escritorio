@@ -114,7 +114,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
         
         configurarTextFieldConCaracteres(tfNoPersonal, 10, "[a-zA-Z0-9_-]");
         
-        configurarTextFieldConCaracteres(tfCurp, 18, "[a-zA-Z0-9]");
+        configurarTextFieldConCaracteres(tfCurp, 18, "[A-Z0-9]");
         
         configurarTextFieldLongitudMaxima(tfCorreo, 30);
 

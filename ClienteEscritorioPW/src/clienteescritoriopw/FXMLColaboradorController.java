@@ -190,22 +190,36 @@ public class FXMLColaboradorController implements Initializable {
     @FXML
     private void clicEliminar(ActionEvent event) {
         Colaborador seleccionado = tvColaboradores.getSelectionModel().getSelectedItem();
-        if(seleccionado != null){
+        if (seleccionado != null) {
+            if (colaboradorSesion != null && 
+                seleccionado.getIdColaborador() == colaboradorSesion.getIdColaborador()) {
+                Utilidades.mostrarAlertaSimple(
+                    "Acción no permitida", 
+                    "No puedes eliminarte a ti mismo.", 
+                    Alert.AlertType.WARNING
+                );
+                return;
+            }
             boolean confirmar = Utilidades.mostrarAlertaConfirmacion(
-                    "Eliminar Colaborador", 
-                    "¿Estás seguro de eliminar a " + seleccionado.getNombre() + "?"
+                "Eliminar Colaborador", 
+                "¿Estás seguro de eliminar a " + seleccionado.getNombre() + "?"
             );
             
-            if(confirmar){
-                Respuesta respuesta = ColaboradorImp.eliminar(seleccionado.getIdColaborador());
-                if(!respuesta.isError()){
+            if (confirmar) {
+                // Llama al método que ahora recibe dos IDs
+                Respuesta respuesta = ColaboradorImp.eliminar(
+                    seleccionado.getIdColaborador(), 
+                    colaboradorSesion.getIdColaborador()
+                );
+                
+                if (!respuesta.isError()) {
                     Utilidades.mostrarAlertaSimple("Éxito", respuesta.getMensaje(), Alert.AlertType.INFORMATION);
                     cargarDatosTabla();
-                }else{
+                } else {
                     Utilidades.mostrarAlertaSimple("Error", respuesta.getMensaje(), Alert.AlertType.ERROR);
                 }
             }
-        }else{
+        } else {
             Utilidades.mostrarAlertaSimple("Selección requerida", "Selecciona un colaborador para eliminar.", Alert.AlertType.WARNING);
         }
     }
