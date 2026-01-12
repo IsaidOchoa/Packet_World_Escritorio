@@ -6,6 +6,7 @@ import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Envio;
 import clienteescritoriopw.pojo.Paquete;
 import clienteescritoriopw.utilidad.Utilidades;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -13,7 +14,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,6 +26,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class FXMLDetalleEnvioController implements Initializable {
@@ -331,5 +336,47 @@ public class FXMLDetalleEnvioController implements Initializable {
     @FXML
     private void clicRegresar(ActionEvent event) {
         ((Stage) lbGuia.getScene().getWindow()).close();
+    }
+    
+    @FXML
+    private void btnEditarPaquete(ActionEvent event) {
+        Paquete paqueteSeleccionado = tvPaquetes.getSelectionModel().getSelectedItem();
+
+        if (paqueteSeleccionado == null) {
+            Utilidades.mostrarAlertaSimple("Selección requerida", 
+                "Debe seleccionar un paquete de la tabla para editarlo.", 
+                Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Verificar restricciones por estatus
+        if (!btnAgregarPaquete.isDisable()) { // Si se pueden agregar, se pueden editar
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/clienteescritoriopw/FXMLFormularioPaquete.fxml"));
+                Parent root = loader.load();
+
+                FXMLFormularioPaqueteController controller = loader.getController();
+                // Pasamos el paquete seleccionado al controlador de edición
+                controller.inicializarPaquete(paqueteSeleccionado);
+                controller.setNumeroGuia(envioSeleccionado.getNumeroGuia()); 
+                Stage escenario = new Stage();
+                escenario.initModality(Modality.APPLICATION_MODAL);
+                escenario.setScene(new Scene(root));
+                escenario.setTitle("Editar Paquete");
+                escenario.showAndWait();
+
+                // Recargar la lista de paquetes después de la edición
+                cargarPaquetes();
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                Utilidades.mostrarAlertaSimple("Error", "No se pudo abrir el formulario de edición.", Alert.AlertType.ERROR);
+            }
+        } else {
+            Utilidades.mostrarAlertaSimple("Acción no permitida", 
+                "No se pueden modificar paquetes en envíos con estatus '" + 
+                envioSeleccionado.getEstatus() + "'.", 
+                Alert.AlertType.WARNING);
+        }
     }
 }

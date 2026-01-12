@@ -17,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 
 public class FXMLInicioSesionController implements Initializable {
@@ -30,7 +31,18 @@ public class FXMLInicioSesionController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-    }    
+        tfNoPersonal.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+
+            if (newText.length() > 20) {
+                return null;
+            }
+            if (!newText.matches("^[a-zA-Z0-9-]*$")) {
+                return null;
+            }
+            return change;
+        }));
+    }       
 
     @FXML
     private void clicIngresar(ActionEvent event) {
@@ -59,7 +71,6 @@ public class FXMLInicioSesionController implements Initializable {
         }
 
         // C) Validar Formato Seguro (Regex)
-        // Solo permite Mayúsculas (A-Z), Números (0-9) y Guiones (-)
         if (!noPersonal.matches("^[A-Z0-9-]+$")) {
             Utilidades.mostrarAlertaSimple(
                 "Formato inválido", 
@@ -70,9 +81,7 @@ public class FXMLInicioSesionController implements Initializable {
         }
         verificarCredenciales(noPersonal, password);
     }
-      
-    
-    
+     
     private void verificarCredenciales(String noPersonal, String password){
         // Llamamos a la implementación (Lógica de negocio)
         RSAutenticacionColaborador respuesta = InicioSesionImp.validarLogin(noPersonal, password);

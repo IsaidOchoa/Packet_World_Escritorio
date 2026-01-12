@@ -46,6 +46,7 @@ public class FXMLFormularioEnvioController implements Initializable {
     @FXML private Button btnAccion; 
     @FXML private ComboBox<Colaborador> cbConductor;
     @FXML private Button btnDesasignarEnvio;
+    @FXML private Button btnBuscarCP;
 
     private Colaborador colaboradorSesion;
     private Envio envioEdicion; 
@@ -69,6 +70,7 @@ public class FXMLFormularioEnvioController implements Initializable {
         configurarListeners();
         generarNumeroGuia(); 
         
+        // Inicialmente, el botón Liberar debe estar deshabilitado
         btnDesasignarEnvio.setDisable(true);
     }
 
@@ -159,12 +161,26 @@ public class FXMLFormularioEnvioController implements Initializable {
         if(respuesta != null) listaEstados.addAll(respuesta);
     }
 
+    // --- NUEVO MÉTODO PARA BLOQUEAR/DESBLOQUEAR TODO EL FORMULARIO ---
+    private void bloquearFormulario(boolean bloqueado) {
+        cbCliente.setDisable(bloqueado);
+        cbSucursalOrigen.setDisable(bloqueado);
+        tfNombreDestinatario.setDisable(bloqueado);
+        tfCalle.setDisable(bloqueado);
+        tfNumero.setDisable(bloqueado);
+        tfCP.setDisable(bloqueado);
+        cbEstado.setDisable(bloqueado);
+        cbMunicipio.setDisable(bloqueado);
+        cbColonia.setDisable(bloqueado);
+        cbConductor.setDisable(bloqueado);
+        btnDesasignarEnvio.setDisable(bloqueado);
+        btnAccion.setDisable(bloqueado);
+        btnBuscarCP.setDisable(bloqueado);
+    }
+
     public void inicializarEnvioEdicion(Envio envio) {
         this.envioEdicion = envio;
         this.esEdicion = true;
-        
-        if(lbTitulo != null) lbTitulo.setText("Editar Envío");
-        if(btnAccion != null) btnAccion.setText("Actualizar Envío");
         
         tfNumeroGuia.setText(envio.getNumeroGuia());
         tfNumeroGuia.setDisable(true); 
@@ -174,6 +190,7 @@ public class FXMLFormularioEnvioController implements Initializable {
         tfNumero.setText(envio.getNumeroDestino());
         tfCP.setText(envio.getCodigoPostalDestino());
 
+        // Seleccionar Cliente
         if(!listaClientes.isEmpty()){
             for(Cliente c : listaClientes){
                 if(c.getIdCliente() == envio.getIdCliente()){
@@ -182,31 +199,55 @@ public class FXMLFormularioEnvioController implements Initializable {
                 }
             }
         }
+        // Seleccionar Sucursal
         if(!listaSucursales.isEmpty()){
             for(Sucursal s : listaSucursales){
                 if(s.getIdSucursal() == envio.getIdSucursalOrigen()){
                     cbSucursalOrigen.getSelectionModel().select(s);
-                    // Cargar conductores de esta sucursal
-                    cargarConductoresPorSucursal(s.getIdSucursal());
                     break;
                 }
             }
         }
+        // Recuperar Dirección
         if(envio.getCodigoPostalDestino() != null){
              recuperarDireccionPorCP(envio.getCodigoPostalDestino(), envio.getIdColoniaDestino());
         }
         
-        // --- LÓGICA PARA EL BOTÓN LIBERAR ---
-
+        // --- LÓGICA PRINCIPAL DE BLOQUEO ---
         String estatus = envio.getEstatus();
-        boolean esEditable = !"Entregado".equalsIgnoreCase(estatus) && !"Cancelado".equalsIgnoreCase(estatus);
-        btnDesasignarEnvio.setDisable(!esEditable || envio.getIdConductor() == null || envio.getIdConductor() <= 0);
+        boolean esFinalizado = "Entregado".equalsIgnoreCase(estatus) || "Cancelado".equalsIgnoreCase(estatus);
+        
+        if (esFinalizado) {
+            // Modo SOLO LECTURA
+            if(lbTitulo != null) lbTitulo.setText("Detalles del Envío (Solo Lectura)");
+            bloquearFormulario(true);
+        } else {
+            // Modo EDICIÓN
+            if(lbTitulo != null) lbTitulo.setText("Editar Envío");
+            if(btnAccion != null) btnAccion.setText("Actualizar Envío");
+            
+            // Cargar conductores de la sucursal de origen
+            if(!listaSucursales.isEmpty()){
+                for(Sucursal s : listaSucursales){
+                    if(s.getIdSucursal() == envio.getIdSucursalOrigen()){
+                        cargarConductoresPorSucursal(s.getIdSucursal());
+                        break;
+                    }
+                }
+            }
+            
+            // Configurar el botón Liberar
+            btnDesasignarEnvio.setDisable(
+                envio.getIdConductor() == null || 
+                envio.getIdConductor() <= 0
+            );
 
-        if (envio.getIdConductor() != null && envio.getIdConductor() > 0 && !listaConductores.isEmpty()) {
-            for (Colaborador c : listaConductores) {
-                if (c.getIdColaborador() == envio.getIdConductor()) {
-                    cbConductor.getSelectionModel().select(c);
-                    break;
+            if (envio.getIdConductor() != null && envio.getIdConductor() > 0 && !listaConductores.isEmpty()) {
+                for (Colaborador c : listaConductores) {
+                    if (c.getIdColaborador() == envio.getIdConductor()) {
+                        cbConductor.getSelectionModel().select(c);
+                        break;
+                    }
                 }
             }
         }
@@ -293,7 +334,6 @@ public class FXMLFormularioEnvioController implements Initializable {
         cbSucursalOrigen.valueProperty().addListener((obs, viejo, nuevo) -> {
             if (nuevo != null) {
                 cargarConductoresPorSucursal(nuevo.getIdSucursal());
-                // Al cambiar la sucursal, limpiamos cualquier selección de conductor anterior
                 cbConductor.getSelectionModel().clearSelection();
                 btnDesasignarEnvio.setDisable(true);
             } else {
@@ -302,9 +342,7 @@ public class FXMLFormularioEnvioController implements Initializable {
             }
         });
 
-        // --- LISTENER PARA EL COMBO DE CONDUCTOR ---
         cbConductor.valueProperty().addListener((obs, viejo, nuevo) -> {
-            // Habilitar el botón Liberar solo si hay un conductor seleccionado y no es un nuevo envío
             boolean puedeLiberar = !esEdicion ? false : (nuevo != null);
             btnDesasignarEnvio.setDisable(!puedeLiberar);
         });
@@ -322,7 +360,6 @@ public class FXMLFormularioEnvioController implements Initializable {
         if (resultados != null) listaColonias.addAll(resultados);
     }
     
-    // --- NUEVO MÉTODO PARA CARGAR CONDUCTORES POR SUCURSAL ---
     private void cargarConductoresPorSucursal(int idSucursal) {
         listaConductores.clear();
         List<Colaborador> conductores = ColaboradorImp.obtenerConductoresPorSucursal(idSucursal);
@@ -344,7 +381,6 @@ public class FXMLFormularioEnvioController implements Initializable {
             for (Sucursal s : listaSucursales) {
                 if (s.getIdSucursal() == colaboradorSesion.getIdSucursal()) {
                     cbSucursalOrigen.getSelectionModel().select(s);
-                    // Cargar los conductores de la sucursal del usuario
                     cargarConductoresPorSucursal(s.getIdSucursal());
                     break;
                 }
@@ -366,10 +402,11 @@ public class FXMLFormularioEnvioController implements Initializable {
             envio.setIdColoniaDestino(cbColonia.getValue().getIdColonia());
             envio.setIdSucursalOrigen(cbSucursalOrigen.getValue().getIdSucursal());
 
+            // --- USO CORRECTO DE NULL ---
             if (cbConductor.getValue() != null) {
                 envio.setIdConductor(cbConductor.getValue().getIdColaborador());
             } else {
-                envio.setIdConductor(0); 
+                envio.setIdConductor(null); 
             }
 
             if (!esEdicion) {

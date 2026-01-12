@@ -100,4 +100,21 @@ public class PaqueteImp {
         }
         return msj;
     }
+    
+    public static Respuesta editar(Paquete paquete) {
+        Respuesta msj = new Respuesta();
+        String url = Constantes.URL_WS + "paquete/editar";
+        Gson gson = new Gson();
+        String parametros = gson.toJson(paquete);
+
+        RespuestaHTTP respuesta = ConexionAPI.peticionBody(url, "PUT", parametros, "application/json");
+
+        if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            msj = gson.fromJson(respuesta.getContenido(), Respuesta.class);
+        } else {
+            msj.setError(true);
+            msj.setMensaje("Error al actualizar el paquete: " + respuesta.getCodigo());
+        }
+        return msj;
+    }
 }
