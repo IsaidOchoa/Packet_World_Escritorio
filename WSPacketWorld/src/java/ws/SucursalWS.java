@@ -25,6 +25,13 @@ public class SucursalWS {
         return SucursalImp.obtenerTodas();
     }
     
+    @Path("Obtener-activas")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Sucursal> obtenerActivas() {
+        return SucursalImp.obtenerActivas();
+    }
+    
     @POST
     @Path("registrar")
     @Produces(MediaType.APPLICATION_JSON)

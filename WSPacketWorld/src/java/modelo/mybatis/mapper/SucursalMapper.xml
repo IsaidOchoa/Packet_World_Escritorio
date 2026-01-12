@@ -22,6 +22,27 @@
         LEFT JOIN municipios m ON c.idMunicipio = m.id
         LEFT JOIN estados e ON m.idEstado = e.id
     </select>
+    
+    <select id="obtenerActivas" resultType="pojo.Sucursal">
+        SELECT 
+            s.idSucursal,
+            s.nombre,
+            s.calle,
+            s.numero,
+            s.idColonia,
+            s.estatus,
+            IFNULL(c.nombre, '') AS nombreColonia,
+            IFNULL(c.codigo_postal, '') AS codigoPostal,
+            IFNULL(m.nombre, '') AS municipio,
+            IFNULL(e.nombre, '') AS estado,
+            c.idMunicipio,
+            m.idEstado
+        FROM Sucursal s
+        LEFT JOIN colonias c ON s.idColonia = c.id
+        LEFT JOIN municipios m ON c.idMunicipio = m.id
+        LEFT JOIN estados e ON m.idEstado = e.id
+        WHERE s.estatus = 1
+    </select>
 
     <select id="obtenerPorId" resultType="pojo.Sucursal" parameterType="int">
         SELECT 

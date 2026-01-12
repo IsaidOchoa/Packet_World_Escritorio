@@ -58,7 +58,6 @@ public class FXMLFormularioColaboradorController implements Initializable {
     private ObservableList<Rol> listaRoles;
     private ObservableList<Sucursal> listaSucursales;
     
-    // Patrón para validar correo electrónico
     private static final Pattern EMAIL_PATTERN = 
         Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
 
@@ -152,7 +151,7 @@ public class FXMLFormularioColaboradorController implements Initializable {
         if (rolesWS != null) listaRoles.addAll(rolesWS);
         cbRol.setItems(listaRoles);
 
-        List<Sucursal> sucursalesWS = SucursalImp.obtenerSucursales();
+        List<Sucursal> sucursalesWS = SucursalImp.obtenerSucursalesActivas();
         if (sucursalesWS != null) listaSucursales.addAll(sucursalesWS);
         cbSucursal.setItems(listaSucursales);
 

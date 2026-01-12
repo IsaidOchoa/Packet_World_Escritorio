@@ -24,6 +24,23 @@ public class SucursalImp {
         return lista;
     }
     
+    // --- NUEVO MÉTODO: Obtener solo sucursales activas ---
+    public static List<Sucursal> obtenerActivas() {
+        List<Sucursal> lista = null;
+        SqlSession conexion = MyBatisUtil.getSession();
+        
+        if (conexion != null) {
+            try {
+                lista = conexion.selectList("sucursal.obtenerActivas");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conexion.close();
+            }
+        }
+        return lista;
+    }
+    
      public static Sucursal obtenerSucursal(int idSucursal) {
     SqlSession conexion = MyBatisUtil.getSession();
     if(conexion != null){
@@ -114,5 +131,4 @@ public class SucursalImp {
         }
         return resp;
     }
-}   
-
+}

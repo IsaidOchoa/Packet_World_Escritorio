@@ -152,7 +152,7 @@ public class FXMLFormularioEnvioController implements Initializable {
     }
     
     private void cargarSucursales() {
-        List<Sucursal> respuesta = SucursalImp.obtenerSucursales();
+        List<Sucursal> respuesta = SucursalImp.obtenerSucursalesActivas();
         if(respuesta != null) listaSucursales.addAll(respuesta);
     }
     
