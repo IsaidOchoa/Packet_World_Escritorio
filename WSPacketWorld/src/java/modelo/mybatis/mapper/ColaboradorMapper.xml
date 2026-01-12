@@ -72,7 +72,8 @@
             apellidoMaterno = #{apellidoMaterno},
             curp = #{curp},
             correo = #{correo},
-            numeroLicencia = #{numeroLicencia}
+            numeroLicencia = #{numeroLicencia},
+            idSucursal = #{idSucursal}
         WHERE idColaborador = #{idColaborador}
     </update>
 
@@ -90,6 +91,10 @@
 
     <delete id="eliminar" parameterType="int">
         DELETE FROM Colaborador WHERE idColaborador = #{idColaborador}
+    </delete>
+    
+    <delete id="eliminarHistorialPorColaborador" parameterType="int">
+        DELETE FROM historialenvio WHERE idColaborador = #{idColaborador}
     </delete>
 
     <select id="buscarPorNoPersonal" resultType="pojo.Colaborador" parameterType="string">
