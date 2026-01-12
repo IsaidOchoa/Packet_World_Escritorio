@@ -27,6 +27,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -62,16 +63,56 @@ public class FXMLFormularioEnvioController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         inicializarListas();
-        
+
         cargarClientes();     
         cargarSucursales();   
         cargarEstados();
-        
+
         configurarListeners();
+        configurarValidacionesEnTiempoReal();
         generarNumeroGuia(); 
-        
-        // Inicialmente, el botón Liberar debe estar deshabilitado
+
         btnDesasignarEnvio.setDisable(true);
+    }
+
+    private void configurarValidacionesEnTiempoReal() {
+        tfNombreDestinatario.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() <= 60 && newText.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]*")) {
+                return change;
+            }
+            return null;
+        }));
+
+        tfCalle.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() <= 60 && newText.matches("[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s\\.]*")) {
+                return change;
+            }
+            return null;
+        }));
+
+        tfCP.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+
+            if (newText.length() > 5 || !newText.matches("[0-9]*")) {
+                return null;
+            }
+
+            if ("00000".equals(newText)) {
+                return null;
+            }
+
+            return change;
+        }));
+
+        tfNumero.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() <= 6 && newText.matches("[a-zA-Z0-9-]*")) {
+                return change;
+            }
+            return null;
+        }));
     }
 
     private void inicializarListas() {

@@ -33,7 +33,6 @@ public class FXMLInicioSesionController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         tfNoPersonal.setTextFormatter(new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
-
             if (newText.length() > 20) {
                 return null;
             }
@@ -42,7 +41,15 @@ public class FXMLInicioSesionController implements Initializable {
             }
             return change;
         }));
-    }       
+
+        pfPassword.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.contains(" ")) {
+                return null;
+            }
+            return change;
+        }));
+    }             
 
     @FXML
     private void clicIngresar(ActionEvent event) {
