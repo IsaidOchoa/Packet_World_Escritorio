@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dominio;
 
 import java.util.List;
@@ -12,13 +7,8 @@ import pojo.EstadoEnvio;
 import pojo.Rol;
 import pojo.TipoUnidad;
 
-/**
- *
- * @author pepeg
- */
 public class CatalogoImp {
  
-  
     public static List<Rol> obtenerRoles(){
         List<Rol> lista = null;
         SqlSession conexionBD = MyBatisUtil.getSession();
@@ -63,4 +53,5 @@ public class CatalogoImp {
         }
         return lista;
     }
+    
 }

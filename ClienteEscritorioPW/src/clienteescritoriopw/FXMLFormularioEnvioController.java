@@ -1,10 +1,10 @@
 package clienteescritoriopw;
 
 import clienteescritoriopw.dominio.ClienteImp;
+import clienteescritoriopw.dominio.ColaboradorImp;
 import clienteescritoriopw.dominio.DireccionImp;
 import clienteescritoriopw.dominio.EnvioImp;
 import clienteescritoriopw.dominio.SucursalImp;
-import clienteescritoriopw.dominio.UnidadImp;
 import clienteescritoriopw.dto.Respuesta;
 import clienteescritoriopw.pojo.Cliente;
 import clienteescritoriopw.pojo.Colaborador;
@@ -13,7 +13,6 @@ import clienteescritoriopw.pojo.Envio;
 import clienteescritoriopw.pojo.Estado;
 import clienteescritoriopw.pojo.Municipio;
 import clienteescritoriopw.pojo.Sucursal;
-import clienteescritoriopw.pojo.Unidad;
 import clienteescritoriopw.utilidad.Utilidades;
 import java.net.URL;
 import java.util.List;
@@ -45,8 +44,8 @@ public class FXMLFormularioEnvioController implements Initializable {
     @FXML private TextField tfCalle;
     @FXML private TextField tfNumero;
     @FXML private Button btnAccion; 
-    @FXML private ComboBox<Unidad> cbUnidad; // NUEVO
-
+    @FXML private ComboBox<Colaborador> cbConductor;
+    @FXML private Button btnDesasignarEnvio;
 
     private Colaborador colaboradorSesion;
     private Envio envioEdicion; 
@@ -57,8 +56,7 @@ public class FXMLFormularioEnvioController implements Initializable {
     private ObservableList<Estado> listaEstados;
     private ObservableList<Municipio> listaMunicipios;
     private ObservableList<Colonia> listaColonias;
-    private ObservableList<Unidad> listaUnidades;
-
+    private ObservableList<Colaborador> listaConductores;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -67,10 +65,11 @@ public class FXMLFormularioEnvioController implements Initializable {
         cargarClientes();     
         cargarSucursales();   
         cargarEstados();
-        cargarUnidades();
         
         configurarListeners();
         generarNumeroGuia(); 
+        
+        btnDesasignarEnvio.setDisable(true);
     }
 
     private void inicializarListas() {
@@ -89,10 +88,12 @@ public class FXMLFormularioEnvioController implements Initializable {
         listaColonias = FXCollections.observableArrayList();
         cbColonia.setItems(listaColonias);
         
+        listaConductores = FXCollections.observableArrayList();
+        cbConductor.setItems(listaConductores);
+        
         configurarConvertidores();
     }
 
-    // Configura cómo se ven los objetos en el ComboBox
     private void configurarConvertidores() {
         cbCliente.setConverter(new StringConverter<Cliente>() {
             @Override
@@ -130,6 +131,15 @@ public class FXMLFormularioEnvioController implements Initializable {
             @Override
             public Colonia fromString(String string) { return null; }
         });
+        
+        cbConductor.setConverter(new StringConverter<Colaborador>() {
+            @Override
+            public String toString(Colaborador c) {
+                return (c == null) ? null : c.getNombre() + " " + c.getApellidoPaterno() + " " + c.getApellidoMaterno();
+            }
+            @Override
+            public Colaborador fromString(String string) { return null; }
+        });
     }
 
     private void cargarClientes() {
@@ -164,7 +174,6 @@ public class FXMLFormularioEnvioController implements Initializable {
         tfNumero.setText(envio.getNumeroDestino());
         tfCP.setText(envio.getCodigoPostalDestino());
 
-        // Seleccionar Cliente
         if(!listaClientes.isEmpty()){
             for(Cliente c : listaClientes){
                 if(c.getIdCliente() == envio.getIdCliente()){
@@ -173,27 +182,33 @@ public class FXMLFormularioEnvioController implements Initializable {
                 }
             }
         }
-        // Seleccionar Sucursal
         if(!listaSucursales.isEmpty()){
             for(Sucursal s : listaSucursales){
                 if(s.getIdSucursal() == envio.getIdSucursalOrigen()){
                     cbSucursalOrigen.getSelectionModel().select(s);
+                    // Cargar conductores de esta sucursal
+                    cargarConductoresPorSucursal(s.getIdSucursal());
                     break;
                 }
             }
         }
-        // Recuperar Dirección
         if(envio.getCodigoPostalDestino() != null){
              recuperarDireccionPorCP(envio.getCodigoPostalDestino(), envio.getIdColoniaDestino());
         }
-       // Recuperar Unidad
-        if (envio.getIdUnidad() != null && envio.getIdUnidad() > 0) {
-        for (Unidad u : cbUnidad.getItems()) {
-            if (u.getIdUnidad() == envio.getIdUnidad().intValue()) {
-                cbUnidad.getSelectionModel().select(u);
-                break;
+        
+        // --- LÓGICA PARA EL BOTÓN LIBERAR ---
+
+        String estatus = envio.getEstatus();
+        boolean esEditable = !"Entregado".equalsIgnoreCase(estatus) && !"Cancelado".equalsIgnoreCase(estatus);
+        btnDesasignarEnvio.setDisable(!esEditable || envio.getIdConductor() == null || envio.getIdConductor() <= 0);
+
+        if (envio.getIdConductor() != null && envio.getIdConductor() > 0 && !listaConductores.isEmpty()) {
+            for (Colaborador c : listaConductores) {
+                if (c.getIdColaborador() == envio.getIdConductor()) {
+                    cbConductor.getSelectionModel().select(c);
+                    break;
+                }
             }
-        }
         }
     }
     
@@ -274,6 +289,25 @@ public class FXMLFormularioEnvioController implements Initializable {
                 tfCP.setText(String.valueOf(nuevo.getCodigoPostal()));
             }
         });
+        
+        cbSucursalOrigen.valueProperty().addListener((obs, viejo, nuevo) -> {
+            if (nuevo != null) {
+                cargarConductoresPorSucursal(nuevo.getIdSucursal());
+                // Al cambiar la sucursal, limpiamos cualquier selección de conductor anterior
+                cbConductor.getSelectionModel().clearSelection();
+                btnDesasignarEnvio.setDisable(true);
+            } else {
+                listaConductores.clear();
+                btnDesasignarEnvio.setDisable(true);
+            }
+        });
+
+        // --- LISTENER PARA EL COMBO DE CONDUCTOR ---
+        cbConductor.valueProperty().addListener((obs, viejo, nuevo) -> {
+            // Habilitar el botón Liberar solo si hay un conductor seleccionado y no es un nuevo envío
+            boolean puedeLiberar = !esEdicion ? false : (nuevo != null);
+            btnDesasignarEnvio.setDisable(!puedeLiberar);
+        });
     }
     
     private void cargarMunicipios(int idEstado) {
@@ -286,6 +320,15 @@ public class FXMLFormularioEnvioController implements Initializable {
         listaColonias.clear();
         List<Colonia> resultados = DireccionImp.obtenerColoniasPorMunicipio(idMunicipio);
         if (resultados != null) listaColonias.addAll(resultados);
+    }
+    
+    // --- NUEVO MÉTODO PARA CARGAR CONDUCTORES POR SUCURSAL ---
+    private void cargarConductoresPorSucursal(int idSucursal) {
+        listaConductores.clear();
+        List<Colaborador> conductores = ColaboradorImp.obtenerConductoresPorSucursal(idSucursal);
+        if (conductores != null) {
+            listaConductores.addAll(conductores);
+        }
     }
     
     private void generarNumeroGuia() {
@@ -301,6 +344,8 @@ public class FXMLFormularioEnvioController implements Initializable {
             for (Sucursal s : listaSucursales) {
                 if (s.getIdSucursal() == colaboradorSesion.getIdSucursal()) {
                     cbSucursalOrigen.getSelectionModel().select(s);
+                    // Cargar los conductores de la sucursal del usuario
+                    cargarConductoresPorSucursal(s.getIdSucursal());
                     break;
                 }
             }
@@ -321,11 +366,10 @@ public class FXMLFormularioEnvioController implements Initializable {
             envio.setIdColoniaDestino(cbColonia.getValue().getIdColonia());
             envio.setIdSucursalOrigen(cbSucursalOrigen.getValue().getIdSucursal());
 
-            if (cbUnidad.getValue() != null) {
-                envio.setIdUnidad(cbUnidad.getValue().getIdUnidad());
+            if (cbConductor.getValue() != null) {
+                envio.setIdConductor(cbConductor.getValue().getIdColaborador());
             } else {
-                
-                envio.setIdUnidad(null); 
+                envio.setIdConductor(0); 
             }
 
             if (!esEdicion) {
@@ -389,24 +433,21 @@ public class FXMLFormularioEnvioController implements Initializable {
             return false;
         }
         return true;
-    
     }
     
-    private void cargarUnidades() {
-        listaUnidades = FXCollections.observableArrayList();
-        List<Unidad> lista = UnidadImp.obtenerUnidades(); 
-        if (lista != null) {
-            listaUnidades.addAll(lista);
-            cbUnidad.setItems(listaUnidades);
-            
-            cbUnidad.setConverter(new StringConverter<Unidad>() {
-                @Override
-                public String toString(Unidad u) {
-                    return (u != null) ? u.getMarca() + " " + u.getModelo() + " (" + u.getAnio() + ")" : null;
-                }
-                @Override
-                public Unidad fromString(String string) { return null; }
-            });
+    @FXML
+    private void btnDesasignarEnvio(ActionEvent event) {
+        Colaborador conductorSeleccionado = cbConductor.getValue();
+        if (conductorSeleccionado == null) return;
+
+        String mensajeConfirmacion = String.format(
+            "¿Estás seguro de que deseas liberar este envío del conductor %s?\n\nEl envío quedará sin asignar.",
+            conductorSeleccionado.getNombre() + " " + conductorSeleccionado.getApellidoPaterno()
+        );
+
+        boolean confirmado = Utilidades.mostrarAlertaConfirmacion("Liberar Envío", mensajeConfirmacion);
+        if (confirmado) {
+            cbConductor.getSelectionModel().clearSelection();
         }
     }
 }

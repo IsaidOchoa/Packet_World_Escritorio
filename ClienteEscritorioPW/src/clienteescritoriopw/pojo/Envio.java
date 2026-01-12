@@ -38,7 +38,7 @@ public class Envio {
     // Unidad
     private Integer idUnidad;
     private String infoUnidad; 
-    private int idConductor;
+    private Integer idConductor;
     private String nombreConductor;
     
     // Estatus
@@ -48,7 +48,7 @@ public class Envio {
     public Envio() {
     }
 
-    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, double costoBase, int cantidadPaquetes, List<Paquete> paquetes, int idCliente, String nombreCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, Integer idUnidad, String infoUnidad, int idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
+    public Envio(Integer idEnvio, String numeroGuia, double costo, double peso, double costoBase, int cantidadPaquetes, List<Paquete> paquetes, int idCliente, String nombreCliente, int idSucursalOrigen, String nombreSucursalOrigen, int idColoniaDestino, String calleDestino, String numeroDestino, String nombreDestinatario, String nombreColonia, String municipio, String estado, String codigoPostalDestino, Integer idUnidad, String infoUnidad, Integer idConductor, String nombreConductor, Integer idEstadoActual, String estatus) {
         this.idEnvio = idEnvio;
         this.numeroGuia = numeroGuia;
         this.costo = costo;
@@ -244,11 +244,11 @@ public class Envio {
         this.infoUnidad = infoUnidad;
     }
 
-    public int getIdConductor() {
+    public Integer getIdConductor() {
         return idConductor;
     }
 
-    public void setIdConductor(int idConductor) {
+    public void setIdConductor(Integer idConductor) {
         this.idConductor = idConductor;
     }
 

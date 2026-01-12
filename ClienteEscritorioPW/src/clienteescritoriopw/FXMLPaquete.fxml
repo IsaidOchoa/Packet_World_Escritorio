@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPaqueteController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clienteescritoriopw.FXMLPaqueteController">
    <children>
       <Pane prefHeight="70.0" prefWidth="900.0" style="-fx-background-color: #1A3B5C;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -35,8 +35,8 @@
       <TableView fx:id="tvPaquetes" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="32.0" AnchorPane.topAnchor="140.0">
         <columns>
           <!-- CORREGIDOS: IDs que coinciden con el controlador -->
-          <TableColumn fx:id="colIdEnvio" prefWidth="100.0" text="ID Envío" />
-          <TableColumn fx:id="colIdPaquete" prefWidth="100.0" text="ID Paquete" />
+          <TableColumn fx:id="colIdEnvio" prefWidth="143.99999237060547" text="ID Envío" />
+          <TableColumn fx:id="colIdPaquete" prefWidth="67.19998168945312" text="ID Paquete" />
           <TableColumn fx:id="colDescripcion" prefWidth="250.0" text="Descripción" />
           <TableColumn fx:id="colPeso" prefWidth="80.0" text="Peso (kg)" />
           <TableColumn fx:id="colAlto" prefWidth="80.0" text="Alto (cm)" />

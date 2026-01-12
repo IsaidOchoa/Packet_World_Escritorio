@@ -49,23 +49,35 @@ public class EnvioImp {
     return msj;
 }
 
-    
     public static List<Envio> obtenerTodos() {
-        List<Envio> lista = new ArrayList<>();
         String url = Constantes.URL_WS + "envio/todos";
-        
+        System.out.println("URL de obtención de todos los envíos: " + url);
+
         RespuestaHTTP respuesta = ConexionAPI.peticionGET(url);
-        
+        System.out.println("Código de respuesta HTTP: " + respuesta.getCodigo());
+
         if (respuesta.getCodigo() == HttpURLConnection.HTTP_OK) {
+            String contenido = respuesta.getContenido();
+            System.out.println("Contenido JSON recibido (primeros 500 chars): " + 
+                (contenido.length() > 500 ? contenido.substring(0, 500) + "..." : contenido));
+
             Gson gson = new Gson();
             try {
                 Type tipoLista = new TypeToken<ArrayList<Envio>>(){}.getType();
-                lista = gson.fromJson(respuesta.getContenido(), tipoLista);
+                List<Envio> resultado = gson.fromJson(contenido, tipoLista);
+                System.out.println("Parseo JSON exitoso. Número de envíos: " + 
+                    (resultado != null ? resultado.size() : "null"));
+                return resultado;
             } catch (Exception e) {
+                System.err.println("ERROR al parsear el JSON:");
                 e.printStackTrace();
+                System.err.println("JSON problemático: " + contenido);
             }
+        } else {
+            System.err.println("Error HTTP: " + respuesta.getCodigo());
+            System.err.println("Contenido de error: " + respuesta.getContenido());
         }
-        return lista;
+        return new ArrayList<>();
     }
 
    
